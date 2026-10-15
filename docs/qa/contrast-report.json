@@ -1,0 +1,902 @@
+{
+  "synthetic": true,
+  "cases": [
+    {
+      "width": 390,
+      "mode": "system-light",
+      "screen": "login",
+      "tested": 18,
+      "minRatio": 4.949,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 390,
+      "mode": "system-light",
+      "screen": "feed",
+      "tested": 139,
+      "minRatio": 5.006,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": [
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > .eyebrow"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > h2"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > p"
+          ]
+        },
+        {
+          "target": [
+            ".daily-actions > button"
+          ]
+        },
+        {
+          "target": [
+            ".daily-note"
+          ]
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "mode": "system-light",
+      "screen": "post",
+      "tested": 55,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 390,
+      "mode": "system-light",
+      "screen": "calendar",
+      "tested": 102,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 390,
+      "mode": "system-light",
+      "screen": "archive",
+      "tested": 56,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 390,
+      "mode": "system-light",
+      "screen": "search",
+      "tested": 169,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": [
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > .eyebrow"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > h2"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > p"
+          ]
+        },
+        {
+          "target": [
+            ".daily-actions > button"
+          ]
+        },
+        {
+          "target": [
+            ".daily-note"
+          ]
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "mode": "system-dark",
+      "screen": "login",
+      "tested": 18,
+      "minRatio": 6.546,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 390,
+      "mode": "system-dark",
+      "screen": "feed",
+      "tested": 139,
+      "minRatio": 5.815,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": [
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > .eyebrow"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > h2"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > p"
+          ]
+        },
+        {
+          "target": [
+            ".daily-actions > button"
+          ]
+        },
+        {
+          "target": [
+            ".daily-note"
+          ]
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "mode": "system-dark",
+      "screen": "post",
+      "tested": 55,
+      "minRatio": 5.812,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 390,
+      "mode": "system-dark",
+      "screen": "calendar",
+      "tested": 102,
+      "minRatio": 5.812,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 390,
+      "mode": "system-dark",
+      "screen": "archive",
+      "tested": 56,
+      "minRatio": 6.48,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 390,
+      "mode": "system-dark",
+      "screen": "search",
+      "tested": 169,
+      "minRatio": 5.815,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": [
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > .eyebrow"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > h2"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > p"
+          ]
+        },
+        {
+          "target": [
+            ".daily-actions > button"
+          ]
+        },
+        {
+          "target": [
+            ".daily-note"
+          ]
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "mode": "manual-dark",
+      "screen": "login",
+      "tested": 18,
+      "minRatio": 6.546,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 390,
+      "mode": "manual-dark",
+      "screen": "feed",
+      "tested": 139,
+      "minRatio": 5.815,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": [
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > .eyebrow"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > h2"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > p"
+          ]
+        },
+        {
+          "target": [
+            ".daily-actions > button"
+          ]
+        },
+        {
+          "target": [
+            ".daily-note"
+          ]
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "mode": "manual-dark",
+      "screen": "post",
+      "tested": 55,
+      "minRatio": 5.812,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 390,
+      "mode": "manual-dark",
+      "screen": "calendar",
+      "tested": 102,
+      "minRatio": 5.812,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 390,
+      "mode": "manual-dark",
+      "screen": "archive",
+      "tested": 56,
+      "minRatio": 6.48,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 390,
+      "mode": "manual-dark",
+      "screen": "search",
+      "tested": 169,
+      "minRatio": 5.815,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": [
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > .eyebrow"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > h2"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > p"
+          ]
+        },
+        {
+          "target": [
+            ".daily-actions > button"
+          ]
+        },
+        {
+          "target": [
+            ".daily-note"
+          ]
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "mode": "manual-light",
+      "screen": "login",
+      "tested": 18,
+      "minRatio": 4.949,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 390,
+      "mode": "manual-light",
+      "screen": "feed",
+      "tested": 139,
+      "minRatio": 5.006,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": [
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > .eyebrow"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > h2"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > p"
+          ]
+        },
+        {
+          "target": [
+            ".daily-actions > button"
+          ]
+        },
+        {
+          "target": [
+            ".daily-note"
+          ]
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "mode": "manual-light",
+      "screen": "post",
+      "tested": 55,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 390,
+      "mode": "manual-light",
+      "screen": "calendar",
+      "tested": 102,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 390,
+      "mode": "manual-light",
+      "screen": "archive",
+      "tested": 56,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 390,
+      "mode": "manual-light",
+      "screen": "search",
+      "tested": 169,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": [
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > .eyebrow"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > h2"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > p"
+          ]
+        },
+        {
+          "target": [
+            ".daily-actions > button"
+          ]
+        },
+        {
+          "target": [
+            ".daily-note"
+          ]
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "mode": "system-light",
+      "screen": "login",
+      "tested": 20,
+      "minRatio": 4.949,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 1280,
+      "mode": "system-light",
+      "screen": "feed",
+      "tested": 155,
+      "minRatio": 4.949,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": [
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > .eyebrow"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > h2"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > p"
+          ]
+        },
+        {
+          "target": [
+            ".daily-actions > button"
+          ]
+        },
+        {
+          "target": [
+            ".daily-note"
+          ]
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "mode": "system-light",
+      "screen": "post",
+      "tested": 67,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 1280,
+      "mode": "system-light",
+      "screen": "calendar",
+      "tested": 118,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 1280,
+      "mode": "system-light",
+      "screen": "archive",
+      "tested": 70,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 1280,
+      "mode": "system-light",
+      "screen": "search",
+      "tested": 185,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": [
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > .eyebrow"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > h2"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > p"
+          ]
+        },
+        {
+          "target": [
+            ".daily-actions > button"
+          ]
+        },
+        {
+          "target": [
+            ".daily-note"
+          ]
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "mode": "system-dark",
+      "screen": "login",
+      "tested": 20,
+      "minRatio": 6.546,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 1280,
+      "mode": "system-dark",
+      "screen": "feed",
+      "tested": 155,
+      "minRatio": 5.812,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": [
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > .eyebrow"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > h2"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > p"
+          ]
+        },
+        {
+          "target": [
+            ".daily-actions > button"
+          ]
+        },
+        {
+          "target": [
+            ".daily-note"
+          ]
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "mode": "system-dark",
+      "screen": "post",
+      "tested": 67,
+      "minRatio": 5.812,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 1280,
+      "mode": "system-dark",
+      "screen": "calendar",
+      "tested": 118,
+      "minRatio": 5.812,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 1280,
+      "mode": "system-dark",
+      "screen": "archive",
+      "tested": 70,
+      "minRatio": 5.812,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 1280,
+      "mode": "system-dark",
+      "screen": "search",
+      "tested": 185,
+      "minRatio": 5.812,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": [
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > .eyebrow"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > h2"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > p"
+          ]
+        },
+        {
+          "target": [
+            ".daily-actions > button"
+          ]
+        },
+        {
+          "target": [
+            ".daily-note"
+          ]
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "mode": "manual-dark",
+      "screen": "login",
+      "tested": 20,
+      "minRatio": 6.546,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 1280,
+      "mode": "manual-dark",
+      "screen": "feed",
+      "tested": 155,
+      "minRatio": 5.812,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": [
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > .eyebrow"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > h2"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > p"
+          ]
+        },
+        {
+          "target": [
+            ".daily-actions > button"
+          ]
+        },
+        {
+          "target": [
+            ".daily-note"
+          ]
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "mode": "manual-dark",
+      "screen": "post",
+      "tested": 67,
+      "minRatio": 5.812,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 1280,
+      "mode": "manual-dark",
+      "screen": "calendar",
+      "tested": 118,
+      "minRatio": 5.812,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 1280,
+      "mode": "manual-dark",
+      "screen": "archive",
+      "tested": 70,
+      "minRatio": 5.812,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 1280,
+      "mode": "manual-dark",
+      "screen": "search",
+      "tested": 185,
+      "minRatio": 5.812,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": [
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > .eyebrow"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > h2"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > p"
+          ]
+        },
+        {
+          "target": [
+            ".daily-actions > button"
+          ]
+        },
+        {
+          "target": [
+            ".daily-note"
+          ]
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "mode": "manual-light",
+      "screen": "login",
+      "tested": 20,
+      "minRatio": 4.949,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 1280,
+      "mode": "manual-light",
+      "screen": "feed",
+      "tested": 155,
+      "minRatio": 4.949,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": [
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > .eyebrow"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > h2"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > p"
+          ]
+        },
+        {
+          "target": [
+            ".daily-actions > button"
+          ]
+        },
+        {
+          "target": [
+            ".daily-note"
+          ]
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "mode": "manual-light",
+      "screen": "post",
+      "tested": 67,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 1280,
+      "mode": "manual-light",
+      "screen": "calendar",
+      "tested": 118,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 1280,
+      "mode": "manual-light",
+      "screen": "archive",
+      "tested": 70,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 1280,
+      "mode": "manual-light",
+      "screen": "search",
+      "tested": 185,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": [
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > .eyebrow"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > h2"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > p"
+          ]
+        },
+        {
+          "target": [
+            ".daily-actions > button"
+          ]
+        },
+        {
+          "target": [
+            ".daily-note"
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

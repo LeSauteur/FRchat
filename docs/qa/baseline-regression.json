@@ -1,0 +1,56 @@
+{
+  "synthetic": true,
+  "expectedFailure": true,
+  "text": "rgb(34, 37, 42)",
+  "rootBackground": "rgb(246, 245, 242)",
+  "card": "rgb(32, 36, 43)",
+  "tested": 18,
+  "minRatio": 1.013,
+  "failures": [
+    {
+      "selector": "span.brand-dot",
+      "kind": "text",
+      "ratio": 2.886
+    },
+    {
+      "selector": "span.eyebrow",
+      "kind": "text",
+      "ratio": 2.886
+    },
+    {
+      "selector": "p",
+      "kind": "text",
+      "ratio": 1.849
+    },
+    {
+      "selector": "p",
+      "kind": "text",
+      "ratio": 1.849
+    },
+    {
+      "selector": "h2",
+      "kind": "text",
+      "ratio": 1.013
+    },
+    {
+      "selector": "label",
+      "kind": "text",
+      "ratio": 1.013
+    },
+    {
+      "selector": "label.checkbox",
+      "kind": "text",
+      "ratio": 1.013
+    },
+    {
+      "selector": "button.primary.wide",
+      "kind": "text",
+      "ratio": 2.34
+    },
+    {
+      "selector": "svg",
+      "kind": "icon",
+      "ratio": 2.34
+    }
+  ]
+}

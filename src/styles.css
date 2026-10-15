@@ -1,20 +1,82 @@
 :root {
   font-family: Inter, "Segoe UI", Arial, sans-serif;
-  color: #22252a;
-  background: #f6f5f2;
+  color: var(--text);
+  background: var(--bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   --bg: #f6f5f2;
-  --surface: #fff;
+  --surface: #ffffff;
   --text: #22252a;
   --muted: #626976;
   --line: #e4e2df;
   --soft: #eeece8;
-  --red: #d92332;
+  --red: #c61d2c;
   --navy: #162f60;
   --shadow: 0 8px 30px #23252806;
-  --category: #687583;
+  --category: var(--category-default);
+  --button-bg: #c61d2c;
+  --button-hover: #a91422;
+  --button-disabled-bg: #626976;
+  --button-disabled-text: #ffffff;
+  --on-brand: #ffffff;
+  --focus: #2862b9;
+  --accent-tint: #f9e9eb;
+  --accent-border: #e3aeb5;
+  --line-strong: #777e88;
+  --line-hover: #8a8d91;
+  --money-bg: #edf6ef;
+  --money-line: #d2e7d7;
+  --money-text: #395b42;
+  --upcoming: #285592;
+  --upcoming-bg: #edf2fa;
+  --ongoing: #146b3c;
+  --ongoing-bg: #e9f4ed;
+  --postponed: #80500a;
+  --postponed-bg: #faf1e0;
+  --important: #87500b;
+  --danger: #a51524;
+  --danger-bg: #fbe9ec;
+  --notice-bg: #fff7e8;
+  --notice-line: #ead5aa;
+  --notice-text: #805015;
+  --birthday-bg: #fff6df;
+  --birthday-line: #e7d8ae;
+  --birthday-text: #6b4c0d;
+  --error-bg: #fff0f0;
+  --error-text: #a8222d;
+  --link: #285f9f;
+  --file-icon-bg: #f0eaf8;
+  --file-icon-text: #6936a8;
+  --outside: #626976;
+  --daily-start: #142a54;
+  --daily-end: #214d96;
+  --daily-eyebrow: #c4dbff;
+  --daily-muted: #e0eaff;
+  --daily-link: #e9f1ff;
+  --daily-button-text: #173464;
+  --daily-badge-bg: #284e8c;
+  --daily-ring: #ffffff24;
+  --daily-art-bg: #ffffff05;
+  --daily-art-highlight: #ffffff12;
+  --small-shadow: #00000009;
+  --overlay-shadow: #00000022;
+  --backdrop: #141b2d99;
+  --legend-event: var(--category-developers);
+  --legend-deadline: var(--category-office-requests);
+  --category-default: #56616f;
+  --category-developers: #086c6e;
+  --category-meetings: #2b5eac;
+  --category-money: #216a41;
+  --category-council: #7342ac;
+  --category-ethics: #4f5868;
+  --category-company: #a53067;
+  --category-education: #82550c;
+  --category-reporting: #3b5e9e;
+  --category-office-requests: #7b512b;
+  --category-it: #426473;
+  --category-partners: #526532;
+  --category-security: #923737;
   color-scheme: light;
 }
 * {
@@ -22,6 +84,8 @@
 }
 body {
   margin: 0;
+  background: var(--bg);
+  color: var(--text);
 }
 button,
 input,
@@ -45,7 +109,7 @@ button {
 }
 button:disabled {
   cursor: wait;
-  opacity: 0.55;
+  opacity: 1;
 }
 a {
   color: inherit;
@@ -59,7 +123,7 @@ a:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 3px solid #4a83df;
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 button {
@@ -143,10 +207,10 @@ textarea::placeholder {
 }
 .primary {
   background: var(--red);
-  color: white;
+  color: var(--on-brand);
 }
 .primary:hover {
-  background: #bd1b29;
+  background: var(--button-hover);
 }
 .secondary {
   background: var(--surface);
@@ -270,9 +334,9 @@ textarea::placeholder {
   height: 64px;
   display: grid;
   place-items: center;
-  background: #d923320c;
+  background: var(--accent-tint);
   color: var(--red);
-  border: 1px solid #d9233216;
+  border: 1px solid var(--accent-border);
   border-radius: 18px;
   margin: 30px 0 21px;
 }
@@ -304,8 +368,8 @@ textarea::placeholder {
   line-height: 1.7;
 }
 .error {
-  background: #fff0f0;
-  color: #a8222d;
+  background: var(--error-bg);
+  color: var(--error-text);
   padding: 13px;
   font-size: 13px;
   border-radius: 10px;
@@ -357,13 +421,13 @@ textarea::placeholder {
   background: var(--bg);
 }
 .nav-link.selected {
-  background: #d923320b;
+  background: var(--accent-tint);
   color: var(--red);
 }
 .nav-count {
   margin-left: auto;
   background: var(--red);
-  color: white;
+  color: var(--on-brand);
   border-radius: 6px;
   padding: 2px 6px;
   font-size: 10px;
@@ -468,16 +532,16 @@ textarea::placeholder {
 .birthday {
   font-size: 13px;
   padding: 13px 16px;
-  border: 1px solid #e7d8ae;
+  border: 1px solid var(--birthday-line);
   border-radius: 12px;
-  background: #fff6df;
-  color: #6b4c0d;
+  background: var(--birthday-bg);
+  color: var(--birthday-text);
   margin-bottom: 20px;
 }
 .daily-task {
-  background: linear-gradient(115deg, #142a54, #214d96);
+  background: linear-gradient(115deg, var(--daily-start), var(--daily-end));
   border-radius: 17px;
-  color: white;
+  color: var(--on-brand);
   padding: 27px 30px;
   display: flex;
   position: relative;
@@ -490,7 +554,7 @@ textarea::placeholder {
 }
 .daily-task > .eyebrow,
 .daily-task .eyebrow {
-  color: #b8d1ff;
+  color: var(--daily-eyebrow);
   letter-spacing: 1.4px;
   font-size: 10px;
 }
@@ -502,7 +566,7 @@ textarea::placeholder {
 }
 .daily-task p {
   font-size: 13px;
-  color: #d6e3fb;
+  color: var(--daily-muted);
   line-height: 1.7;
 }
 .daily-actions {
@@ -513,8 +577,8 @@ textarea::placeholder {
   flex-wrap: wrap;
 }
 .daily-actions a {
-  background: white;
-  color: #173464;
+  background: var(--on-brand);
+  color: var(--daily-button-text);
   padding: 10px 13px;
   border-radius: 8px;
   font-size: 12px;
@@ -524,7 +588,7 @@ textarea::placeholder {
   gap: 10px;
 }
 .daily-actions button {
-  color: #e2edff;
+  color: var(--daily-link);
   font-size: 11px;
   text-decoration: underline;
   text-underline-offset: 4px;
@@ -534,27 +598,27 @@ textarea::placeholder {
   width: 137px;
   height: 137px;
   border-radius: 50%;
-  border: 1px solid #ffffff24;
+  border: 1px solid var(--daily-ring);
   display: grid;
   place-items: center;
   position: relative;
-  color: #fff;
+  color: var(--on-brand);
   flex-shrink: 0;
   margin-right: 12px;
-  background: #ffffff05;
+  background: var(--daily-art-bg);
 }
 .daily-art:after {
   content: "";
   position: absolute;
   inset: -29px;
-  border: 1px solid #ffffff12;
+  border: 1px solid var(--daily-art-highlight);
   border-radius: 50%;
 }
 .daily-art > span {
   position: absolute;
   right: 0;
   bottom: 0;
-  background: #4d83d7;
+  background: var(--daily-badge-bg);
   border-radius: 9px;
   font-weight: 800;
   font-size: 22px;
@@ -562,20 +626,20 @@ textarea::placeholder {
 }
 .daily-art svg {
   padding: 13px;
-  background: #ffffff12;
+  background: var(--daily-art-highlight);
   border-radius: 15px;
   transform: rotate(-9deg);
 }
 .daily-note {
   font-size: 10px;
-  color: #b8d1ff;
+  color: var(--daily-eyebrow);
   display: block;
   margin-top: 12px;
 }
 .daily-progress {
   display: block;
   font-size: 11px;
-  color: #e5eeff;
+  color: var(--daily-muted);
   margin-top: 9px;
 }
 .filters {
@@ -611,7 +675,7 @@ textarea::placeholder {
   outline: 0;
 }
 .search:focus-within {
-  outline: 2px solid #4a83df;
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
 .search button {
@@ -629,7 +693,7 @@ textarea::placeholder {
   padding: 0 14px;
 }
 .filter-button.active {
-  border-color: #aaa;
+  border-color: var(--line-strong);
   color: var(--red);
 }
 .filter-button i {
@@ -720,40 +784,40 @@ textarea::placeholder {
   color: var(--muted);
 }
 [data-category="developers"] {
-  --category: #138a8c;
+  --category: var(--category-developers);
 }
 [data-category="meetings"] {
-  --category: #3b72ca;
+  --category: var(--category-meetings);
 }
 [data-category="money"] {
-  --category: #258651;
+  --category: var(--category-money);
 }
 [data-category="council"] {
-  --category: #8653c2;
+  --category: var(--category-council);
 }
 [data-category="ethics"] {
-  --category: #576071;
+  --category: var(--category-ethics);
 }
 [data-category="company"] {
-  --category: #be4a80;
+  --category: var(--category-company);
 }
 [data-category="education"] {
-  --category: #b27624;
+  --category: var(--category-education);
 }
 [data-category="reporting"] {
-  --category: #4b6eb0;
+  --category: var(--category-reporting);
 }
 [data-category="office-requests"] {
-  --category: #9b6e3c;
+  --category: var(--category-office-requests);
 }
 [data-category="it"] {
-  --category: #577d8e;
+  --category: var(--category-it);
 }
 [data-category="partners"] {
-  --category: #667b46;
+  --category: var(--category-partners);
 }
 [data-category="security"] {
-  --category: #a14747;
+  --category: var(--category-security);
 }
 .feed-section {
   margin-top: 28px;
@@ -780,7 +844,7 @@ textarea::placeholder {
   height: 8px;
   border-radius: 50%;
   background: var(--red);
-  box-shadow: 0 0 0 4px #d923320b;
+  box-shadow: 0 0 0 4px var(--accent-tint);
 }
 .post-grid {
   display: grid;
@@ -799,7 +863,7 @@ textarea::placeholder {
   min-width: 0;
 }
 .post-card:hover {
-  border-color: #b9b5af;
+  border-color: var(--line-hover);
   transform: translateY(-2px);
 }
 .card-meta {
@@ -881,21 +945,21 @@ textarea::placeholder {
   color: var(--muted);
 }
 .status-upcoming {
-  background: #3b72ca0b;
-  color: #3263ac;
+  background: var(--upcoming-bg);
+  color: var(--upcoming);
 }
 .status-ongoing {
-  background: #25865113;
-  color: #258651;
+  background: var(--ongoing-bg);
+  color: var(--ongoing);
 }
 .status-overdue,
 .danger {
-  background: #d9233210;
-  color: #c51c2b;
+  background: var(--danger-bg);
+  color: var(--danger);
 }
 .status-postponed {
-  color: #99600e;
-  background: #c78d2312;
+  color: var(--postponed);
+  background: var(--postponed-bg);
 }
 .status-cancelled {
   text-decoration: line-through;
@@ -903,14 +967,14 @@ textarea::placeholder {
 .important-label {
   font-size: 10px;
   font-weight: 700;
-  color: #ab6412;
+  color: var(--important);
 }
 .money-card {
-  background: #edf6ef;
-  border-color: #d2e7d7;
+  background: var(--money-bg);
+  border-color: var(--money-line);
 }
 .money-card .card-excerpt {
-  color: #42644b;
+  color: var(--money-text);
 }
 .reminder-label {
   display: block;
@@ -962,9 +1026,9 @@ textarea::placeholder {
 }
 .notice {
   padding: 15px 18px;
-  border: 1px solid #ead5aa;
-  background: #fff7e8;
-  color: #875515;
+  border: 1px solid var(--notice-line);
+  background: var(--notice-bg);
+  color: var(--notice-text);
   font-size: 13px;
   line-height: 1.7;
   border-radius: 11px;
@@ -1007,7 +1071,7 @@ textarea::placeholder {
   margin-top: 4px;
 }
 .date-row a {
-  color: #3267ad;
+  color: var(--link);
   font-size: 12px;
   display: block;
   margin-top: 8px;
@@ -1033,7 +1097,7 @@ textarea::placeholder {
   color: var(--text);
 }
 .post-body a {
-  color: #356db1;
+  color: var(--link);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -1088,8 +1152,8 @@ textarea::placeholder {
   height: 38px;
   display: grid;
   place-items: center;
-  background: #8653c20c;
-  color: #8653c2;
+  background: var(--file-icon-bg);
+  color: var(--file-icon-text);
   border-radius: 9px;
   flex-shrink: 0;
 }
@@ -1181,7 +1245,7 @@ textarea::placeholder {
 .segmented button.selected {
   background: var(--surface);
   color: var(--text);
-  box-shadow: 0 2px 5px #00000009;
+  box-shadow: 0 2px 5px var(--small-shadow);
 }
 .calendar-columns {
   display: grid;
@@ -1251,17 +1315,17 @@ textarea::placeholder {
   background: var(--soft);
 }
 .day-cell.outside {
-  color: #a5a6a5;
+  color: var(--outside);
 }
 .day-cell.chosen {
   border-color: var(--red);
-  background: #d9233206;
+  background: var(--accent-tint);
   color: var(--red);
   font-weight: 700;
 }
 .day-cell.today {
   background: var(--red);
-  color: white;
+  color: var(--on-brand);
 }
 .day-dots {
   display: flex;
@@ -1277,7 +1341,7 @@ textarea::placeholder {
   border-radius: 50%;
 }
 .day-cell.today .day-dots i {
-  background: white;
+  background: var(--on-brand);
 }
 .day-cell > small {
   font-size: 7px;
@@ -1304,11 +1368,11 @@ textarea::placeholder {
 .calendar-legend i {
   width: 5px;
   height: 5px;
-  background: #138a8c;
+  background: var(--legend-event);
   border-radius: 50%;
 }
 .calendar-legend .legend-deadline {
-  background: #9b6e3c;
+  background: var(--legend-deadline);
 }
 .agenda-day > h3 {
   font-size: 11px;
@@ -1361,7 +1425,7 @@ textarea::placeholder {
 }
 .meeting-indicator {
   display: block;
-  color: #3267ad;
+  color: var(--link);
   font-size: 10px;
   margin-top: 8px;
 }
@@ -1409,7 +1473,7 @@ textarea::placeholder {
   background: var(--text);
   color: var(--surface);
   font-size: 13px;
-  box-shadow: 0 5px 30px #0002;
+  box-shadow: 0 5px 30px var(--overlay-shadow);
   z-index: 60;
   max-width: 90vw;
   text-align: center;
@@ -1418,7 +1482,7 @@ textarea::placeholder {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: #141b2d80;
+  background: var(--backdrop);
   z-index: 70;
   display: flex;
   align-items: center;
@@ -1435,7 +1499,7 @@ textarea::placeholder {
   position: relative;
   max-height: 88dvh;
   overflow: auto;
-  box-shadow: 0 25px 80px #0002;
+  box-shadow: 0 25px 80px var(--overlay-shadow);
 }
 .modal-close {
   position: absolute;
@@ -1893,63 +1957,15 @@ textarea::placeholder {
   }
 }
 
-:root {
-  --money-bg: #edf6ef;
-  --money-line: #d2e7d7;
-  --money-text: #42644b;
-  --upcoming: #3263ac;
-  --important: #ab6412;
-  --danger: #c51c2b;
-  --notice-bg: #fff7e8;
-  --notice-line: #ead5aa;
-  --notice-text: #875515;
-  --birthday-bg: #fff6df;
-  --birthday-line: #e7d8ae;
-  --birthday-text: #6b4c0d;
-  --error-bg: #fff0f0;
-  --error-text: #a8222d;
-  --link: #356db1;
-}
-.money-card {
-  background: var(--money-bg);
-  border-color: var(--money-line);
-}
-.money-card .card-excerpt {
-  color: var(--money-text);
-}
-.status-upcoming {
-  color: var(--upcoming);
-}
-.important-label {
-  color: var(--important);
-}
-.status-overdue,
-.danger {
-  color: var(--danger);
-}
-.notice {
-  background: var(--notice-bg);
-  border-color: var(--notice-line);
-  color: var(--notice-text);
-}
-.birthday {
-  background: var(--birthday-bg);
-  border-color: var(--birthday-line);
-  color: var(--birthday-text);
-}
-.error {
-  background: var(--error-bg);
-  color: var(--error-text);
-}
-.post-body a,
-.date-row a,
-.meeting-indicator {
-  color: var(--link);
-}
 .primary,
 .day-cell.today,
 .nav-count {
-  background: #d92332;
+  background: var(--button-bg);
+  color: var(--on-brand);
+}
+.primary:disabled {
+  background: var(--button-disabled-bg);
+  color: var(--button-disabled-text);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -1958,25 +1974,56 @@ textarea::placeholder {
     --surface: #20242b;
     --text: #f1f0ee;
     --muted: #b0b7c4;
-    --line: #363c45;
+    --line: #3b424e;
     --soft: #2c313a;
-    --red: #fa5963;
+    --red: #ff929b;
     --shadow: none;
+    --button-bg: #c61d2c;
+    --button-hover: #a91422;
+    --button-disabled-bg: #3b424e;
+    --button-disabled-text: #e2e6ed;
+    --focus: #a3c6ff;
+    --accent-tint: #3b262e;
+    --accent-border: #9c6673;
+    --line-strong: #a6aebc;
+    --line-hover: #8a94a4;
     --money-bg: #20352b;
-    --money-line: #36533e;
+    --money-line: #496752;
     --money-text: #b8d6c1;
-    --upcoming: #9dbdfa;
-    --important: #dfac68;
-    --danger: #ff9b9e;
+    --upcoming: #b4d0ff;
+    --upcoming-bg: #25334a;
+    --ongoing: #a5e5bf;
+    --ongoing-bg: #233d2e;
+    --postponed: #f2cf98;
+    --postponed-bg: #3a3021;
+    --important: #f0c28a;
+    --danger: #ffb6bd;
+    --danger-bg: #44262d;
     --notice-bg: #342b1e;
-    --notice-line: #645033;
-    --notice-text: #e8c88f;
+    --notice-line: #7b633f;
+    --notice-text: #f0cf91;
     --birthday-bg: #342e21;
-    --birthday-line: #625634;
-    --birthday-text: #e4cf9d;
+    --birthday-line: #7b6b45;
+    --birthday-text: #ecd5a0;
     --error-bg: #3d242a;
-    --error-text: #ffb2b7;
-    --link: #9abbfa;
+    --error-text: #ffbdc2;
+    --link: #adcfff;
+    --file-icon-bg: #342943;
+    --file-icon-text: #d9c1ff;
+    --outside: #b0b7c4;
+    --category-default: #c2ccd9;
+    --category-developers: #84d9da;
+    --category-meetings: #a6c8ff;
+    --category-money: #a3dfb7;
+    --category-council: #d3b8ff;
+    --category-ethics: #c4cede;
+    --category-company: #f6afd0;
+    --category-education: #f0cc91;
+    --category-reporting: #b7cbf6;
+    --category-office-requests: #edc29c;
+    --category-it: #b3d1e1;
+    --category-partners: #c4d8a4;
+    --category-security: #ffb4b4;
   }
 }
 :root[data-theme="dark"] {
@@ -1985,23 +2032,54 @@ textarea::placeholder {
   --surface: #20242b;
   --text: #f1f0ee;
   --muted: #b0b7c4;
-  --line: #363c45;
+  --line: #3b424e;
   --soft: #2c313a;
-  --red: #fa5963;
+  --red: #ff929b;
   --shadow: none;
+  --button-bg: #c61d2c;
+  --button-hover: #a91422;
+  --button-disabled-bg: #3b424e;
+  --button-disabled-text: #e2e6ed;
+  --focus: #a3c6ff;
+  --accent-tint: #3b262e;
+  --accent-border: #9c6673;
+  --line-strong: #a6aebc;
+  --line-hover: #8a94a4;
   --money-bg: #20352b;
-  --money-line: #36533e;
+  --money-line: #496752;
   --money-text: #b8d6c1;
-  --upcoming: #9dbdfa;
-  --important: #dfac68;
-  --danger: #ff9b9e;
+  --upcoming: #b4d0ff;
+  --upcoming-bg: #25334a;
+  --ongoing: #a5e5bf;
+  --ongoing-bg: #233d2e;
+  --postponed: #f2cf98;
+  --postponed-bg: #3a3021;
+  --important: #f0c28a;
+  --danger: #ffb6bd;
+  --danger-bg: #44262d;
   --notice-bg: #342b1e;
-  --notice-line: #645033;
-  --notice-text: #e8c88f;
+  --notice-line: #7b633f;
+  --notice-text: #f0cf91;
   --birthday-bg: #342e21;
-  --birthday-line: #625634;
-  --birthday-text: #e4cf9d;
+  --birthday-line: #7b6b45;
+  --birthday-text: #ecd5a0;
   --error-bg: #3d242a;
-  --error-text: #ffb2b7;
-  --link: #9abbfa;
+  --error-text: #ffbdc2;
+  --link: #adcfff;
+  --file-icon-bg: #342943;
+  --file-icon-text: #d9c1ff;
+  --outside: #b0b7c4;
+  --category-default: #c2ccd9;
+  --category-developers: #84d9da;
+  --category-meetings: #a6c8ff;
+  --category-money: #a3dfb7;
+  --category-council: #d3b8ff;
+  --category-ethics: #c4cede;
+  --category-company: #f6afd0;
+  --category-education: #f0cc91;
+  --category-reporting: #b7cbf6;
+  --category-office-requests: #edc29c;
+  --category-it: #b3d1e1;
+  --category-partners: #c4d8a4;
+  --category-security: #ffb4b4;
 }

@@ -8,11 +8,15 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createQaFixture, installQaRoutes } from "./qa-fixture.mjs";
 import { inspectContrast } from "./contrast-check.mjs";
+import { checkFavoritesAndReference } from "./feature-check.mjs";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const url = process.env.FRCHAT_URL ?? "http://127.0.0.1:4173/";
 const output = resolve(root, "docs/qa");
 await mkdir(output, { recursive: true });
 const fixture = await createQaFixture();
+const emptyReferenceFixture = await createQaFixture({
+  includeReferences: false,
+});
 let server;
 if (process.argv.includes("--start-server")) {
   server = spawn(
@@ -45,6 +49,7 @@ const browser = await chromium.launch({
 const matrix = [],
   errors = [];
 try {
+  await checkFavoritesAndReference(browser, url, fixture);
   for (const width of [390, 1280])
     for (const mode of [
       {
@@ -77,10 +82,18 @@ try {
         colorScheme: mode.system,
         bypassCSP: true,
       });
-      await context.addInitScript(
-        (override) => localStorage.setItem("frchat.theme.v1", override),
-        mode.override,
-      );
+      await context.addInitScript((override) => {
+        localStorage.setItem("frchat.theme.v1", override);
+        localStorage.setItem(
+          "frchat.favorites.v1",
+          JSON.stringify([
+            "qa-meetings",
+            "qa-council",
+            "qa-deleted",
+            "qa-missing",
+          ]),
+        );
+      }, mode.override);
       const page = await context.newPage();
       page.on("pageerror", (error) => errors.push(error.message));
       await installQaRoutes(page, fixture);
@@ -91,16 +104,42 @@ try {
         ["calendar", "#/calendar"],
         ["archive", "#/archive"],
         ["search", "#/feed?q=" + encodeURIComponent("тестовая публикация")],
+        ["favorites", "#/favorites"],
+        ["reference", "#/reference"],
+        ["reference-empty", "#/reference"],
       ];
       for (const [screen, hash] of scenarios) {
+        if (screen === "reference-empty") {
+          await installQaRoutes(page, emptyReferenceFixture);
+          await page.evaluate(() =>
+            localStorage.removeItem("frchat.access.v1"),
+          );
+        }
         await page.goto(url + hash, { waitUntil: "networkidle" });
+        if (screen === "reference-empty")
+          await page.reload({ waitUntil: "networkidle" });
         if (screen === "login") await page.locator("#access-code").waitFor();
         else if (screen === "feed") {
           await page.locator("#access-code").fill(fixture.code);
           await page.getByRole("button", { name: "Открыть FRchat" }).click();
           await page.locator(".post-card").first().waitFor();
+        } else if (screen === "reference-empty") {
+          await page.locator("#access-code").fill(emptyReferenceFixture.code);
+          await page.getByRole("button", { name: "Открыть FRchat" }).click();
+          await page
+            .getByRole("heading", { name: "Справочник скоро появится" })
+            .waitFor();
         } else await page.locator(".main-content").waitFor();
         if (screen === "search")
+          await page
+            .getByRole("button", { name: "Фильтры", exact: true })
+            .click();
+        if (
+          screen === "favorites" &&
+          (await page
+            .getByRole("button", { name: "Фильтры", exact: true })
+            .getAttribute("aria-expanded")) === "true"
+        )
           await page
             .getByRole("button", { name: "Фильтры", exact: true })
             .click();
@@ -190,7 +229,8 @@ try {
       theme_cases: matrix.length,
       minimum_ratio: Math.min(...matrix.map((item) => item.minRatio)),
       axe_violations: 0,
-      screenshots: 24,
+      screenshots: matrix.filter((item) => item.mode.startsWith("system-"))
+        .length,
       synthetic: true,
     }),
   );

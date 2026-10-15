@@ -6,6 +6,7 @@ import {
   postStatus,
   weekday,
 } from "./dates.mjs";
+import { isReference } from "./reference.mjs";
 export const normalize = (text) =>
   String(text ?? "")
     .toLocaleLowerCase("ru")
@@ -45,6 +46,7 @@ export function filterPosts(
   filters = {},
   now = new Date(),
   section = "all",
+  favoriteIds = [],
 ) {
   const query = normalize(filters.q).trim();
   const categories = filters.categories ?? [];
@@ -52,6 +54,23 @@ export function filterPosts(
   return posts
     .filter((post) => {
       const status = postStatus(post, now);
+      if (
+        (filters.favorites || section === "favorites") &&
+        !favoriteIds.includes(post.id)
+      )
+        return false;
+      if (
+        post.state === "deleted" &&
+        !(filters.favorites || section === "favorites")
+      )
+        return false;
+      if (
+        section === "reference" &&
+        (!isReference(post) || post.state === "deleted")
+      )
+        return false;
+      if ((section === "active" || section === "archive") && isReference(post))
+        return false;
       if (
         (section === "active" && status.archive) ||
         (section === "archive" && !status.archive)

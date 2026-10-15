@@ -7,7 +7,7 @@ import {
   sha256,
 } from "../src/lib/crypto.mjs";
 import { addDays, dayKey, dayStart } from "../src/lib/dates.mjs";
-export async function createQaFixture() {
+export async function createQaFixture({ includeReferences = true } = {}) {
   const now = new Date(),
     today = dayKey(now);
   const stamp = (offset) =>
@@ -119,6 +119,33 @@ export async function createQaFixture() {
     },
   ];
   posts[8].expected_attachments = [{ label: "Тестовый шаблон таблицы" }];
+  posts.push({
+    ...structuredClone(posts[0]),
+    id: "qa-deleted",
+    title: "Удалённая тестовая публикация",
+    state: "deleted",
+    pinned: false,
+    dates: [],
+  });
+  if (includeReferences)
+    posts.push({
+      ...structuredClone(posts[0]),
+      id: "qa-reference",
+      type: "reference",
+      category_id: "reference-contacts",
+      title: "Контакты тестовой поддержки",
+      body: "Справочник: синтетические контакты поддержки и партнёров. support@example.org",
+      created_at: "2020-01-01T12:00:00+03:00",
+      updated_at: "2020-01-01T12:00:00+03:00",
+      pinned: false,
+      priority: "normal",
+      expires_at: "2020-01-02T12:00:00+03:00",
+      dates: [
+        { id: "old-date", kind: "event", start: "2020-01-01T12:00:00+03:00" },
+      ],
+      history: [],
+      reminded_at: [],
+    });
   const kdf = newKdf(),
     code = "synthetic-qa-not-a-pilot-password";
   const epoch = "0123456789abcdef0123456789abcdef";

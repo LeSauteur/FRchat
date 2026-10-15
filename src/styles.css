@@ -852,6 +852,7 @@ textarea::placeholder {
   gap: 13px;
 }
 .post-card {
+  position: relative;
   background: var(--surface);
   border: 1px solid var(--line);
   padding: 19px 20px;
@@ -866,11 +867,73 @@ textarea::placeholder {
   border-color: var(--line-hover);
   transform: translateY(-2px);
 }
+.post-card-link {
+  display: block;
+  color: inherit;
+}
+.favorite-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: var(--muted);
+  background: var(--surface);
+}
+.favorite-button.compact {
+  width: 44px;
+  min-width: 44px;
+  padding: 8px;
+}
+.post-card > .favorite-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+}
+.favorite-button.selected {
+  color: var(--red);
+  background: var(--accent-tint);
+  border-color: var(--accent-border);
+}
+.favorite-button.selected svg {
+  fill: currentColor;
+}
+.missing-favorite {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--surface);
+  padding: 20px;
+  margin-top: 16px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+}
+.missing-favorite h2 {
+  font-size: 17px;
+}
+.missing-favorite p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.status-deleted {
+  color: var(--danger);
+  background: var(--danger-bg);
+}
+.post-view > .favorite-button {
+  margin-bottom: 14px;
+}
 .card-meta {
+  padding-right: 36px;
   display: flex;
   align-items: center;
   gap: 7px;
-  min-height: 18px;
+  min-height: 28px;
 }
 .card-meta > .category-name {
   font-size: 10px;
@@ -1794,11 +1857,12 @@ textarea::placeholder {
     background: var(--surface);
     border-top: 1px solid var(--line);
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 5px;
     z-index: 30;
   }
   .bottom-nav a {
+    min-width: 0;
     display: flex;
     flex-direction: column;
     align-items: center;

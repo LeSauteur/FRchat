@@ -1,0 +1,1 @@
+{"schema":"frchat-manifest/1","key_epoch":"a250ea193ba28e0ad11e927d5f7d1139","kdf":{"name":"PBKDF2","hash":"SHA-256","iterations":600000,"salt":"Q95bYakFX3eeDdjffG+GmQ=="},"index":{"path":"objects/cf09cf8a7aee8574e32249a2f19f8aae09ac1f76ef0571c9e581c03cccdd2159.bin","sha256":"cf09cf8a7aee8574e32249a2f19f8aae09ac1f76ef0571c9e581c03cccdd2159","object_id":"index"}}

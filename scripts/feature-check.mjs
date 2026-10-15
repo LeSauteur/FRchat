@@ -1,5 +1,12 @@
 import assert from "node:assert/strict";
 import { installQaRoutes } from "./qa-fixture.mjs";
+async function expectCards(page, count) {
+  await page.waitForFunction(
+    (expected) => document.querySelectorAll(".post-card").length === expected,
+    count,
+  );
+  assert.equal(await page.locator(".post-card").count(), count);
+}
 // Invoked by theme-qa so the same browser and owned CI preview are reused.
 export async function checkFavoritesAndReference(browser, url, fixture) {
   for (const colorScheme of ["light", "dark"]) {
@@ -51,7 +58,7 @@ export async function checkFavoritesAndReference(browser, url, fixture) {
         .click();
       await page.goto(url + "#/favorites");
       await page.locator(".post-card").first().waitFor();
-      assert.equal(await page.locator(".post-card").count(), 2);
+      await expectCards(page, 2);
       assert.equal(await page.locator(".status-closed").count(), 1);
       await page.goto(
         url + "#/feed?q=" + encodeURIComponent("тестовая публикация"),
@@ -59,10 +66,10 @@ export async function checkFavoritesAndReference(browser, url, fixture) {
       await page.getByRole("button", { name: "Фильтры", exact: true }).click();
       await page.getByRole("checkbox", { name: "Только избранное" }).check();
       await page.waitForURL(/favorites=1/);
-      assert.equal(await page.locator(".post-card").count(), 2);
+      await expectCards(page, 2);
       await page.reload();
       await page.locator(".post-card").first().waitFor();
-      assert.equal(await page.locator(".post-card").count(), 2);
+      await expectCards(page, 2);
       // Simulate a tombstone and a post fully removed from a subsequent snapshot.
       await page.evaluate(() =>
         localStorage.setItem(
@@ -103,7 +110,7 @@ export async function checkFavoritesAndReference(browser, url, fixture) {
       await page
         .getByRole("heading", { name: "Публикаций пока нет" })
         .waitFor();
-      assert.equal(await page.locator(".post-card").count(), 0);
+      await expectCards(page, 0);
       await page
         .getByRole("button", { name: "Все категории", exact: true })
         .click();
@@ -115,14 +122,14 @@ export async function checkFavoritesAndReference(browser, url, fixture) {
         url + "#/feed?q=" + encodeURIComponent("support@example.org"),
       );
       await page.locator(".post-card").first().waitFor();
-      assert.equal(await page.locator(".post-card").count(), 1);
+      await expectCards(page, 1);
       await page.goto(
         url + "#/archive?q=" + encodeURIComponent("support@example.org"),
       );
       await page
         .getByRole("heading", { name: "Публикаций пока нет" })
         .waitFor();
-      assert.equal(await page.locator(".post-card").count(), 0);
+      await expectCards(page, 0);
       assert.deepEqual(errors, []);
       // Denied storage must preserve the current tab's bookmarks and explain persistence limits.
       await context.addInitScript(() => {
@@ -150,8 +157,10 @@ export async function checkFavoritesAndReference(browser, url, fixture) {
         .filter({ hasText: "Браузер не разрешил сохранить избранное" })
         .waitFor();
       await page.locator('.bottom-nav a[href="#/favorites"]').click();
-      await page.locator(".post-card").first().waitFor();
-      assert.equal(await page.locator(".post-card").count(), 1);
+      await page
+        .getByRole("heading", { name: "Избранное", exact: true })
+        .waitFor();
+      await expectCards(page, 1);
       assert.deepEqual(errors, []);
       console.log(
         JSON.stringify({

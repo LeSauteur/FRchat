@@ -363,7 +363,7 @@ function App() {
       <main className="access-page">
         <section className="access-brand">
           <div className="brand">
-            <img src="./icon.svg" alt="" />
+            <img src="./icon-192.png" alt="" />
             <span>
               FRchat<span className="brand-dot">•</span>
             </span>
@@ -473,7 +473,7 @@ function App() {
     <div className="app-layout">
       <aside className="sidebar">
         <a className="brand" href="#/feed">
-          <img src="./icon.svg" alt="" />
+          <img src="./icon-192.png" alt="" />
           <span>
             FRchat<span className="brand-dot">•</span>
           </span>
@@ -515,7 +515,7 @@ function App() {
       <div className="workspace">
         <header className="topbar">
           <a className="mobile-brand" href="#/feed">
-            <img src="./icon.svg" alt="" />
+            <img src="./icon-192.png" alt="" />
             <strong>FRchat</strong>
           </a>
           <span className="topbar-date">{formatDate(now, false)}</span>
@@ -917,6 +917,7 @@ function FilterBar({
         </label>
         <button
           className={open || active ? "filter-button active" : "filter-button"}
+          aria-label="Фильтры"
           aria-expanded={open}
           onClick={() => setOpen(!open)}
         >

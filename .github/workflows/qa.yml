@@ -15,3 +15,7 @@ jobs:
       - run: npm run check:repo
       - run: npm test
       - run: npm run build
+      - name: Install browser for theme and contrast QA
+        run: npx playwright install --with-deps chromium
+      - name: Check both system schemes and manual overrides
+        run: npm run test:themes -- --start-server

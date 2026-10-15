@@ -1,0 +1,32 @@
+{
+  "name": "frchat",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "node scripts/check-public-data.mjs && tsc --noEmit && vite build && node scripts/check-privacy.mjs",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node --test tests/*.test.mjs",
+    "pilot:data": "node scripts/build-pilot-data.mjs",
+    "test:pilot": "node scripts/verify-pilot.mjs",
+    "test:browser": "node scripts/browser-check.mjs",
+    "check:repo": "node scripts/check-repository.mjs"
+  },
+  "dependencies": {
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^6.0.3",
+    "playwright": "^1.64.1",
+    "prettier": "^3.9.10",
+    "typescript": "^6.0.3",
+    "vite": "^8.1.5"
+  }
+}

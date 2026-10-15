@@ -1,0 +1,17 @@
+samples/
+node_modules/
+dist/
+.env
+*.local
+.local/
+test-results/
+playwright-report/
+coverage/
+*.log
+docs/mockup/
+docs/PROMPT.md
+docs/ANALYSIS.md
+docs/ADDENDUM-01.md
+docs/ADDENDUM-02.md
+docs/REVIEW-01.md
+tools/

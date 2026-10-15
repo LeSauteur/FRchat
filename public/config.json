@@ -1,0 +1,6 @@
+{
+  "dataSources": ["./pilot-data/"],
+  "feedbackUrl": "",
+  "dailyTaskUrl": "https://lesauteur.github.io/domian-7-days/data/days.json",
+  "dailyTaskHome": "https://lesauteur.github.io/domian-7-days/"
+}

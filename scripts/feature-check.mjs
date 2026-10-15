@@ -74,6 +74,11 @@ export async function checkFavoritesAndReference(browser, url, fixture) {
       await page.reload();
       await page.locator(".missing-favorite").waitFor();
       assert.equal(await page.locator(".status-deleted").count(), 2);
+      await page.locator(".post-card-link").click();
+      await page
+        .getByRole("button", { name: "В избранное", exact: true })
+        .click();
+      await page.locator(".missing-favorite").waitFor();
       await page
         .locator(".missing-favorite")
         .getByRole("button", { name: "Удалить из избранного" })
@@ -95,7 +100,9 @@ export async function checkFavoritesAndReference(browser, url, fixture) {
       await page
         .locator('.category-chips [data-category="reference-payments"]')
         .click();
-      await page.getByRole("heading", { name: "Публикаций пока нет" }).waitFor();
+      await page
+        .getByRole("heading", { name: "Публикаций пока нет" })
+        .waitFor();
       assert.equal(await page.locator(".post-card").count(), 0);
       await page
         .getByRole("button", { name: "Все категории", exact: true })

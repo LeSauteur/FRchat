@@ -314,9 +314,13 @@ function App() {
       }
     }
     void start();
+    let activePath = currentRoute().path;
     const onHash = () => {
-      setRoute(currentRoute());
-      window.scrollTo({ top: 0 });
+      const next = currentRoute();
+      setRoute(next);
+      // Filtering must not move a checkbox or search field under the fixed navigation.
+      if (next.path !== activePath) window.scrollTo({ top: 0 });
+      activePath = next.path;
     };
     const onVisible = () => setNow(new Date());
     window.addEventListener("hashchange", onHash);
@@ -711,7 +715,11 @@ function App() {
                 <FilterBar
                   filters={filters}
                   categories={reference ? REFERENCE_CATEGORIES : allCategories}
-                  onChange={(next) => go(route.path, next)}
+                  onChange={(next) => {
+                    // Controlled inputs must update in the same event, before hashchange arrives.
+                    setRoute({ ...route, filters: next });
+                    go(route.path, next);
+                  }}
                   calendar={calendar}
                 />
                 {calendar ? (
@@ -1468,20 +1476,24 @@ function PostView({
         className="back-link"
         onClick={() =>
           go(
-            isReference(post)
-              ? "/reference"
-              : status.archive
-                ? "/archive"
-                : "/feed",
+            post.state === "deleted"
+              ? "/favorites"
+              : isReference(post)
+                ? "/reference"
+                : status.archive
+                  ? "/archive"
+                  : "/feed",
           )
         }
       >
         <Icon name="back" size={17} />
-        {isReference(post)
-          ? "В справочник"
-          : status.archive
-            ? "В архив"
-            : "К ленте"}
+        {post.state === "deleted"
+          ? "В избранное"
+          : isReference(post)
+            ? "В справочник"
+            : status.archive
+              ? "В архив"
+              : "К ленте"}
       </button>
       <span className="category-name">
         <span className="category-dot" />

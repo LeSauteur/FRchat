@@ -1,5 +1,12 @@
 const isoDate = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?\+03:00$/;
-const states = new Set(["active", "cancelled", "postponed", "closed"]);
+import { REFERENCE_CATEGORIES, isReference } from "./reference.mjs";
+const states = new Set([
+  "active",
+  "cancelled",
+  "postponed",
+  "closed",
+  "deleted",
+]);
 export function importSeed(seed) {
   if (
     seed?.schema !== "frchat-seed/1" ||
@@ -9,11 +16,20 @@ export function importSeed(seed) {
     throw new Error("Неподдерживаемый seed");
   const ids = new Set();
   const categories = new Set(seed.categories.map((c) => c.id));
-  const posts = seed.posts.map((raw) => {
+  const referenceCategories = new Set(REFERENCE_CATEGORIES.map((c) => c.id));
+  if (seed.references !== undefined && !Array.isArray(seed.references))
+    throw new Error("Некорректный справочник");
+  const posts = [
+    ...seed.posts,
+    ...(seed.references ?? []).map((p) => ({ ...p, type: "reference" })),
+  ].map((raw) => {
     if (
       !raw.id ||
       ids.has(raw.id) ||
-      !categories.has(raw.category_id) ||
+      !(isReference(raw) ? referenceCategories : categories).has(
+        raw.category_id,
+      ) ||
+      (raw.type !== undefined && !["post", "reference"].includes(raw.type)) ||
       !states.has(raw.state) ||
       typeof raw.title !== "string" ||
       typeof raw.body !== "string"
@@ -47,6 +63,8 @@ export function importSeed(seed) {
     post.dates = post.dates ?? [];
     post.attachments = post.attachments ?? [];
     post.history = post.history ?? [];
+    post.related = post.related ?? [];
+    post.reminded_at = post.reminded_at ?? [];
     post.links = (post.links ?? []).filter((l) => safeUrl(l.url));
     post.expected_attachments = (post.expected_attachments ?? []).map((a) => ({
       label: a.label,
@@ -86,7 +104,11 @@ export function validateSnapshot(value) {
     !Array.isArray(value.posts) ||
     !Array.isArray(value.categories) ||
     !value.posts.every(
-      (p) => p.id && states.has(p.state) && Array.isArray(p.dates),
+      (p) =>
+        p.id &&
+        states.has(p.state) &&
+        Array.isArray(p.dates) &&
+        (p.type === undefined || ["post", "reference"].includes(p.type)),
     )
   )
     throw new Error("Данные не поддерживаются этой версией");

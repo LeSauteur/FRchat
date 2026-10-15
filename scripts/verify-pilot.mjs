@@ -9,6 +9,7 @@ import {
   sha256,
 } from "../src/lib/crypto.mjs";
 import { importSeed } from "../src/lib/model.mjs";
+import { isReference } from "../src/lib/reference.mjs";
 import { occurrences, postStatus, dayStart, DAY } from "../src/lib/dates.mjs";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const manifest = JSON.parse(
@@ -36,7 +37,7 @@ const seed = importSeed(
     await readFile(resolve(root, "samples/seed/frchat-seed.json"), "utf8"),
   ),
 );
-assert.equal(posts.length, 46);
+assert.equal(posts.filter((p) => !isReference(p)).length, 46);
 assert.equal(posts.length, index.count);
 assert.deepEqual(
   posts.map((p) => p.id).sort(),
@@ -48,9 +49,11 @@ for (const post of posts) {
   assert.equal(post.body, seed.posts.find((p) => p.id === post.id).body);
   assert.deepEqual(post.dates, seed.posts.find((p) => p.id === post.id).dates);
 }
-const entries = posts.flatMap((p) =>
-  occurrences(p, "2026-09-15T00:00:00+03:00", "2026-11-01T00:00:00+03:00"),
-);
+const entries = posts
+  .filter((p) => !isReference(p))
+  .flatMap((p) =>
+    occurrences(p, "2026-09-15T00:00:00+03:00", "2026-11-01T00:00:00+03:00"),
+  );
 const occurrenceLinks = entries.filter((d) => d.meeting_url).length;
 assert.equal(occurrenceLinks, 4);
 assert.ok(entries.filter((d) => d.kind === "event").length > 25);

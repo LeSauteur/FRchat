@@ -49,6 +49,44 @@ try {
         fullPage: true,
       });
       passed("real encrypted seed opens in browser");
+      const firstCard = page.locator(".post-card").first();
+      await firstCard
+        .getByRole("button", { name: "Добавить в избранное" })
+        .click();
+      await page.goto(APP_URL + "#/favorites");
+      await page.locator(".post-card").first().waitFor();
+      assert.equal(await page.locator(".post-card").count(), 1);
+      await page.reload();
+      await page
+        .getByRole("button", { name: "Удалить из избранного" })
+        .waitFor();
+      await page.goto(APP_URL + "#/archive");
+      await page
+        .locator(".post-card")
+        .first()
+        .getByRole("button", { name: "Добавить в избранное" })
+        .click();
+      await page.goto(APP_URL + "#/favorites");
+      await page.locator(".post-card").first().waitFor();
+      assert.equal(await page.locator(".post-card").count(), 2);
+      passed("favorites persist across reload and retain archived real posts");
+      await page.goto(APP_URL + "#/feed?favorites=1");
+      await page.locator(".post-card").first().waitFor();
+      assert.equal(await page.locator(".post-card").count(), 2);
+      passed("favorites-only search includes archived saved posts");
+      await page.goto(APP_URL + "#/reference");
+      await page
+        .getByRole("heading", { name: "Справочник скоро появится" })
+        .waitFor();
+      assert.equal(
+        await page.locator(".category-chips [data-category]").count(),
+        5,
+      );
+      assert.equal(await page.locator(".post-card").count(), 0);
+      passed(
+        "pilot reference directory shows five categories and honest empty state",
+      );
+      await page.goto(APP_URL + "#/feed");
       await page.locator(".post-card").first().click();
       await page.locator(".post-body").waitFor();
       await page.reload();

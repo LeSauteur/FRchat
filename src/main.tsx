@@ -31,6 +31,12 @@ import {
   writeLocal,
 } from "./lib/storage.mjs";
 import { safeUrl } from "./lib/model.mjs";
+import {
+  FAVORITES_KEY,
+  loadFavorites,
+  saveFavorites,
+} from "./lib/favorites.mjs";
+import { REFERENCE_CATEGORIES, isReference } from "./lib/reference.mjs";
 import { sha256 } from "./lib/crypto.mjs";
 import "./styles.css";
 
@@ -62,6 +68,7 @@ const initialFilters: Filters = {
   status: "all",
   important: false,
   files: false,
+  favorites: false,
   from: "",
   to: "",
 };
@@ -79,6 +86,7 @@ function currentRoute() {
       status: params.get("status") ?? "all",
       important: params.get("important") === "1",
       files: params.get("files") === "1",
+      favorites: params.get("favorites") === "1",
       from: params.get("from") ?? "",
       to: params.get("to") ?? "",
     },
@@ -98,6 +106,7 @@ function go(path: string, filters = initialFilters) {
     if (value && value !== "all") q.set(key, value);
   if (filters.important) q.set("important", "1");
   if (filters.files) q.set("files", "1");
+  if (filters.favorites) q.set("favorites", "1");
   location.hash = path + (q.size ? "?" + q.toString() : "");
 }
 function Icon({ name, size = 21 }: { name: string; size?: number }) {
@@ -155,6 +164,15 @@ function Icon({ name, size = 21 }: { name: string; size?: number }) {
     check: <path d="m5 12 4 4L19 6" />,
     chat: <path d="M21 11a8 8 0 0 1-8 8H6l-4 3V11a9 9 0 0 1 19 0Z" />,
     pin: <path d="m15 3 6 6-3 1-4 4v4l-3-3-7 6 6-7-3-3h4l4-4Z" />,
+    star: (
+      <path d="m12 3 2.8 5.7 6.3.9-4.5 4.4 1.1 6.2-5.7-3-5.7 3 1.1-6.2L3 9.6l6.2-.9Z" />
+    ),
+    book: (
+      <>
+        <path d="M12 5v16M3 3l9 2 9-2v16l-9 2-9-2Z" />
+        <path d="m6 8 3 .7m-3 4 3 .7m6-5 3-.7m-3 4.7 3-.7" />
+      </>
+    ),
   };
   return (
     <svg
@@ -172,7 +190,36 @@ function Icon({ name, size = 21 }: { name: string; size?: number }) {
     </svg>
   );
 }
+const FavoritesContext = React.createContext<{
+  ids: string[];
+  toggle: (id: string) => void;
+}>({ ids: [], toggle: () => {} });
+function FavoriteButton({
+  id,
+  compact = true,
+}: {
+  id: string;
+  compact?: boolean;
+}) {
+  const { ids, toggle } = React.useContext(FavoritesContext);
+  const selected = ids.includes(id);
+  const label = selected ? "Удалить из избранного" : "Добавить в избранное";
+  return (
+    <button
+      type="button"
+      className={`favorite-button ${compact ? "compact" : ""} ${selected ? "selected" : ""}`}
+      aria-label={label}
+      aria-pressed={selected}
+      title={label}
+      onClick={() => toggle(id)}
+    >
+      <Icon name="star" />
+      {!compact && <span>{selected ? "В избранном" : "В избранное"}</span>}
+    </button>
+  );
+}
 function App() {
+  const [favoriteIds, setFavoriteIds] = useState<string[]>(loadFavorites);
   const [config, setConfig] = useState<Config | null>(null);
   const [manifest, setManifest] = useState<any>(null);
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
@@ -201,6 +248,24 @@ function App() {
     }
   });
   const base = new URL("./", location.href.split("#")[0]).href;
+  function toggleFavorite(id: string) {
+    const next = favoriteIds.includes(id)
+      ? favoriteIds.filter((value) => value !== id)
+      : [...favoriteIds, id];
+    setFavoriteIds(next);
+    if (!saveFavorites(next))
+      setToast(
+        "Браузер не разрешил сохранить избранное. Оно доступно до закрытия вкладки.",
+      );
+  }
+  useEffect(() => {
+    const sync = (event: StorageEvent) => {
+      if (event.key === FAVORITES_KEY || event.key === null)
+        setFavoriteIds(loadFavorites());
+    };
+    window.addEventListener("storage", sync);
+    return () => window.removeEventListener("storage", sync);
+  }, []);
   async function unlock(value: string, cfg = config, mf = manifest) {
     if (!cfg || !mf) return;
     setBusy(true);
@@ -449,319 +514,402 @@ function App() {
   const section = route.path === "/archive" ? "archive" : "active";
   const calendar = route.path === "/calendar";
   const files = route.path === "/files";
+  const favorites = route.path === "/favorites";
+  const reference = route.path === "/reference";
   const filters = route.filters;
+  const allCategories: Category[] = [
+    ...snapshot.categories,
+    ...REFERENCE_CATEGORIES,
+  ];
+  const missingFavorites = favoriteIds.filter(
+    (id) => !snapshot.posts.some((p) => p.id === id),
+  );
+  const showMissingFavorites =
+    favorites &&
+    !filters.q &&
+    !filters.categories.length &&
+    !filters.important &&
+    !filters.files &&
+    filters.period === "all" &&
+    ["all", "deleted"].includes(filters.status);
   const filtered = filterPosts(
-    snapshot.posts,
+    calendar ? snapshot.posts.filter((p) => !isReference(p)) : snapshot.posts,
     filters,
     now,
-    calendar || files || (filters.q && section === "active") ? "all" : section,
+    reference
+      ? "reference"
+      : favorites
+        ? "favorites"
+        : calendar ||
+            files ||
+            ((filters.q || filters.favorites) && section === "active")
+          ? "all"
+          : section,
+    favoriteIds,
   ) as Post[];
   const unread = snapshot.posts.filter(
     (p) => read[p.id] !== p.updated_at,
   ).length;
   const category = (post: Post) =>
-    snapshot.categories.find((c) => c.id === post.category_id)!;
+    allCategories.find((c) => c.id === post.category_id)!;
   const nav = [
     { path: "/feed", icon: "home", label: "Актуально" },
     { path: "/calendar", icon: "calendar", label: "Календарь" },
+    { path: "/favorites", icon: "star", label: "Избранное" },
+    { path: "/reference", icon: "book", label: "Справочник" },
     { path: "/files", icon: "files", label: "Файлы" },
     { path: "/archive", icon: "archive", label: "Архив" },
   ];
   const navActive = (path: string) =>
     route.path === path || (path === "/feed" && route.path === "/");
   return (
-    <div className="app-layout">
-      <aside className="sidebar">
-        <a className="brand" href="#/feed">
-          <img src="./icon-192.png" alt="" />
-          <span>
-            FRchat<span className="brand-dot">•</span>
-          </span>
-        </a>
-        <p className="brand-caption">Домиан · франшиза</p>
-        <div className="sidebar-label">РАБОЧЕЕ ПРОСТРАНСТВО</div>
-        <nav>
+    <FavoritesContext.Provider
+      value={{ ids: favoriteIds, toggle: toggleFavorite }}
+    >
+      <div className="app-layout">
+        <aside className="sidebar">
+          <a className="brand" href="#/feed">
+            <img src="./icon-192.png" alt="" />
+            <span>
+              FRchat<span className="brand-dot">•</span>
+            </span>
+          </a>
+          <p className="brand-caption">Домиан · франшиза</p>
+          <div className="sidebar-label">РАБОЧЕЕ ПРОСТРАНСТВО</div>
+          <nav>
+            {nav.map((n) => (
+              <a
+                key={n.path}
+                href={"#" + n.path}
+                className={navActive(n.path) ? "nav-link selected" : "nav-link"}
+                aria-current={navActive(n.path) ? "page" : undefined}
+              >
+                <Icon name={n.icon} />
+                <span>{n.label}</span>
+                {n.path === "/feed" && unread > 0 && (
+                  <b className="nav-count">{unread}</b>
+                )}
+              </a>
+            ))}
+          </nav>
+          <div className="sidebar-bottom">
+            <button onClick={() => setDialog("install")}>
+              <Icon name="home" />
+              На главный экран
+            </button>
+            <button onClick={() => setDialog("feedback")}>
+              <Icon name="chat" />
+              Обратная связь
+            </button>
+            <button onClick={lock}>
+              <Icon name="lock" />
+              Забыть код и выйти
+            </button>
+            <span>Пилот для участников тестирования</span>
+          </div>
+        </aside>
+        <div className="workspace">
+          <header className="topbar">
+            <a className="mobile-brand" href="#/feed">
+              <img src="./icon-192.png" alt="" />
+              <strong>FRchat</strong>
+            </a>
+            <span className="topbar-date">{formatDate(now, false)}</span>
+            <span className="pilot-tag">Пилот · данные на 15.10.2026</span>
+            <button
+              className="icon-button"
+              aria-label="Переключить светлую или тёмную тему"
+              onClick={() =>
+                setTheme(
+                  theme === "dark" ||
+                    (theme === "system" &&
+                      matchMedia("(prefers-color-scheme: dark)").matches)
+                    ? "light"
+                    : "dark",
+                )
+              }
+            >
+              <Icon name="sun" />
+            </button>
+            <button
+              className="icon-button mobile-lock"
+              aria-label="Забыть код и выйти"
+              onClick={lock}
+            >
+              <Icon name="lock" />
+            </button>
+          </header>
+          <main className="main-content" id="content">
+            {postId ? (
+              selectedPost ? (
+                <PostView
+                  post={selectedPost}
+                  category={category(selectedPost)}
+                  snapshot={snapshot}
+                  now={now}
+                  copy={copy}
+                  download={download}
+                />
+              ) : (
+                <Empty
+                  title="Публикация не найдена"
+                  text="Возможно, ссылка устарела. Откройте ленту или воспользуйтесь поиском."
+                />
+              )
+            ) : (
+              <>
+                <div className="page-heading">
+                  <div>
+                    <span className="eyebrow">
+                      ИНФОРМАЦИЯ ДЛЯ СОБСТВЕННИКОВ
+                    </span>
+                    <h1>
+                      {calendar
+                        ? "Календарь"
+                        : files
+                          ? "Шаблоны и файлы"
+                          : section === "archive"
+                            ? "Архив"
+                            : favorites
+                              ? "Избранное"
+                              : reference
+                                ? "Справочник"
+                                : "Актуально"}
+                    </h1>
+                    <p>
+                      {calendar
+                        ? "События и сроки — чтобы всё успеть."
+                        : files
+                          ? "Рабочие документы и формы из публикаций."
+                          : section === "archive"
+                            ? "Прошедшие события и завершённые задачи."
+                            : favorites
+                              ? "Избранное хранится на этом устройстве"
+                              : reference
+                                ? "Постоянная информация: оплаты, реквизиты, контакты, офисы и инструкции."
+                                : `${snapshot.posts.length} публикаций за месяц · ${unread} непрочитанных`}
+                    </p>
+                  </div>
+                  <button
+                    className="feedback-button"
+                    onClick={() => setDialog("feedback")}
+                  >
+                    <Icon name="chat" />
+                    <span>Обратная связь</span>
+                  </button>
+                </div>
+                {section === "active" &&
+                  !calendar &&
+                  !files &&
+                  !favorites &&
+                  !reference && (
+                    <>
+                      <Birthdays snapshot={snapshot} now={now} />
+                      <DailyTask config={config!} now={now} copy={copy} />
+                    </>
+                  )}
+                <FilterBar
+                  filters={filters}
+                  categories={reference ? REFERENCE_CATEGORIES : allCategories}
+                  onChange={(next) => go(route.path, next)}
+                  calendar={calendar}
+                />
+                {calendar ? (
+                  <CalendarView
+                    posts={filtered}
+                    categories={snapshot.categories}
+                    now={now}
+                    dateKind={filters.dateKind}
+                  />
+                ) : files ? (
+                  <FilesView posts={filtered} download={download} />
+                ) : reference &&
+                  !snapshot.posts.some(
+                    (p) => isReference(p) && p.state !== "deleted",
+                  ) ? (
+                  <Empty
+                    title="Справочник скоро появится"
+                    text="Алексей готовит материалы для пилота. Здесь будут оплаты и взносы, реквизиты и почты, контакты техподдержки, банков и партнёров, офисы и территории, инструкции."
+                  />
+                ) : favorites && favoriteIds.length === 0 ? (
+                  <Empty
+                    title="В избранном пока пусто"
+                    text="Нажмите звёздочку в списке или в карточке публикации, чтобы быстро вернуться к ней."
+                  />
+                ) : (
+                  <Feed
+                    posts={filtered}
+                    categories={allCategories}
+                    now={now}
+                    archive={section === "archive" || favorites || reference}
+                    read={read}
+                    heading={
+                      favorites
+                        ? "Сохранённые публикации"
+                        : reference
+                          ? "Постоянная информация"
+                          : undefined
+                    }
+                    hideEmpty={
+                      showMissingFavorites && missingFavorites.length > 0
+                    }
+                  />
+                )}
+                {showMissingFavorites &&
+                  missingFavorites.map((id) => (
+                    <article className="missing-favorite" key={id}>
+                      <div>
+                        <span className="status status-deleted">Удалено</span>
+                        <h2>Публикация удалена</h2>
+                        <p>
+                          Публикации больше нет в доступных данных. Закладка
+                          сохранена; её можно удалить звёздочкой.
+                        </p>
+                      </div>
+                      <FavoriteButton id={id} />
+                    </article>
+                  ))}
+              </>
+            )}
+          </main>
+          <footer className="page-footer">
+            <span>FRchat · Домиан</span>
+            <button onClick={() => setDialog("install")}>
+              Добавить на главный экран
+            </button>
+            <span>Даты и время — Москва</span>
+          </footer>
+        </div>
+        <nav className="bottom-nav">
           {nav.map((n) => (
             <a
               key={n.path}
               href={"#" + n.path}
-              className={navActive(n.path) ? "nav-link selected" : "nav-link"}
+              className={navActive(n.path) ? "selected" : ""}
               aria-current={navActive(n.path) ? "page" : undefined}
             >
               <Icon name={n.icon} />
               <span>{n.label}</span>
-              {n.path === "/feed" && unread > 0 && (
-                <b className="nav-count">{unread}</b>
-              )}
             </a>
           ))}
         </nav>
-        <div className="sidebar-bottom">
-          <button onClick={() => setDialog("install")}>
-            <Icon name="home" />
-            На главный экран
-          </button>
-          <button onClick={() => setDialog("feedback")}>
-            <Icon name="chat" />
-            Обратная связь
-          </button>
-          <button onClick={lock}>
-            <Icon name="lock" />
-            Забыть код и выйти
-          </button>
-          <span>Пилот для участников тестирования</span>
-        </div>
-      </aside>
-      <div className="workspace">
-        <header className="topbar">
-          <a className="mobile-brand" href="#/feed">
-            <img src="./icon-192.png" alt="" />
-            <strong>FRchat</strong>
-          </a>
-          <span className="topbar-date">{formatDate(now, false)}</span>
-          <span className="pilot-tag">Пилот · данные на 15.10.2026</span>
-          <button
-            className="icon-button"
-            aria-label="Переключить светлую или тёмную тему"
-            onClick={() =>
-              setTheme(
-                theme === "dark" ||
-                  (theme === "system" &&
-                    matchMedia("(prefers-color-scheme: dark)").matches)
-                  ? "light"
-                  : "dark",
-              )
-            }
+        {toast && (
+          <div className="toast" role="status">
+            {toast}
+          </div>
+        )}
+        {(dialog || fallbackCopy) && (
+          <div
+            className="modal-backdrop"
+            onClick={() => {
+              setDialog(null);
+              setFallbackCopy("");
+            }}
           >
-            <Icon name="sun" />
-          </button>
-          <button
-            className="icon-button mobile-lock"
-            aria-label="Забыть код и выйти"
-            onClick={lock}
-          >
-            <Icon name="lock" />
-          </button>
-        </header>
-        <main className="main-content" id="content">
-          {postId ? (
-            selectedPost ? (
-              <PostView
-                post={selectedPost}
-                category={category(selectedPost)}
-                snapshot={snapshot}
-                now={now}
-                copy={copy}
-                download={download}
-              />
-            ) : (
-              <Empty
-                title="Публикация не найдена"
-                text="Возможно, ссылка устарела. Откройте ленту или воспользуйтесь поиском."
-              />
-            )
-          ) : (
-            <>
-              <div className="page-heading">
-                <div>
-                  <span className="eyebrow">ИНФОРМАЦИЯ ДЛЯ СОБСТВЕННИКОВ</span>
-                  <h1>
-                    {calendar
-                      ? "Календарь"
-                      : files
-                        ? "Шаблоны и файлы"
-                        : section === "archive"
-                          ? "Архив"
-                          : "Актуально"}
-                  </h1>
-                  <p>
-                    {calendar
-                      ? "События и сроки — чтобы всё успеть."
-                      : files
-                        ? "Рабочие документы и формы из публикаций."
-                        : section === "archive"
-                          ? "Прошедшие события и завершённые задачи."
-                          : `${snapshot.posts.length} публикаций за месяц · ${unread} непрочитанных`}
-                  </p>
-                </div>
-                <button
-                  className="feedback-button"
-                  onClick={() => setDialog("feedback")}
-                >
-                  <Icon name="chat" />
-                  <span>Обратная связь</span>
-                </button>
-              </div>
-              {section === "active" && !calendar && !files && (
+            <section
+              className="modal"
+              role="dialog"
+              aria-modal="true"
+              aria-label={
+                fallbackCopy
+                  ? "Копирование"
+                  : dialog === "install"
+                    ? "На главный экран"
+                    : "Обратная связь"
+              }
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                className="modal-close"
+                onClick={() => {
+                  setDialog(null);
+                  setFallbackCopy("");
+                }}
+                aria-label="Закрыть"
+              >
+                ×
+              </button>
+              {fallbackCopy ? (
                 <>
-                  <Birthdays snapshot={snapshot} now={now} />
-                  <DailyTask config={config!} now={now} copy={copy} />
+                  <h2>Скопируйте текст</h2>
+                  <p>Браузер не разрешил автоматическое копирование.</p>
+                  <textarea
+                    autoFocus
+                    readOnly
+                    value={fallbackCopy}
+                    onFocus={(e) => e.target.select()}
+                  />
+                </>
+              ) : dialog === "install" ? (
+                <>
+                  <div className="lock-symbol">
+                    <Icon name="home" size={28} />
+                  </div>
+                  <h2>Всегда под рукой</h2>
+                  <p>Откройте FRchat в обычном браузере.</p>
+                  <ul>
+                    <li>
+                      <strong>iPhone:</strong> Safari → «Поделиться» → «На экран
+                      Домой».
+                    </li>
+                    <li>
+                      <strong>Android:</strong> меню Chrome → «Добавить на
+                      главный экран».
+                    </li>
+                  </ul>
+                  <p className="muted">
+                    Внутри MAX эта команда может быть недоступна. Приложение
+                    использует интернет для загрузки данных.
+                  </p>
+                  <button
+                    className="primary"
+                    onClick={() => void copy(location.href)}
+                  >
+                    Скопировать ссылку
+                  </button>
+                </>
+              ) : (
+                <>
+                  <h2>Обратная связь о пилоте</h2>
+                  <p>Что получилось, а что стоит исправить?</p>
+                  <textarea
+                    value={feedback}
+                    onChange={(e) => setFeedback(e.target.value)}
+                    placeholder="Опишите, что вы делали и что произошло…"
+                  />
+                  {safeUrl(config?.feedbackUrl) ? (
+                    <a
+                      className="primary"
+                      href={safeUrl(config!.feedbackUrl)!}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Открыть канал обратной связи <Icon name="arrow" />
+                    </a>
+                  ) : (
+                    <p className="muted">
+                      Канал обратной связи пока не настроен. Скопируйте отзыв и
+                      передайте организатору пилота.
+                    </p>
+                  )}
+                  <button
+                    className="primary"
+                    disabled={!feedback.trim()}
+                    onClick={() =>
+                      void copy(
+                        `FRchat · отзыв о пилоте\n${feedback}\nРаздел: ${route.path}`,
+                      )
+                    }
+                  >
+                    Скопировать отзыв
+                  </button>
                 </>
               )}
-              <FilterBar
-                filters={filters}
-                categories={snapshot.categories}
-                onChange={(next) => go(route.path, next)}
-                calendar={calendar}
-              />
-              {calendar ? (
-                <CalendarView
-                  posts={filtered}
-                  categories={snapshot.categories}
-                  now={now}
-                  dateKind={filters.dateKind}
-                />
-              ) : files ? (
-                <FilesView posts={filtered} download={download} />
-              ) : (
-                <Feed
-                  posts={filtered}
-                  categories={snapshot.categories}
-                  now={now}
-                  archive={section === "archive"}
-                  read={read}
-                />
-              )}
-            </>
-          )}
-        </main>
-        <footer className="page-footer">
-          <span>FRchat · Домиан</span>
-          <button onClick={() => setDialog("install")}>
-            Добавить на главный экран
-          </button>
-          <span>Даты и время — Москва</span>
-        </footer>
+            </section>
+          </div>
+        )}
       </div>
-      <nav className="bottom-nav">
-        {nav.map((n) => (
-          <a
-            key={n.path}
-            href={"#" + n.path}
-            className={navActive(n.path) ? "selected" : ""}
-            aria-current={navActive(n.path) ? "page" : undefined}
-          >
-            <Icon name={n.icon} />
-            <span>{n.label}</span>
-          </a>
-        ))}
-      </nav>
-      {toast && (
-        <div className="toast" role="status">
-          {toast}
-        </div>
-      )}
-      {(dialog || fallbackCopy) && (
-        <div
-          className="modal-backdrop"
-          onClick={() => {
-            setDialog(null);
-            setFallbackCopy("");
-          }}
-        >
-          <section
-            className="modal"
-            role="dialog"
-            aria-modal="true"
-            aria-label={
-              fallbackCopy
-                ? "Копирование"
-                : dialog === "install"
-                  ? "На главный экран"
-                  : "Обратная связь"
-            }
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="modal-close"
-              onClick={() => {
-                setDialog(null);
-                setFallbackCopy("");
-              }}
-              aria-label="Закрыть"
-            >
-              ×
-            </button>
-            {fallbackCopy ? (
-              <>
-                <h2>Скопируйте текст</h2>
-                <p>Браузер не разрешил автоматическое копирование.</p>
-                <textarea
-                  autoFocus
-                  readOnly
-                  value={fallbackCopy}
-                  onFocus={(e) => e.target.select()}
-                />
-              </>
-            ) : dialog === "install" ? (
-              <>
-                <div className="lock-symbol">
-                  <Icon name="home" size={28} />
-                </div>
-                <h2>Всегда под рукой</h2>
-                <p>Откройте FRchat в обычном браузере.</p>
-                <ul>
-                  <li>
-                    <strong>iPhone:</strong> Safari → «Поделиться» → «На экран
-                    Домой».
-                  </li>
-                  <li>
-                    <strong>Android:</strong> меню Chrome → «Добавить на главный
-                    экран».
-                  </li>
-                </ul>
-                <p className="muted">
-                  Внутри MAX эта команда может быть недоступна. Приложение
-                  использует интернет для загрузки данных.
-                </p>
-                <button
-                  className="primary"
-                  onClick={() => void copy(location.href)}
-                >
-                  Скопировать ссылку
-                </button>
-              </>
-            ) : (
-              <>
-                <h2>Обратная связь о пилоте</h2>
-                <p>Что получилось, а что стоит исправить?</p>
-                <textarea
-                  value={feedback}
-                  onChange={(e) => setFeedback(e.target.value)}
-                  placeholder="Опишите, что вы делали и что произошло…"
-                />
-                {safeUrl(config?.feedbackUrl) ? (
-                  <a
-                    className="primary"
-                    href={safeUrl(config!.feedbackUrl)!}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Открыть канал обратной связи <Icon name="arrow" />
-                  </a>
-                ) : (
-                  <p className="muted">
-                    Канал обратной связи пока не настроен. Скопируйте отзыв и
-                    передайте организатору пилота.
-                  </p>
-                )}
-                <button
-                  className="primary"
-                  disabled={!feedback.trim()}
-                  onClick={() =>
-                    void copy(
-                      `FRchat · отзыв о пилоте\n${feedback}\nРаздел: ${route.path}`,
-                    )
-                  }
-                >
-                  Скопировать отзыв
-                </button>
-              </>
-            )}
-          </section>
-        </div>
-      )}
-    </div>
+    </FavoritesContext.Provider>
   );
 }
 
@@ -896,6 +1044,7 @@ function FilterBar({
     filters.categories.length ||
     filters.important ||
     filters.files ||
+    filters.favorites ||
     filters.period !== "all" ||
     filters.status !== "all";
   return (
@@ -1000,6 +1149,8 @@ function FilterBar({
               <option value="past">В архиве</option>
               <option value="cancelled">Отменено</option>
               <option value="postponed">Перенесено</option>
+              <option value="reference">Справочник</option>
+              <option value="deleted">Удалено (в избранном)</option>
             </select>
           </label>
           {filters.period === "custom" && (
@@ -1029,6 +1180,14 @@ function FilterBar({
               onChange={(e) => set("important", e.target.checked)}
             />
             Только важное
+          </label>
+          <label className="checkbox">
+            <input
+              type="checkbox"
+              checked={filters.favorites}
+              onChange={(e) => set("favorites", e.target.checked)}
+            />
+            Только избранное
           </label>
           <label className="checkbox">
             <input
@@ -1073,60 +1232,67 @@ function PostCard({
       ? post.dates.at(-1)
       : post.dates.find((d) => !d.recurrence));
   return (
-    <a
+    <article
       className={`post-card ${post.category_id === "money" && !status.archive ? "money-card" : ""}`}
-      href={"#/post/" + encodeURIComponent(post.id)}
       data-category={post.category_id}
     >
-      <div className="card-meta">
-        <span className="category-name">
-          <span className="category-dot" />
-          {category?.name}
-        </span>
-        {post.pinned && (
-          <span className="pin-label">
-            <Icon name="pin" size={13} />
-            Закреплено
+      <FavoriteButton id={post.id} />
+      <a
+        className="post-card-link"
+        href={"#/post/" + encodeURIComponent(post.id)}
+      >
+        <div className="card-meta">
+          <span className="category-name">
+            <span className="category-dot" />
+            {category?.name}
           </span>
-        )}
-        {read !== post.updated_at && (
-          <span className="unread-dot" title="Не прочитано" />
-        )}
-      </div>
-      <h3>{post.title}</h3>
-      {next && (
-        <div
-          className={"card-date " + (status.id === "overdue" ? "danger" : "")}
-        >
-          <Icon name="calendar" size={15} />
-          {dateLabel(next)}
-        </div>
-      )}
-      <p className="card-excerpt">
-        {post.body.replace(/https?:\/\/\S+/g, "").slice(0, 155)}
-      </p>
-      <div className="card-bottom">
-        <span>{formatDate(post.created_at, false)}</span>
-        <div>
-          {status.id !== "active" && (
-            <span className={`status status-${status.id}`}>{status.label}</span>
-          )}
-          {post.priority !== "normal" && (
-            <span className="important-label">
-              {post.priority === "urgent" ? "Срочно" : "Важно"}
+          {post.pinned && (
+            <span className="pin-label">
+              <Icon name="pin" size={13} />
+              Закреплено
             </span>
           )}
-          {Boolean(
-            post.attachments.length || post.expected_attachments.length,
-          ) && <Icon name="files" size={15} />}
+          {read !== post.updated_at && (
+            <span className="unread-dot" title="Не прочитано" />
+          )}
         </div>
-      </div>
-      {post.reminded_at.length > 0 && (
-        <span className="reminder-label">
-          Напоминаний: {post.reminded_at.length}
-        </span>
-      )}
-    </a>
+        <h3>{post.title}</h3>
+        {next && (
+          <div
+            className={"card-date " + (status.id === "overdue" ? "danger" : "")}
+          >
+            <Icon name="calendar" size={15} />
+            {dateLabel(next)}
+          </div>
+        )}
+        <p className="card-excerpt">
+          {post.body.replace(/https?:\/\/\S+/g, "").slice(0, 155)}
+        </p>
+        <div className="card-bottom">
+          <span>{formatDate(post.created_at, false)}</span>
+          <div>
+            {status.id !== "active" && (
+              <span className={`status status-${status.id}`}>
+                {status.label}
+              </span>
+            )}
+            {post.priority !== "normal" && (
+              <span className="important-label">
+                {post.priority === "urgent" ? "Срочно" : "Важно"}
+              </span>
+            )}
+            {Boolean(
+              post.attachments.length || post.expected_attachments.length,
+            ) && <Icon name="files" size={15} />}
+          </div>
+        </div>
+        {post.reminded_at.length > 0 && (
+          <span className="reminder-label">
+            Напоминаний: {post.reminded_at.length}
+          </span>
+        )}
+      </a>
+    </article>
   );
 }
 function Feed({
@@ -1135,12 +1301,16 @@ function Feed({
   now,
   archive,
   read,
+  heading,
+  hideEmpty = false,
 }: {
   posts: Post[];
   categories: Category[];
   now: Date;
   archive: boolean;
   read: Record<string, string>;
+  heading?: string;
+  hideEmpty?: boolean;
 }) {
   const hot = !archive ? posts.filter((p) => isHot(p, now)) : [];
   const pinned = !archive
@@ -1186,13 +1356,15 @@ function Feed({
       {other.length > 0 && (
         <section className="feed-section">
           <div className="section-heading">
-            <h2>{archive ? "Прошедшие публикации" : "Рабочая лента"}</h2>
+            <h2>
+              {heading ?? (archive ? "Прошедшие публикации" : "Рабочая лента")}
+            </h2>
             <span>{other.length}</span>
           </div>
           {render(other)}
         </section>
       )}
-      {posts.length === 0 && (
+      {posts.length === 0 && !hideEmpty && (
         <Empty
           title="Публикаций пока нет"
           text="Попробуйте изменить фильтры или посмотреть архив."
@@ -1294,16 +1466,29 @@ function PostView({
     <article className="post-view" data-category={post.category_id}>
       <button
         className="back-link"
-        onClick={() => go(status.archive ? "/archive" : "/feed")}
+        onClick={() =>
+          go(
+            isReference(post)
+              ? "/reference"
+              : status.archive
+                ? "/archive"
+                : "/feed",
+          )
+        }
       >
         <Icon name="back" size={17} />
-        {status.archive ? "В архив" : "К ленте"}
+        {isReference(post)
+          ? "В справочник"
+          : status.archive
+            ? "В архив"
+            : "К ленте"}
       </button>
       <span className="category-name">
         <span className="category-dot" />
         {category.name}
       </span>
       <h1>{post.title}</h1>
+      <FavoriteButton id={post.id} compact={false} />
       <div className="post-badges">
         <span className={`status status-${status.id}`}>{status.label}</span>
         {post.pinned && <span className="status">Закреплено</span>}

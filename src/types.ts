@@ -43,6 +43,7 @@ export interface ObjectRef {
 }
 export interface Post {
   id: string;
+  type?: "post" | "reference";
   category_id: string;
   title: string;
   body: string;
@@ -85,6 +86,7 @@ export interface Filters {
   status: string;
   important: boolean;
   files: boolean;
+  favorites: boolean;
   from: string;
   to: string;
 }

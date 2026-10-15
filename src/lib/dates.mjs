@@ -1,3 +1,4 @@
+import { isReference } from "./reference.mjs";
 export const DAY = 86_400_000;
 export const MOSCOW = "Europe/Moscow";
 /** @param {Date|string|number} input */
@@ -95,6 +96,10 @@ export function occurrences(post, from, to) {
 }
 export function postStatus(post, now = new Date()) {
   const at = +new Date(now);
+  if (post.state === "deleted")
+    return { id: "deleted", label: "Удалено", archive: true };
+  if (isReference(post))
+    return { id: "reference", label: "Справочник", archive: false };
   if (post.state === "closed")
     return { id: "closed", label: "Завершено", archive: true };
   if (post.state === "cancelled")
@@ -150,6 +155,7 @@ export function postStatus(post, now = new Date()) {
   };
 }
 export function isHot(post, now = new Date()) {
+  if (isReference(post)) return false;
   const at = +new Date(now);
   const status = postStatus(post, now);
   if (status.archive || ["cancelled", "postponed"].includes(post.state))

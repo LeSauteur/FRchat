@@ -18,10 +18,10 @@ try {
   const seed = JSON.parse(
     await readFile(resolve(root, "samples/seed/frchat-seed.json"), "utf8"),
   );
-  needles = seed.posts
+  needles = [...seed.posts, ...(seed.references ?? [])]
     .flatMap((p) => [p.title, p.body.slice(0, 100), p.source])
     .filter((s) => s.length > 16);
-  needles.push(...seed.birthdays.map((b) => b.name));
+  needles.push(...(seed.birthdays ?? []).map((b) => b.name));
 } catch (e) {
   if (e.code !== "ENOENT") throw e;
 }

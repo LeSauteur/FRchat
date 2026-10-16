@@ -12,6 +12,10 @@ import {
 } from "../src/lib/crypto.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+try {
+  const current=JSON.parse(await readFile(resolve(root,"public/pilot-data/manifest.json"),"utf8"));
+  if(current.schema==="frchat-manifest/2")throw new Error("Пилот уже использует отдельные доступы и рабочее хранилище. Пересборка старым сборщиком уничтожит доступы; используйте миграцию из проверенного рабочего снимка.");
+} catch(error) { if(error.code!=="ENOENT")throw error; }
 const local = resolve(root, ".local");
 const data = importSeed(
   JSON.parse(

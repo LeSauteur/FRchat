@@ -15,7 +15,8 @@
     "test:pilot": "node scripts/verify-pilot.mjs",
     "test:browser": "node scripts/browser-check.mjs",
     "check:repo": "node scripts/check-repository.mjs",
-    "test:themes": "node scripts/theme-qa.mjs"
+    "test:themes": "node scripts/theme-qa.mjs",
+    "access:revoke": "node scripts/revoke-access.mjs"
   },
   "dependencies": {
     "react": "19.2.7",

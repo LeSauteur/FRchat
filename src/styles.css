@@ -87,6 +87,349 @@ body {
   background: var(--bg);
   color: var(--text);
 }
+.manager-app {
+  font-size: 16px;
+  line-height: 1.5;
+  padding-bottom: 110px;
+}
+.manager-app * {
+  font-size: inherit;
+}
+main.manager-app p,
+main.manager-app label,
+main.manager-app span {
+  font-size: 16px;
+}
+.manager-app h1 {
+  font-size: 28px;
+  line-height: 1.2;
+  margin: 16px 0 24px;
+}
+.manager-app h2 {
+  font-size: 21px;
+  line-height: 1.35;
+}
+.manager-app h3 {
+  font-size: 18px;
+}
+.manager-app button,
+.manager-app .primary,
+.manager-app .secondary,
+.manager-file-button {
+  font-size: 16px;
+  min-height: 48px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 650;
+  text-align: center;
+}
+.manager-app button {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line-strong);
+}
+.manager-app .primary {
+  background: var(--button-bg);
+  color: var(--on-brand);
+  border: 1px solid var(--button-bg);
+}
+.manager-app button:disabled {
+  background: var(--button-disabled-bg);
+  color: var(--button-disabled-text);
+}
+.manager-app .secondary {
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  color: var(--text);
+}
+.manager-app label {
+  display: grid;
+  gap: 8px;
+  margin: 18px 0;
+}
+.manager-app input,
+.manager-app select,
+.manager-app textarea {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 16px;
+}
+.manager-app textarea {
+  resize: vertical;
+}
+.manager-app .checkbox {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+}
+.manager-app input[type="checkbox"] {
+  width: 24px;
+  min-height: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+.manager-header {
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px max(16px, calc((100vw - 960px) / 2));
+  gap: 16px;
+}
+.manager-header > div {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.manager-header .manager-brand {
+  font-size: 24px;
+  font-weight: 800;
+  white-space: nowrap;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+}
+.manager-brand span {
+  color: var(--red);
+}
+.manager-content {
+  max-width: 960px;
+  margin: auto;
+  padding: 24px 20px;
+}
+.manager-home-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.manager-home-title h1 {
+  margin-bottom: 12px;
+}
+.manager-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 24px 0;
+}
+.manager-tabs [aria-pressed="true"] {
+  background: var(--text);
+  color: var(--surface);
+}
+.manager-card {
+  padding: 22px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  margin: 18px 0;
+  overflow-wrap: anywhere;
+}
+.manager-card h2 {
+  margin: 8px 0 16px;
+}
+.manager-card-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+.manager-card-actions > * {
+  flex: 1;
+}
+.manager-app .manager-edit {
+  background: var(--text);
+  color: var(--surface);
+  border-color: var(--text);
+}
+.manager-app .manager-delete {
+  flex: 0 0 auto;
+  background: transparent;
+  border-color: transparent;
+  color: var(--danger);
+  font-weight: 500;
+  text-decoration: underline;
+}
+.manager-home-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.participant-preview-banner {
+  padding: 16px;
+  margin-bottom: 20px;
+  border: 1px solid var(--accent-border);
+  border-radius: 12px;
+  background: var(--accent-tint);
+  font-size: 16px;
+}
+.participant-preview-banner .primary {
+  font-size: 16px;
+  min-height: 48px;
+}
+.manager-category,
+.manager-hint {
+  color: var(--muted);
+}
+.manager-body {
+  white-space: pre-wrap;
+}
+.manager-card a:not(.secondary) {
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.manager-date {
+  padding: 10px 0;
+  border-block: 1px solid var(--line);
+}
+.manager-back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  text-decoration: underline;
+}
+.manager-step {
+  margin-top: 20px;
+  color: var(--muted);
+  font-weight: 700;
+}
+.manager-fields {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.manager-fields > button {
+  margin: 6px 8px 6px 0;
+}
+.manager-file-button {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  width: fit-content;
+  cursor: pointer;
+  overflow: hidden;
+}
+.manager-file-button input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.manager-file-button:focus-within {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+.manager-bottom,
+.manager-home-action {
+  margin-top: 24px;
+}
+.manager-bottom > *,
+.manager-home-action > * {
+  width: 100%;
+}
+.manager-edit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.manager-edit-row button {
+  flex-shrink: 0;
+}
+.manager-date-edit {
+  border-bottom: 2px solid var(--line-strong);
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+.manager-focus {
+  min-height: 60vh;
+  max-width: 620px;
+  margin: 0 auto;
+  padding-top: 40px;
+}
+.manager-focus > button,
+.manager-focus > a {
+  width: 100%;
+  margin-top: 16px;
+}
+.manager-done {
+  text-align: center;
+}
+.manager-check {
+  background: var(--ongoing-bg);
+  color: var(--ongoing);
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: grid;
+  place-content: center;
+  font-size: 44px;
+  margin: 0 auto;
+}
+.manager-duplicate button {
+  width: 100%;
+  margin-top: 12px;
+}
+.owner-setup form {
+  max-width: 680px;
+}
+@media (max-width: 600px) {
+  .manager-header {
+    padding: 10px 16px;
+  }
+  .manager-header > div {
+    gap: 6px;
+  }
+  .manager-header button {
+    padding: 10px;
+  }
+  .manager-header button:first-child {
+    max-width: 154px;
+  }
+  .manager-content {
+    padding: 18px 16px;
+  }
+  .manager-app h1 {
+    font-size: 26px;
+  }
+  .manager-card {
+    padding: 18px;
+  }
+  .manager-bottom,
+  .manager-home-action {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    padding: 14px 16px max(14px, env(safe-area-inset-bottom));
+    border-top: 1px solid var(--line);
+    background: var(--surface);
+    margin: 0;
+  }
+  .manager-edit-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .manager-edit-row button {
+    width: 100%;
+  }
+}
 button,
 input,
 textarea,
@@ -927,6 +1270,246 @@ textarea::placeholder {
 }
 .post-view > .favorite-button {
   margin-bottom: 14px;
+}
+.admin-entry {
+  color: var(--red);
+  font-weight: 700;
+  margin-left: auto;
+}
+.topbar-admin .pilot-tag {
+  display: none;
+}
+.admin-workspace {
+  min-width: 0;
+}
+.admin-panel {
+  background: var(--surface);
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  margin: 18px 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.admin-panel h2 {
+  font-size: 19px;
+  margin: 0 0 12px;
+}
+.admin-panel p,
+.admin-editor > p {
+  line-height: 1.65;
+  font-size: 13px;
+}
+.admin-panel label,
+.admin-date label,
+.admin-link label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.6;
+  min-width: 0;
+}
+.admin-panel textarea,
+.admin-panel input:not([type="checkbox"]):not([type="file"]),
+.admin-panel select,
+.access-form select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin: 6px 0 12px;
+  padding: 11px 12px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 14px;
+}
+.admin-panel textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+.admin-form-fields {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.admin-form-fields:disabled a {
+  pointer-events: none;
+  color: var(--muted);
+}
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 16px;
+}
+.admin-full {
+  grid-column: 1 / -1;
+}
+.admin-inline-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+.admin-inline-actions > button:not(.text-button) {
+  padding: 10px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  min-height: 44px;
+}
+.admin-inline-actions > .primary {
+  background: var(--button-bg) !important;
+  color: var(--on-brand) !important;
+  border-color: var(--button-bg) !important;
+}
+.admin-success {
+  color: var(--ongoing);
+}
+.admin-date,
+.admin-link {
+  border-top: 1px solid var(--line);
+  margin-top: 15px;
+  padding-top: 18px;
+}
+.admin-row-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  justify-content: space-between;
+}
+.admin-row-heading .status {
+  flex-shrink: 0;
+}
+.admin-row-heading h2 {
+  font-size: 17px;
+  line-height: 1.45;
+}
+.admin-file {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+  font-size: 13px;
+}
+.file-picker {
+  position: relative;
+  display: inline-flex !important;
+  padding: 12px 16px;
+  min-height: 44px;
+  cursor: pointer;
+  overflow: hidden;
+}
+.file-picker input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+}
+.file-picker:focus-within {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.admin-editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  position: sticky;
+  bottom: 16px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  z-index: 10;
+}
+.admin-editor-actions > button {
+  flex: 1 1 180px;
+}
+.admin-preview .back-link,
+.admin-preview .post-actions,
+.admin-preview .favorite-button {
+  display: none;
+}
+.admin-duplicate {
+  margin: 15px 0;
+  border-top: 1px solid var(--notice-line);
+  padding-top: 14px;
+}
+.admin-search {
+  display: block;
+  padding: 12px 15px;
+  font-size: 13px;
+}
+.admin-search input {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+}
+.conflict-panel {
+  padding: 22px;
+  margin: 20px 0;
+  border: 2px solid var(--danger);
+  border-radius: 12px;
+  background: var(--surface);
+  overflow-wrap: anywhere;
+}
+.conflict-panel p {
+  white-space: pre-wrap;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.reminders-section {
+  margin-top: 28px;
+}
+.reminders-section summary {
+  cursor: pointer;
+  padding: 15px 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+.calendar-kind {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.card-date-label {
+  color: var(--muted);
+  font-weight: 600;
+}
+[data-category="reminders"] {
+  --category: var(--category-ethics);
+}
+@media (max-width: 600px) {
+  .admin-panel {
+    padding: 16px;
+  }
+  .admin-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .admin-row-heading {
+    display: block;
+  }
+  .admin-editor-actions {
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    padding: 10px;
+  }
+  .admin-editor-actions > button {
+    flex-basis: 100%;
+  }
+  .admin-workspace .page-heading {
+    flex-wrap: wrap;
+    gap: 15px;
+  }
 }
 .card-meta {
   padding-right: 36px;

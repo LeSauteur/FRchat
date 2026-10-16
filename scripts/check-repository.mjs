@@ -30,6 +30,7 @@ try {
 } catch (error) {
   if (error.code !== "ENOENT") throw error;
 }
+try { const records=JSON.parse(await readFile(resolve(root,".local/pilot-accounts.json"),"utf8")); needles.push(...records.accounts.map(a=>a.password)); } catch(e) { if(e.code!=="ENOENT")throw e; }
 for (const path of paths) {
   if (forbidden.test(path))
     throw new Error(`Приватный материал в Git: ${path}`);

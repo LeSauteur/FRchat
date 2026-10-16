@@ -55,6 +55,14 @@ export function filterPosts(
     .filter((post) => {
       const status = postStatus(post, now);
       if (
+        section === "calendar" &&
+        post.category_id === "reminders" &&
+        !filters.reminders &&
+        !categories.includes("reminders") &&
+        !query
+      )
+        return false;
+      if (
         (filters.favorites || section === "favorites") &&
         !favoriteIds.includes(post.id)
       )

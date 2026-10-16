@@ -1,5 +1,5 @@
 {
-  "dataSources": ["./pilot-data/"],
+  "dataSources": ["https://raw.githubusercontent.com/LeSauteur/FRchat-data/main/", "./pilot-data/"],
   "feedbackUrl": "",
   "dailyTaskUrl": "https://lesauteur.github.io/domian-7-days/data/days.json",
   "dailyTaskHome": "https://lesauteur.github.io/domian-7-days/"

@@ -25,6 +25,8 @@ try {
 } catch (e) {
   if (e.code !== "ENOENT") throw e;
 }
+try { const records=JSON.parse(await readFile(resolve(root,".local/pilot-accounts.json"),"utf8")); needles.push(...records.accounts.map(a=>a.password)); } catch(e) { if(e.code!=="ENOENT")throw e; }
+try { needles.push((await readFile(resolve(root,".local/pilot-access-code.txt"),"utf8")).trim()); } catch(e) { if(e.code!=="ENOENT")throw e; }
 for (const path of files) {
   const name = relative(root, path);
   if (/(?:samples|\.local|frchat-seed|SEED_REVIEW|\.map$)/i.test(name))

@@ -8,6 +8,7 @@ import type {
   Filters,
   Post,
   Snapshot,
+  Identity,
 } from "./types";
 import {
   DAY,
@@ -25,6 +26,7 @@ import {
 import { filterPosts } from "./lib/filters.mjs";
 import {
   loadManifest,
+  loadSnapshotWithKey,
   loadObject,
   readLocal,
   unlockSnapshot,
@@ -38,9 +40,12 @@ import {
 } from "./lib/favorites.mjs";
 import { REFERENCE_CATEGORIES, isReference } from "./lib/reference.mjs";
 import { sha256 } from "./lib/crypto.mjs";
+import { GitDataWriter } from "./lib/writer.mjs";
+import ManagerApp from "./admin/ManagerApp";
 import "./styles.css";
 
 const CODE_KEY = "frchat.access.v1";
+const LOGIN_KEY = "frchat.login.v2";
 const READ_KEY = "frchat.read.v1";
 const DAY_IDS = [
   "monday",
@@ -69,6 +74,7 @@ const initialFilters: Filters = {
   important: false,
   files: false,
   favorites: false,
+  reminders: false,
   from: "",
   to: "",
 };
@@ -82,11 +88,17 @@ function currentRoute() {
       q: params.get("q") ?? "",
       categories: params.getAll("category"),
       period: params.get("period") ?? "all",
-      dateKind: params.get("date") ?? "all",
+      dateKind:
+        path === "/calendar"
+          ? params.get("date") && params.get("date") !== "all"
+            ? params.get("date")!
+            : "event"
+          : (params.get("date") ?? "all"),
       status: params.get("status") ?? "all",
       important: params.get("important") === "1",
       files: params.get("files") === "1",
       favorites: params.get("favorites") === "1",
+      reminders: params.get("reminders") === "1",
       from: params.get("from") ?? "",
       to: params.get("to") ?? "",
     },
@@ -107,6 +119,7 @@ function go(path: string, filters = initialFilters) {
   if (filters.important) q.set("important", "1");
   if (filters.files) q.set("files", "1");
   if (filters.favorites) q.set("favorites", "1");
+  if (filters.reminders) q.set("reminders", "1");
   location.hash = path + (q.size ? "?" + q.toString() : "");
 }
 function Icon({ name, size = 21 }: { name: string; size?: number }) {
@@ -224,6 +237,20 @@ function App() {
   const [manifest, setManifest] = useState<any>(null);
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [sessionKey, setSessionKey] = useState<CryptoKey | null>(null);
+  const [accessKey, setAccessKey] = useState<CryptoKey | null>(null);
+  const [access, setAccess] = useState<any>(null);
+  const [participantView, setParticipantView] = useState(false);
+  const [identity, setIdentity] = useState<Identity>({
+    id: "legacy",
+    label: "Участник пилота",
+    role: "reader",
+  });
+  const [accountId, setAccountId] = useState(
+    () => readLocal("frchat.account.v2", "user1") ?? "user1",
+  );
+  const [writer, setWriter] = useState<any>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [source, setSource] = useState("");
   const [code, setCode] = useState("");
   const [remember, setRemember] = useState(true);
   const [busy, setBusy] = useState(true);
@@ -266,7 +293,13 @@ function App() {
     window.addEventListener("storage", sync);
     return () => window.removeEventListener("storage", sync);
   }, []);
-  async function unlock(value: string, cfg = config, mf = manifest) {
+  async function unlock(
+    value: string,
+    cfg = config,
+    mf = manifest,
+    login = accountId,
+    preferredSource = source,
+  ) {
     if (!cfg || !mf) return;
     setBusy(true);
     setError("");
@@ -274,20 +307,45 @@ function App() {
       const result = await unlockSnapshot(
         mf,
         value.trim(),
-        cfg.dataSources,
+        [preferredSource, ...cfg.dataSources].filter(Boolean),
         base,
+        login,
       );
       setSnapshot(result.snapshot as Snapshot);
       setSessionKey(result.key);
-      if (remember && !writeLocal(CODE_KEY, value.trim()))
+      setAccessKey(result.accessKey);
+      setAccess(result.access);
+      setIdentity(result.identity);
+      setWriter(null);
+      const saveKey = mf.schema === "frchat-manifest/2" ? LOGIN_KEY : CODE_KEY;
+      const saveValue =
+        mf.schema === "frchat-manifest/2"
+          ? JSON.stringify({ account: login, password: value.trim() })
+          : value.trim();
+      if (remember && !writeLocal(saveKey, saveValue))
         setToast(
           "Браузер не разрешил запомнить код. Доступ открыт для этой вкладки.",
         );
-      if (!remember) writeLocal(CODE_KEY, null);
+      if (!remember) writeLocal(saveKey, null);
+      if (mf.schema === "frchat-manifest/2")
+        writeLocal("frchat.account.v2", login);
+      if (result.identity.role === "admin" && result.accessKey) {
+        const savedToken = result.access?.publishing_token;
+        if (savedToken)
+          setWriter(
+            new GitDataWriter({
+              token: savedToken,
+              key: result.key,
+              epoch: mf.key_epoch,
+              identity: result.identity,
+            }),
+          );
+      }
       setCode("");
     } catch (e) {
       setError((e as Error).message);
       writeLocal(CODE_KEY, null);
+      writeLocal(LOGIN_KEY, null);
     } finally {
       setBusy(false);
     }
@@ -305,8 +363,29 @@ function App() {
         setConfig(cfg);
         const loaded = await loadManifest(cfg.dataSources, base);
         setManifest(loaded.manifest);
-        const saved = readLocal(CODE_KEY);
-        if (saved) await unlock(saved, cfg, loaded.manifest);
+        setSource(loaded.source);
+        if (loaded.manifest.schema === "frchat-manifest/2") {
+          writeLocal(CODE_KEY, null);
+          let saved = null;
+          try {
+            saved = JSON.parse(readLocal(LOGIN_KEY, "null") ?? "null");
+          } catch {
+            writeLocal(LOGIN_KEY, null);
+          }
+          if (saved?.account && typeof saved.password === "string") {
+            setAccountId(saved.account);
+            await unlock(
+              saved.password,
+              cfg,
+              loaded.manifest,
+              saved.account,
+              loaded.source,
+            );
+          }
+        } else {
+          const saved = readLocal(CODE_KEY);
+          if (saved) await unlock(saved, cfg, loaded.manifest);
+        }
       } catch (e) {
         setError((e as Error).message);
       } finally {
@@ -398,10 +477,68 @@ function App() {
   }
   function lock() {
     writeLocal(CODE_KEY, null);
+    writeLocal(LOGIN_KEY, null);
     setSnapshot(null);
     setSessionKey(null);
+    setAccessKey(null);
+    setAccess(null);
+    setParticipantView(false);
+    setWriter(null);
+    setIdentity({ id: "legacy", role: "reader", label: "Участник пилота" });
     setCode("");
     setError("");
+  }
+  function updateSnapshot(result: any, id?: string) {
+    setSnapshot(result.snapshot);
+    setManifest(result.manifest);
+    if (result.head) {
+      setSource(
+        `https://raw.githubusercontent.com/LeSauteur/FRchat-data/${result.head}/`,
+      );
+      writeLocal(
+        "frchat.data-head.v1",
+        JSON.stringify({ sha: result.head, at: Date.now() }),
+      );
+    }
+    if (id) {
+      go(`/post/${encodeURIComponent(id)}`);
+      setToast("Публикация сохранена. Можно скопировать анонс для MAX.");
+    }
+  }
+  async function refresh() {
+    if (!sessionKey || !config || refreshing) return;
+    setRefreshing(true);
+    try {
+      if (identity.role === "admin" && writer)
+        updateSnapshot(await writer.readSnapshot());
+      else {
+        const loaded = await loadManifest(config.dataSources, base, {
+          fresh: true,
+        });
+        if (loaded.manifest.key_epoch !== manifest.key_epoch) {
+          lock();
+          setManifest(loaded.manifest);
+          setError("Доступ обновлён. Введите свой пароль заново.");
+          return;
+        }
+        if (loaded.manifest.index.sha256 !== manifest.index.sha256)
+          updateSnapshot({
+            snapshot: await loadSnapshotWithKey(
+              loaded.manifest,
+              sessionKey,
+              [loaded.source, ...config.dataSources],
+              base,
+            ),
+            manifest: loaded.manifest,
+          });
+        setSource(loaded.source);
+      }
+      setToast("Лента обновлена");
+    } catch (e: any) {
+      setToast(e.message);
+    } finally {
+      setRefreshing(false);
+    }
   }
   async function download(file: FileEntry) {
     if (!sessionKey || !config) return;
@@ -411,7 +548,7 @@ function App() {
         file.ref,
         manifest,
         sessionKey,
-        config.dataSources,
+        [source, ...config.dataSources].filter(Boolean),
         base,
       );
       if ((await sha256(bytes)) !== file.sha256)
@@ -458,14 +595,41 @@ function App() {
             <Icon name="lock" size={30} />
           </div>
           <h2>Добро пожаловать</h2>
-          <p>Введите код, который вам передали для участия в пилоте.</p>
+          <p>
+            {manifest?.schema === "frchat-manifest/2"
+              ? "Выберите свой логин и введите временный пароль участника пилота."
+              : "Введите код, который вам передали для участия в пилоте."}
+          </p>
           <form
             onSubmit={(e) => {
               e.preventDefault();
               void unlock(code);
             }}
           >
-            <label htmlFor="access-code">Код доступа</label>
+            {manifest?.schema === "frchat-manifest/2" && (
+              <>
+                <label htmlFor="account-login">Логин</label>
+                <select
+                  id="account-login"
+                  value={accountId}
+                  onChange={(e) => {
+                    setAccountId(e.target.value);
+                    setRemember(e.target.value !== "admin");
+                  }}
+                >
+                  {manifest.accounts.map((a: any) => (
+                    <option key={a.id} value={a.id}>
+                      {a.id} — {a.label}
+                    </option>
+                  ))}
+                </select>
+              </>
+            )}
+            <label htmlFor="access-code">
+              {manifest?.schema === "frchat-manifest/2"
+                ? "Пароль"
+                : "Код доступа"}
+            </label>
             <input
               id="access-code"
               type="password"
@@ -483,7 +647,9 @@ function App() {
                 checked={remember}
                 onChange={(e) => setRemember(e.target.checked)}
               />
-              Запомнить на этом устройстве
+              {manifest?.schema === "frchat-manifest/2"
+                ? "Запомнить пароль на этом устройстве"
+                : "Запомнить на этом устройстве"}
             </label>
             {error && (
               <div className="error" role="alert">
@@ -515,6 +681,36 @@ function App() {
         </section>
       </main>
     );
+  if (identity.role === "admin" && sessionKey && !participantView)
+    return (
+      <ManagerApp
+        snapshot={snapshot}
+        identity={identity}
+        dataKey={sessionKey}
+        accessKey={accessKey}
+        epoch={manifest.key_epoch}
+        access={access}
+        writer={writer}
+        path={route.path}
+        onSaved={updateSnapshot}
+        onConnected={(result, nextWriter) => {
+          updateSnapshot(result);
+          setAccess(result.access);
+          setWriter(nextWriter);
+        }}
+        onLogout={lock}
+        onView={() => {
+          setParticipantView(true);
+          go("/feed");
+        }}
+        theme={theme ?? "system"}
+        onTheme={() =>
+          setTheme(
+            theme === "light" ? "dark" : theme === "dark" ? "system" : "light",
+          )
+        }
+      />
+    );
   const section = route.path === "/archive" ? "archive" : "active";
   const calendar = route.path === "/calendar";
   const files = route.path === "/files";
@@ -544,15 +740,15 @@ function App() {
       ? "reference"
       : favorites
         ? "favorites"
-        : calendar ||
-            files ||
-            ((filters.q || filters.favorites) && section === "active")
-          ? "all"
-          : section,
+        : calendar
+          ? "calendar"
+          : files || ((filters.q || filters.favorites) && section === "active")
+            ? "all"
+            : section,
     favoriteIds,
   ) as Post[];
   const unread = snapshot.posts.filter(
-    (p) => read[p.id] !== p.updated_at,
+    (p) => p.state !== "deleted" && read[p.id] !== p.updated_at,
   ).length;
   const category = (post: Post) =>
     allCategories.find((c) => c.id === post.category_id)!;
@@ -644,16 +840,42 @@ function App() {
             </button>
           </header>
           <main className="main-content" id="content">
+            {participantView && (
+              <div className="participant-preview-banner">
+                <p>Вы смотрите ленту глазами участника</p>
+                <button
+                  className="primary"
+                  onClick={() => {
+                    setParticipantView(false);
+                    go("/feed");
+                  }}
+                >
+                  Вернуться к своим публикациям
+                </button>
+              </div>
+            )}
+            {source === "./pilot-data/" &&
+              config?.dataSources[0] !== "./pilot-data/" && (
+                <p className="notice">
+                  Сейчас доступна резервная копия пилота. Свежие публикации
+                  появятся после подключения к основному источнику.{" "}
+                  <button className="text-button" onClick={() => refresh()}>
+                    Повторить загрузку
+                  </button>
+                </p>
+              )}
             {postId ? (
               selectedPost ? (
-                <PostView
-                  post={selectedPost}
-                  category={category(selectedPost)}
-                  snapshot={snapshot}
-                  now={now}
-                  copy={copy}
-                  download={download}
-                />
+                <>
+                  <PostView
+                    post={selectedPost}
+                    category={category(selectedPost)}
+                    snapshot={snapshot}
+                    now={now}
+                    copy={copy}
+                    download={download}
+                  />
+                </>
               ) : (
                 <Empty
                   title="Публикация не найдена"
@@ -691,7 +913,7 @@ function App() {
                               ? "Избранное хранится на этом устройстве"
                               : reference
                                 ? "Постоянная информация: оплаты, реквизиты, контакты, офисы и инструкции."
-                                : `${snapshot.posts.length} публикаций за месяц · ${unread} непрочитанных`}
+                                : `${snapshot.posts.filter((p) => p.state !== "deleted").length} публикаций · ${unread} непрочитанных`}
                     </p>
                   </div>
                   <button
@@ -728,6 +950,18 @@ function App() {
                     categories={snapshot.categories}
                     now={now}
                     dateKind={filters.dateKind}
+                    onDateKind={(dateKind) =>
+                      go(route.path, { ...filters, dateKind })
+                    }
+                    reminders={
+                      filters.reminders ||
+                      filters.categories.includes("reminders")
+                    }
+                    onReminders={(reminders) => {
+                      const next = { ...filters, reminders };
+                      setRoute({ ...route, filters: next });
+                      go(route.path, next);
+                    }}
                   />
                 ) : files ? (
                   <FilesView posts={filtered} download={download} />
@@ -761,6 +995,13 @@ function App() {
                     hideEmpty={
                       showMissingFavorites && missingFavorites.length > 0
                     }
+                    collapseReminders={
+                      section === "active" &&
+                      !favorites &&
+                      !reference &&
+                      !filters.q &&
+                      !filters.categories.length
+                    }
                   />
                 )}
                 {showMissingFavorites &&
@@ -782,6 +1023,9 @@ function App() {
           </main>
           <footer className="page-footer">
             <span>FRchat · Домиан</span>
+            <button onClick={() => refresh()} disabled={refreshing}>
+              {refreshing ? "Обновляем…" : "Обновить ленту"}
+            </button>
             <button onClick={() => setDialog("install")}>
               Добавить на главный экран
             </button>
@@ -1053,6 +1297,7 @@ function FilterBar({
     filters.important ||
     filters.files ||
     filters.favorites ||
+    filters.reminders ||
     filters.period !== "all" ||
     filters.status !== "all";
   return (
@@ -1120,7 +1365,7 @@ function FilterBar({
               value={filters.dateKind}
               onChange={(e) => set("dateKind", e.target.value)}
             >
-              <option value="all">События и дедлайны</option>
+              {!calendar && <option value="all">События и дедлайны</option>}
               <option value="event">По событиям</option>
               <option value="deadline">По дедлайнам</option>
               <option value="publication">По публикации</option>
@@ -1234,11 +1479,16 @@ function PostCard({
     new Date(+now - DAY).toISOString(),
     new Date(+now + 32 * DAY).toISOString(),
   ) as DateEntry[];
-  const next =
-    dates.find((d) => dateEnd(d) >= +now && !d.cancelled) ??
-    (status.archive
-      ? post.dates.at(-1)
-      : post.dates.find((d) => !d.recurrence));
+  const nextFor = (kind: string) =>
+    dates.find((d) => d.kind === kind && dateEnd(d) >= +now && !d.cancelled) ??
+    post.dates
+      .filter((d) => d.kind === kind && !d.recurrence)
+      .sort((a, b) => a.start.localeCompare(b.start))
+      .find((d) => dateEnd(d) >= +now) ??
+    dates.filter((d) => d.kind === kind).at(-1) ??
+    post.dates.filter((d) => d.kind === kind).at(-1);
+  const nextEvent = nextFor("event"),
+    nextDeadline = nextFor("deadline");
   return (
     <article
       className={`post-card ${post.category_id === "money" && !status.archive ? "money-card" : ""}`}
@@ -1265,14 +1515,31 @@ function PostCard({
           )}
         </div>
         <h3>{post.title}</h3>
-        {next && (
+        {[nextEvent, nextDeadline].filter(Boolean).map((next) => (
           <div
-            className={"card-date " + (status.id === "overdue" ? "danger" : "")}
+            key={next!.id}
+            data-date-kind={next!.kind}
+            className={
+              "card-date " +
+              (next!.kind === "deadline" && status.id === "overdue"
+                ? "danger"
+                : "")
+            }
           >
             <Icon name="calendar" size={15} />
-            {dateLabel(next)}
+            <span>
+              <span className="card-date-label">
+                {next!.label ||
+                  (next!.kind === "deadline" ? "Срок" : "Событие")}
+                :{" "}
+              </span>
+              {dateLabel(next!)}
+              {next!.kind === "deadline" && dateEnd(next!) <= +now
+                ? " · срок истёк"
+                : ""}
+            </span>
           </div>
-        )}
+        ))}
         <p className="card-excerpt">
           {post.body.replace(/https?:\/\/\S+/g, "").slice(0, 155)}
         </p>
@@ -1311,6 +1578,7 @@ function Feed({
   read,
   heading,
   hideEmpty = false,
+  collapseReminders = false,
 }: {
   posts: Post[];
   categories: Category[];
@@ -1319,12 +1587,20 @@ function Feed({
   read: Record<string, string>;
   heading?: string;
   hideEmpty?: boolean;
+  collapseReminders?: boolean;
 }) {
+  const reminders = collapseReminders
+    ? posts.filter((p) => p.category_id === "reminders")
+    : [];
   const hot = !archive ? posts.filter((p) => isHot(p, now)) : [];
   const pinned = !archive
-    ? posts.filter((p) => p.pinned && !hot.includes(p))
+    ? posts.filter(
+        (p) => p.pinned && !hot.includes(p) && !reminders.includes(p),
+      )
     : [];
-  const other = posts.filter((p) => !hot.includes(p) && !pinned.includes(p));
+  const other = posts.filter(
+    (p) => !hot.includes(p) && !pinned.includes(p) && !reminders.includes(p),
+  );
   const render = (items: Post[]) => (
     <div className="post-grid">
       {items.map((p) => (
@@ -1377,6 +1653,15 @@ function Feed({
           title="Публикаций пока нет"
           text="Попробуйте изменить фильтры или посмотреть архив."
         />
+      )}
+      {reminders.length > 0 && (
+        <details className="reminders-section">
+          <summary>Напоминания · {reminders.length}</summary>
+          <p className="muted">
+            Регулярные правила и сроки собраны здесь один раз.
+          </p>
+          {render(reminders)}
+        </details>
       )}
     </>
   );
@@ -1697,11 +1982,17 @@ function CalendarView({
   categories,
   now,
   dateKind,
+  onDateKind,
+  reminders,
+  onReminders,
 }: {
   posts: Post[];
   categories: Category[];
   now: Date;
   dateKind: string;
+  onDateKind: (kind: string) => void;
+  reminders: boolean;
+  onReminders: (value: boolean) => void;
 }) {
   const [selected, setSelected] = useState(dayKey(now));
   const [month, setMonth] = useState(dayKey(now).slice(0, 7) + "-01");
@@ -1775,6 +2066,32 @@ function CalendarView({
         );
   return (
     <section className="calendar-view">
+      <div className="calendar-kind">
+        <div className="segmented" aria-label="Тип дат календаря">
+          {[
+            ["event", "События"],
+            ["deadline", "Дедлайны"],
+            ["publication", "Публикации"],
+          ].map(([kind, label]) => (
+            <button
+              key={kind}
+              className={dateKind === kind ? "selected" : ""}
+              aria-pressed={dateKind === kind}
+              onClick={() => onDateKind(kind)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <label className="checkbox">
+          <input
+            type="checkbox"
+            checked={reminders}
+            onChange={(e) => onReminders(e.target.checked)}
+          />
+          Регулярные напоминания
+        </label>
+      </div>
       <div className="calendar-toolbar">
         <div className="segmented">
           {(["month", "week", "agenda"] as const).map((v) => (
@@ -1891,13 +2208,15 @@ function CalendarView({
                       <time>
                         {d.kind === "deadline"
                           ? "срок"
-                          : d.allDay
-                            ? "весь день"
-                            : new Intl.DateTimeFormat("ru-RU", {
-                                timeZone: "Europe/Moscow",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }).format(new Date(d.start))}
+                          : d.time_unspecified
+                            ? "уточняется"
+                            : d.allDay
+                              ? "весь день"
+                              : new Intl.DateTimeFormat("ru-RU", {
+                                  timeZone: "Europe/Moscow",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }).format(new Date(d.start))}
                       </time>
                       <div>
                         <strong>{d.post.title}</strong>

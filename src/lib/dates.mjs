@@ -19,6 +19,7 @@ export const weekday = (key) =>
 export function dateEnd(date) {
   if (date.end) return Date.parse(date.end);
   if (date.allDay) return dayStart(addDays(dayKey(date.start), 1));
+  if (date.time_unspecified) return dayStart(addDays(dayKey(date.start), 1));
   return (
     Date.parse(date.start) + (date.kind === "deadline" ? 0 : 2 * 3_600_000)
   );
@@ -111,12 +112,7 @@ export function postStatus(post, now = new Date()) {
       archive: false,
     };
   const activeSeries = post.dates.some(
-    (d) =>
-      d.recurrence &&
-      (!d.recurrence.until ||
-        (d.recurrence.until.length === 10
-          ? dayStart(addDays(d.recurrence.until, 1))
-          : Date.parse(d.recurrence.until)) >= at),
+    (d) => d.recurrence && !d.recurrence.until,
   );
   const dates = occurrences(
     post,
@@ -128,7 +124,7 @@ export function postStatus(post, now = new Date()) {
     (d) => dateEnd(d) <= at && dateEnd(d) + DAY > at,
   );
   const running = dates.some(
-    (d) => d.kind === "event" && Date.parse(d.start) <= at && dateEnd(d) > at,
+    (d) => d.kind === "event" && !d.time_unspecified && Date.parse(d.start) <= at && dateEnd(d) > at,
   );
   const bounds = post.dates
     .filter((d) => !d.recurrence)
@@ -138,7 +134,20 @@ export function postStatus(post, now = new Date()) {
       d.recurrence.until.length === 10
         ? dayStart(addDays(d.recurrence.until, 1))
         : Date.parse(d.recurrence.until);
-    bounds.push(end + (d.kind === "deadline" ? DAY : 0));
+    const recent = expandDate(
+      d,
+      new Date(
+        Math.max(
+          Date.parse(d.start),
+          end - Math.min(360, 7 * (d.recurrence.interval ?? 1) + 8) * DAY,
+        ),
+      ).toISOString(),
+      new Date(end).toISOString(),
+    ).filter((entry) => !entry.cancelled);
+    const last = recent.at(-1);
+    bounds.push(
+      (last ? dateEnd(last) : end) + (d.kind === "deadline" ? DAY : 0),
+    );
   }
   const archive =
     !activeSeries &&
@@ -148,14 +157,18 @@ export function postStatus(post, now = new Date()) {
   if (archive) return { id: "past", label: "В архиве", archive: true };
   if (overdue) return { id: "overdue", label: "Срок истёк", archive: false };
   if (running) return { id: "ongoing", label: "Идёт сейчас", archive: false };
+  const future =
+    activeSeries ||
+    dates.some((d) => Date.parse(d.start) > at || ((d.kind === "deadline" || d.time_unspecified) && dateEnd(d) > at)) ||
+    post.dates.some((d) => !d.recurrence && Date.parse(d.start) > at);
   return {
-    id: post.dates.length ? "upcoming" : "active",
-    label: post.dates.length ? "Предстоит" : "Актуально",
+    id: future ? "upcoming" : "active",
+    label: future ? "Предстоит" : "Актуально",
     archive: false,
   };
 }
 export function isHot(post, now = new Date()) {
-  if (isReference(post)) return false;
+  if (isReference(post) || post.category_id === "reminders") return false;
   const at = +new Date(now);
   const status = postStatus(post, now);
   if (status.archive || ["cancelled", "postponed"].includes(post.state))
@@ -181,6 +194,15 @@ export const formatDate = (value, withTime = true) =>
     ...(withTime ? { hour: "2-digit", minute: "2-digit" } : {}),
   }).format(new Date(value));
 export function dateLabel(date) {
+  if (date.time_unspecified) {
+    const last = date.end
+      ? formatDate(
+          new Date(Date.parse(date.end) - (date.allDay ? DAY : 0)),
+          false,
+        )
+      : "";
+    return `${formatDate(date.start, false)}${last && dayKey(date.end) !== dayKey(date.start) ? ` — ${last}` : ""} · время уточняется`;
+  }
   if (date.allDay) {
     if (
       date.end &&

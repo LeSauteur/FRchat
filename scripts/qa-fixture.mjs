@@ -207,7 +207,7 @@ export async function installQaRoutes(page, fixture) {
       },
     }),
   );
-  await page.route("**/pilot-data/manifest.json", (route) =>
+  await page.route("**/pilot-data/manifest.json*", (route) =>
     route.fulfill({ json: fixture.manifest }),
   );
   await page.route("**/pilot-data/objects/*", (route) => {

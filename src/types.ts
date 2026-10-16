@@ -16,6 +16,7 @@ export interface DateEntry {
   end?: string;
   label?: string;
   allDay?: boolean;
+  time_unspecified?: boolean;
   recurrence?: {
     frequency: string;
     weekdays: number[];
@@ -78,6 +79,11 @@ export interface Config {
   dailyTaskUrl: string;
   dailyTaskHome: string;
 }
+export interface Identity {
+  id: string;
+  label: string;
+  role: string;
+}
 export interface Filters {
   q: string;
   categories: string[];
@@ -87,6 +93,7 @@ export interface Filters {
   important: boolean;
   files: boolean;
   favorites: boolean;
+  reminders: boolean;
   from: string;
   to: string;
 }

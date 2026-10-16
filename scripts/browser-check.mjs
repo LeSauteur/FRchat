@@ -37,9 +37,9 @@ try {
       await page.getByRole("alert").waitFor();
       assert.equal(await page.locator(".post-card").count(), 0);
       passed("incorrect code rejected without exposing posts");
-      const code = (
-        await readFile(resolve(root, ".local/pilot-access-code.txt"), "utf8")
-      ).trim();
+      const records=JSON.parse(await readFile(resolve(root,".local/pilot-accounts.json"),"utf8"));
+      const code=records.accounts.find(a=>a.id==="user1").password;
+      await page.locator("#account-login").selectOption("user1");
       await page.locator("#access-code").fill(code);
       await page.getByRole("button", { name: "Открыть FRchat" }).click();
       await page.locator(".post-card").first().waitFor();

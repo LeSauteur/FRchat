@@ -692,7 +692,12 @@ export default function ManagerEditor({
                           value={d.start.slice(0, 10)}
                           onChange={(e) =>
                             change({
-                              start: e.target.value + "T" + d.start.slice(11),
+                              start: e.target.value
+                                ? e.target.value +
+                                  "T" +
+                                  (d.start.match(/T(.+)$/)?.[1] ||
+                                    "00:00:00+03:00")
+                                : "",
                             })
                           }
                         />

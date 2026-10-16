@@ -1,5 +1,6 @@
 import { MOSCOW, dateEnd, dayKey } from "./dates.mjs";
 export function fullDate(date) {
+  if (!Number.isFinite(Date.parse(date.start))) return "Выберите дату";
   const day = new Intl.DateTimeFormat("ru-RU", {
     timeZone: MOSCOW,
     weekday: "long",

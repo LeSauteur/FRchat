@@ -12,10 +12,11 @@ import {
   captureText,
   suggestDates,
 } from "../src/lib/capture.mjs";
-import { humanError } from "../src/lib/manager.mjs";
+import { humanError, fullDate } from "../src/lib/manager.mjs";
 import { postStatus } from "../src/lib/dates.mjs";
 import { rotateAccess } from "../src/lib/access-rotation.mjs";
 test("yearless forwarded dates keep the nearest year; repeated headline date does not invent an extra session", () => {
+  assert.equal(fullDate({ start: "" }), "Выберите дату");
   const old = suggestDates(
     "Автобусный брокер-тур — 18 сентября!\nВстречаемся 18 сентября в 12:30.",
     "2026-10-16T10:00:00+03:00",

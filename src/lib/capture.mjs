@@ -125,9 +125,20 @@ export function suggestDates(text, publishedAt = new Date()) {
   const inRange = (i) => ranges.some(([a, b]) => i >= a && i < b);
   const anchor = (index, length, day, month, explicitYear) => {
     if (inRange(index)) return;
-    let key = validDay(+(explicitYear ?? thisYear), +month, +day);
+    let key = explicitYear
+      ? validDay(+explicitYear, +month, +day)
+      : [thisYear, thisYear - 1, thisYear + 1]
+          .map((year) => validDay(year, +month, +day))
+          .filter(Boolean)
+          .sort(
+            (a, b) =>
+              Math.abs(Date.parse(a) - Date.parse(today)) -
+              Math.abs(Date.parse(b) - Date.parse(today)),
+          )[0];
     if (!explicitYear && key && key < today)
-      key = validDay(thisYear + 1, +month, +day);
+      warnings.push(
+        `Дата ${day} ${months[+month - 1]} указана без года и уже прошла. Предположен ${key.slice(0, 4)} год — проверьте перед публикацией.`,
+      );
     if (key) anchors.push({ index, end: index + length, key });
     else warnings.push("Найдена невозможная дата. Проверьте число и месяц.");
   };
@@ -200,9 +211,15 @@ export function suggestDates(text, publishedAt = new Date()) {
     );
     const section = text.slice(start, end);
     const before = text.slice(start, a.index);
+    const nextLine = text.indexOf("\n", a.end);
     const kind =
       deadlineWords.test(before) ||
-      deadlineWords.test(text.slice(a.end, Math.min(end, a.end + 35)))
+      deadlineWords.test(
+        text.slice(
+          a.end,
+          Math.min(end, a.end + 35, nextLine < 0 ? text.length : nextLine),
+        ),
+      )
         ? "deadline"
         : "event";
     const times = [
@@ -253,7 +270,20 @@ export function suggestDates(text, publishedAt = new Date()) {
       }
     }
   }
-  return { dates: dates.slice(0, 40), warnings: [...new Set(warnings)] };
+  // A headline often repeats the same day before the body gives its actual time.
+  // Keep real sessions, and omit the duplicate placeholder with unknown time.
+  const distinct = dates.filter(
+    (d) =>
+      !d.time_unspecified ||
+      !dates.some(
+        (other) =>
+          other !== d &&
+          other.kind === d.kind &&
+          !other.time_unspecified &&
+          dayKey(other.start) === dayKey(d.start),
+      ),
+  );
+  return { dates: distinct.slice(0, 40), warnings: [...new Set(warnings)] };
 }
 /** @param {string[]} fragments @param {Date|string} publishedAt @returns {any} */
 export function captureText(fragments, publishedAt = new Date()) {

@@ -1,10 +1,14 @@
 import { MOSCOW, dateEnd, dayKey } from "./dates.mjs";
 export function fullDate(date) {
+  if (!Number.isFinite(Date.parse(date.start))) return "Выберите дату";
   const day = new Intl.DateTimeFormat("ru-RU", {
     timeZone: MOSCOW,
     weekday: "long",
     day: "numeric",
     month: "long",
+    ...(dayKey(date.start).slice(0, 4) !== dayKey(new Date()).slice(0, 4)
+      ? { year: "numeric" }
+      : {}),
   }).format(new Date(date.start));
   if (date.kind === "deadline" && date.allDay) return `${day}, до конца дня`;
   if (date.time_unspecified) return `${day}, время уточняется`;

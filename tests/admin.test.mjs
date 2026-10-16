@@ -12,9 +12,41 @@ import {
   captureText,
   suggestDates,
 } from "../src/lib/capture.mjs";
-import { humanError } from "../src/lib/manager.mjs";
+import { humanError, fullDate } from "../src/lib/manager.mjs";
 import { postStatus } from "../src/lib/dates.mjs";
 import { rotateAccess } from "../src/lib/access-rotation.mjs";
+test("yearless forwarded dates keep the nearest year; repeated headline date does not invent an extra session", () => {
+  assert.equal(fullDate({ start: "" }), "Выберите дату");
+  const old = suggestDates(
+    "Автобусный брокер-тур — 18 сентября!\nВстречаемся 18 сентября в 12:30.",
+    "2026-10-16T10:00:00+03:00",
+  );
+  assert.equal(old.dates.length, 1);
+  assert.equal(old.dates[0].start, "2026-09-18T12:30:00+03:00");
+  assert.ok(old.warnings.some((w) => w.includes("2026")));
+  assert.equal(
+    suggestDates("Встреча 5 января в 11:00", "2026-12-28T10:00:00+03:00")
+      .dates[0].start,
+    "2027-01-05T11:00:00+03:00",
+  );
+  assert.equal(
+    suggestDates("Встреча 25 декабря в 11:00", "2027-01-03T10:00:00+03:00")
+      .dates[0].start,
+    "2026-12-25T11:00:00+03:00",
+  );
+  const separate = suggestDates(
+    "БРОКЕР-ТУР 16.10.2026\n16.10.2026 сеансы 11:00 и 12:00\nСписки до 16.10.2026 в 10:00",
+    "2026-10-15T10:00:00+03:00",
+  );
+  assert.deepEqual(
+    separate.dates.map((d) => [d.kind, d.start.slice(11, 16)]),
+    [
+      ["event", "11:00"],
+      ["event", "12:00"],
+      ["deadline", "10:00"],
+    ],
+  );
+});
 const makeWriter = (f) =>
   new GitDataWriter({
     request: f.backend.request,

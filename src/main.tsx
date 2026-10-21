@@ -590,7 +590,7 @@ function App() {
           </div>
         </section>
         <section className="access-form">
-          <span className="pilot-tag">Пилот · данные на 15.10.2026</span>
+          <span className="pilot-tag">Пилот</span>
           <div className="lock-symbol">
             <Icon name="lock" size={30} />
           </div>
@@ -815,7 +815,7 @@ function App() {
               <strong>FRchat</strong>
             </a>
             <span className="topbar-date">{formatDate(now, false)}</span>
-            <span className="pilot-tag">Пилот · данные на 15.10.2026</span>
+            <span className="pilot-tag">Пилот</span>
             <button
               className="icon-button"
               aria-label="Переключить светлую или тёмную тему"

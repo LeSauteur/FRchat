@@ -8,6 +8,7 @@ import {
   syntheticAdminPassword,
 } from "./admin-fixture.mjs";
 import { inspectContrast } from "./contrast-check.mjs";
+import { inspectInputs } from "./readability-qa.mjs";
 const text =
   "Переслано: Тестовый отдел\nБРОКЕР-ТУР: знакомство с учебным кварталом\nЗавтра в 11:00 приглашаем на презентацию домов и прогулку по территории. Запись по ссылке https://example.org/register\n👍 3\n11:58";
 async function login(page, url) {
@@ -21,7 +22,7 @@ export async function checkAdmin(browser, url) {
     cases = [],
     errors = [];
   await mkdir(output, { recursive: true });
-  for (const width of [390, 1280])
+  for (const width of [390, 430, 1280])
     for (const [system, override] of [
       ["light", "system"],
       ["dark", "system"],
@@ -60,6 +61,11 @@ export async function checkAdmin(browser, url) {
           }));
         });
         const contrast = await page.evaluate(inspectContrast);
+        assert.deepEqual(
+          await page.evaluate(inspectInputs),
+          [],
+          screen + ": input sizes",
+        );
         const sizes = await page.evaluate(() => {
           const visible = (e) =>
             e.getBoundingClientRect().width > 0 &&
@@ -155,6 +161,34 @@ export async function checkAdmin(browser, url) {
         .getByRole("heading", { name: "Проверьте", exact: true })
         .waitFor();
       await audit("step-2");
+      await page
+        .getByRole("button", { name: "Изменить даты", exact: true })
+        .click();
+      await page
+        .getByText("Нажмите «Готово» в блоке дат, чтобы продолжить.", {
+          exact: true,
+        })
+        .waitFor();
+      assert.equal(
+        await page
+          .getByRole("button", { name: "Всё верно", exact: true })
+          .isDisabled(),
+        true,
+      );
+      assert.equal(
+        await page
+          .getByRole("button", { name: "Всё верно", exact: true })
+          .evaluate((e) => getComputedStyle(e).cursor),
+        "not-allowed",
+      );
+      await audit("date-editor");
+      await page.getByRole("button", { name: "Готово", exact: true }).click();
+      assert.equal(
+        await page
+          .getByRole("button", { name: "Всё верно", exact: true })
+          .isEnabled(),
+        true,
+      );
       assert.match(
         await page.locator(".manager-preview").innerText(),
         /Событие:/,

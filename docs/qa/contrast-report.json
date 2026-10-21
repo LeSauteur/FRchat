@@ -15,7 +15,7 @@
       "width": 390,
       "mode": "system-light",
       "screen": "feed",
-      "tested": 164,
+      "tested": 162,
       "minRatio": 4.727,
       "failures": [],
       "axeViolations": [],
@@ -37,7 +37,7 @@
         },
         {
           "target": [
-            ".daily-actions > button"
+            "button[aria-label=\"Скопировать задачу дня\"]"
           ]
         }
       ]
@@ -46,7 +46,7 @@
       "width": 390,
       "mode": "system-light",
       "screen": "post",
-      "tested": 62,
+      "tested": 60,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -56,7 +56,7 @@
       "width": 390,
       "mode": "system-light",
       "screen": "calendar",
-      "tested": 109,
+      "tested": 107,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -66,7 +66,7 @@
       "width": 390,
       "mode": "system-light",
       "screen": "archive",
-      "tested": 67,
+      "tested": 65,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -76,17 +76,38 @@
       "width": 390,
       "mode": "system-light",
       "screen": "search",
-      "tested": 193,
+      "tested": 191,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
-      "axeIncomplete": []
+      "axeIncomplete": [
+        {
+          "target": [
+            ".filter-options > label:nth-child(1)"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(1) > select"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(2) > select"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(3) > select"
+          ]
+        }
+      ]
     },
     {
       "width": 390,
       "mode": "system-light",
       "screen": "favorites",
-      "tested": 83,
+      "tested": 81,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -96,7 +117,7 @@
       "width": 390,
       "mode": "system-light",
       "screen": "reference",
-      "tested": 45,
+      "tested": 58,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -106,7 +127,7 @@
       "width": 390,
       "mode": "system-light",
       "screen": "reference-empty",
-      "tested": 36,
+      "tested": 49,
       "minRatio": 5.067,
       "failures": [],
       "axeViolations": [],
@@ -126,7 +147,7 @@
       "width": 390,
       "mode": "system-dark",
       "screen": "feed",
-      "tested": 164,
+      "tested": 162,
       "minRatio": 5.815,
       "failures": [],
       "axeViolations": [],
@@ -148,7 +169,7 @@
         },
         {
           "target": [
-            ".daily-actions > button"
+            "button[aria-label=\"Скопировать задачу дня\"]"
           ]
         }
       ]
@@ -157,7 +178,7 @@
       "width": 390,
       "mode": "system-dark",
       "screen": "post",
-      "tested": 62,
+      "tested": 60,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -167,7 +188,7 @@
       "width": 390,
       "mode": "system-dark",
       "screen": "calendar",
-      "tested": 109,
+      "tested": 107,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -177,7 +198,7 @@
       "width": 390,
       "mode": "system-dark",
       "screen": "archive",
-      "tested": 67,
+      "tested": 65,
       "minRatio": 6.48,
       "failures": [],
       "axeViolations": [],
@@ -187,17 +208,38 @@
       "width": 390,
       "mode": "system-dark",
       "screen": "search",
-      "tested": 193,
+      "tested": 191,
       "minRatio": 6.48,
       "failures": [],
       "axeViolations": [],
-      "axeIncomplete": []
+      "axeIncomplete": [
+        {
+          "target": [
+            ".filter-options > label:nth-child(1)"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(1) > select"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(2) > select"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(3) > select"
+          ]
+        }
+      ]
     },
     {
       "width": 390,
       "mode": "system-dark",
       "screen": "favorites",
-      "tested": 83,
+      "tested": 81,
       "minRatio": 6.48,
       "failures": [],
       "axeViolations": [],
@@ -207,7 +249,7 @@
       "width": 390,
       "mode": "system-dark",
       "screen": "reference",
-      "tested": 45,
+      "tested": 58,
       "minRatio": 6.48,
       "failures": [],
       "axeViolations": [],
@@ -217,7 +259,7 @@
       "width": 390,
       "mode": "system-dark",
       "screen": "reference-empty",
-      "tested": 36,
+      "tested": 49,
       "minRatio": 7.294,
       "failures": [],
       "axeViolations": [],
@@ -237,7 +279,7 @@
       "width": 390,
       "mode": "manual-dark",
       "screen": "feed",
-      "tested": 164,
+      "tested": 162,
       "minRatio": 5.815,
       "failures": [],
       "axeViolations": [],
@@ -259,7 +301,7 @@
         },
         {
           "target": [
-            ".daily-actions > button"
+            "button[aria-label=\"Скопировать задачу дня\"]"
           ]
         }
       ]
@@ -268,7 +310,7 @@
       "width": 390,
       "mode": "manual-dark",
       "screen": "post",
-      "tested": 62,
+      "tested": 60,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -278,7 +320,7 @@
       "width": 390,
       "mode": "manual-dark",
       "screen": "calendar",
-      "tested": 109,
+      "tested": 107,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -288,7 +330,7 @@
       "width": 390,
       "mode": "manual-dark",
       "screen": "archive",
-      "tested": 67,
+      "tested": 65,
       "minRatio": 6.48,
       "failures": [],
       "axeViolations": [],
@@ -298,17 +340,38 @@
       "width": 390,
       "mode": "manual-dark",
       "screen": "search",
-      "tested": 193,
+      "tested": 191,
       "minRatio": 6.48,
       "failures": [],
       "axeViolations": [],
-      "axeIncomplete": []
+      "axeIncomplete": [
+        {
+          "target": [
+            ".filter-options > label:nth-child(1)"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(1) > select"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(2) > select"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(3) > select"
+          ]
+        }
+      ]
     },
     {
       "width": 390,
       "mode": "manual-dark",
       "screen": "favorites",
-      "tested": 83,
+      "tested": 81,
       "minRatio": 6.48,
       "failures": [],
       "axeViolations": [],
@@ -318,7 +381,7 @@
       "width": 390,
       "mode": "manual-dark",
       "screen": "reference",
-      "tested": 45,
+      "tested": 58,
       "minRatio": 6.48,
       "failures": [],
       "axeViolations": [],
@@ -328,7 +391,7 @@
       "width": 390,
       "mode": "manual-dark",
       "screen": "reference-empty",
-      "tested": 36,
+      "tested": 49,
       "minRatio": 7.294,
       "failures": [],
       "axeViolations": [],
@@ -348,7 +411,7 @@
       "width": 390,
       "mode": "manual-light",
       "screen": "feed",
-      "tested": 164,
+      "tested": 162,
       "minRatio": 4.727,
       "failures": [],
       "axeViolations": [],
@@ -370,7 +433,7 @@
         },
         {
           "target": [
-            ".daily-actions > button"
+            "button[aria-label=\"Скопировать задачу дня\"]"
           ]
         }
       ]
@@ -379,7 +442,7 @@
       "width": 390,
       "mode": "manual-light",
       "screen": "post",
-      "tested": 62,
+      "tested": 60,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -389,7 +452,7 @@
       "width": 390,
       "mode": "manual-light",
       "screen": "calendar",
-      "tested": 109,
+      "tested": 107,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -399,7 +462,7 @@
       "width": 390,
       "mode": "manual-light",
       "screen": "archive",
-      "tested": 67,
+      "tested": 65,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -409,17 +472,38 @@
       "width": 390,
       "mode": "manual-light",
       "screen": "search",
-      "tested": 193,
+      "tested": 191,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
-      "axeIncomplete": []
+      "axeIncomplete": [
+        {
+          "target": [
+            ".filter-options > label:nth-child(1)"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(1) > select"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(2) > select"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(3) > select"
+          ]
+        }
+      ]
     },
     {
       "width": 390,
       "mode": "manual-light",
       "screen": "favorites",
-      "tested": 83,
+      "tested": 81,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -429,7 +513,7 @@
       "width": 390,
       "mode": "manual-light",
       "screen": "reference",
-      "tested": 45,
+      "tested": 58,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -439,7 +523,575 @@
       "width": 390,
       "mode": "manual-light",
       "screen": "reference-empty",
-      "tested": 36,
+      "tested": 49,
+      "minRatio": 5.067,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "system-light",
+      "screen": "login",
+      "tested": 18,
+      "minRatio": 4.949,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "system-light",
+      "screen": "feed",
+      "tested": 162,
+      "minRatio": 4.727,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": [
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > .eyebrow"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > h2"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > p"
+          ]
+        },
+        {
+          "target": [
+            "button[aria-label=\"Скопировать задачу дня\"]"
+          ]
+        }
+      ]
+    },
+    {
+      "width": 430,
+      "mode": "system-light",
+      "screen": "post",
+      "tested": 60,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "system-light",
+      "screen": "calendar",
+      "tested": 107,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "system-light",
+      "screen": "archive",
+      "tested": 65,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "system-light",
+      "screen": "search",
+      "tested": 191,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": [
+        {
+          "target": [
+            ".filter-options > label:nth-child(1)"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(1) > select"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(2)"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(2) > select"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(3)"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(3) > select"
+          ]
+        }
+      ]
+    },
+    {
+      "width": 430,
+      "mode": "system-light",
+      "screen": "favorites",
+      "tested": 81,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "system-light",
+      "screen": "reference",
+      "tested": 58,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "system-light",
+      "screen": "reference-empty",
+      "tested": 49,
+      "minRatio": 5.067,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "system-dark",
+      "screen": "login",
+      "tested": 18,
+      "minRatio": 6.546,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "system-dark",
+      "screen": "feed",
+      "tested": 162,
+      "minRatio": 5.815,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": [
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > .eyebrow"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > h2"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > p"
+          ]
+        },
+        {
+          "target": [
+            "button[aria-label=\"Скопировать задачу дня\"]"
+          ]
+        }
+      ]
+    },
+    {
+      "width": 430,
+      "mode": "system-dark",
+      "screen": "post",
+      "tested": 60,
+      "minRatio": 5.812,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "system-dark",
+      "screen": "calendar",
+      "tested": 107,
+      "minRatio": 5.812,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "system-dark",
+      "screen": "archive",
+      "tested": 65,
+      "minRatio": 6.48,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "system-dark",
+      "screen": "search",
+      "tested": 191,
+      "minRatio": 6.48,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": [
+        {
+          "target": [
+            ".filter-options > label:nth-child(1)"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(1) > select"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(2)"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(2) > select"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(3)"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(3) > select"
+          ]
+        }
+      ]
+    },
+    {
+      "width": 430,
+      "mode": "system-dark",
+      "screen": "favorites",
+      "tested": 81,
+      "minRatio": 6.48,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "system-dark",
+      "screen": "reference",
+      "tested": 58,
+      "minRatio": 6.48,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "system-dark",
+      "screen": "reference-empty",
+      "tested": 49,
+      "minRatio": 7.294,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "manual-dark",
+      "screen": "login",
+      "tested": 18,
+      "minRatio": 6.546,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "manual-dark",
+      "screen": "feed",
+      "tested": 162,
+      "minRatio": 5.815,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": [
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > .eyebrow"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > h2"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > p"
+          ]
+        },
+        {
+          "target": [
+            "button[aria-label=\"Скопировать задачу дня\"]"
+          ]
+        }
+      ]
+    },
+    {
+      "width": 430,
+      "mode": "manual-dark",
+      "screen": "post",
+      "tested": 60,
+      "minRatio": 5.812,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "manual-dark",
+      "screen": "calendar",
+      "tested": 107,
+      "minRatio": 5.812,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "manual-dark",
+      "screen": "archive",
+      "tested": 65,
+      "minRatio": 6.48,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "manual-dark",
+      "screen": "search",
+      "tested": 191,
+      "minRatio": 6.48,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": [
+        {
+          "target": [
+            ".filter-options > label:nth-child(1)"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(1) > select"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(2)"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(2) > select"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(3)"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(3) > select"
+          ]
+        }
+      ]
+    },
+    {
+      "width": 430,
+      "mode": "manual-dark",
+      "screen": "favorites",
+      "tested": 81,
+      "minRatio": 6.48,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "manual-dark",
+      "screen": "reference",
+      "tested": 58,
+      "minRatio": 6.48,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "manual-dark",
+      "screen": "reference-empty",
+      "tested": 49,
+      "minRatio": 7.294,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "manual-light",
+      "screen": "login",
+      "tested": 18,
+      "minRatio": 4.949,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "manual-light",
+      "screen": "feed",
+      "tested": 162,
+      "minRatio": 4.727,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": [
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > .eyebrow"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > h2"
+          ]
+        },
+        {
+          "target": [
+            ".daily-task > div:nth-child(1) > p"
+          ]
+        },
+        {
+          "target": [
+            "button[aria-label=\"Скопировать задачу дня\"]"
+          ]
+        }
+      ]
+    },
+    {
+      "width": 430,
+      "mode": "manual-light",
+      "screen": "post",
+      "tested": 60,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "manual-light",
+      "screen": "calendar",
+      "tested": 107,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "manual-light",
+      "screen": "archive",
+      "tested": 65,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "manual-light",
+      "screen": "search",
+      "tested": 191,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": [
+        {
+          "target": [
+            ".filter-options > label:nth-child(1)"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(1) > select"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(2)"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(2) > select"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(3)"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(3) > select"
+          ]
+        }
+      ]
+    },
+    {
+      "width": 430,
+      "mode": "manual-light",
+      "screen": "favorites",
+      "tested": 81,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "manual-light",
+      "screen": "reference",
+      "tested": 58,
+      "minRatio": 4.682,
+      "failures": [],
+      "axeViolations": [],
+      "axeIncomplete": []
+    },
+    {
+      "width": 430,
+      "mode": "manual-light",
+      "screen": "reference-empty",
+      "tested": 49,
       "minRatio": 5.067,
       "failures": [],
       "axeViolations": [],
@@ -459,7 +1111,7 @@
       "width": 1280,
       "mode": "system-light",
       "screen": "feed",
-      "tested": 180,
+      "tested": 178,
       "minRatio": 4.727,
       "failures": [],
       "axeViolations": [],
@@ -481,7 +1133,7 @@
         },
         {
           "target": [
-            ".daily-actions > button"
+            "button[aria-label=\"Скопировать задачу дня\"]"
           ]
         }
       ]
@@ -490,7 +1142,7 @@
       "width": 1280,
       "mode": "system-light",
       "screen": "post",
-      "tested": 74,
+      "tested": 72,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -500,7 +1152,7 @@
       "width": 1280,
       "mode": "system-light",
       "screen": "calendar",
-      "tested": 124,
+      "tested": 122,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -510,7 +1162,7 @@
       "width": 1280,
       "mode": "system-light",
       "screen": "archive",
-      "tested": 81,
+      "tested": 79,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -520,17 +1172,33 @@
       "width": 1280,
       "mode": "system-light",
       "screen": "search",
-      "tested": 207,
+      "tested": 205,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
-      "axeIncomplete": []
+      "axeIncomplete": [
+        {
+          "target": [
+            "label:nth-child(1) > select"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(3) > select"
+          ]
+        },
+        {
+          "target": [
+            ".checkbox:nth-child(4)"
+          ]
+        }
+      ]
     },
     {
       "width": 1280,
       "mode": "system-light",
       "screen": "favorites",
-      "tested": 97,
+      "tested": 95,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -540,7 +1208,7 @@
       "width": 1280,
       "mode": "system-light",
       "screen": "reference",
-      "tested": 59,
+      "tested": 72,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -550,7 +1218,7 @@
       "width": 1280,
       "mode": "system-light",
       "screen": "reference-empty",
-      "tested": 50,
+      "tested": 63,
       "minRatio": 4.949,
       "failures": [],
       "axeViolations": [],
@@ -570,7 +1238,7 @@
       "width": 1280,
       "mode": "system-dark",
       "screen": "feed",
-      "tested": 180,
+      "tested": 178,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -592,7 +1260,7 @@
         },
         {
           "target": [
-            ".daily-actions > button"
+            "button[aria-label=\"Скопировать задачу дня\"]"
           ]
         }
       ]
@@ -601,7 +1269,7 @@
       "width": 1280,
       "mode": "system-dark",
       "screen": "post",
-      "tested": 74,
+      "tested": 72,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -611,7 +1279,7 @@
       "width": 1280,
       "mode": "system-dark",
       "screen": "calendar",
-      "tested": 124,
+      "tested": 122,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -621,7 +1289,7 @@
       "width": 1280,
       "mode": "system-dark",
       "screen": "archive",
-      "tested": 81,
+      "tested": 79,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -631,17 +1299,33 @@
       "width": 1280,
       "mode": "system-dark",
       "screen": "search",
-      "tested": 207,
+      "tested": 205,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
-      "axeIncomplete": []
+      "axeIncomplete": [
+        {
+          "target": [
+            "label:nth-child(1) > select"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(3) > select"
+          ]
+        },
+        {
+          "target": [
+            ".checkbox:nth-child(4)"
+          ]
+        }
+      ]
     },
     {
       "width": 1280,
       "mode": "system-dark",
       "screen": "favorites",
-      "tested": 97,
+      "tested": 95,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -651,7 +1335,7 @@
       "width": 1280,
       "mode": "system-dark",
       "screen": "reference",
-      "tested": 59,
+      "tested": 72,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -661,7 +1345,7 @@
       "width": 1280,
       "mode": "system-dark",
       "screen": "reference-empty",
-      "tested": 50,
+      "tested": 63,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -681,7 +1365,7 @@
       "width": 1280,
       "mode": "manual-dark",
       "screen": "feed",
-      "tested": 180,
+      "tested": 178,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -703,7 +1387,7 @@
         },
         {
           "target": [
-            ".daily-actions > button"
+            "button[aria-label=\"Скопировать задачу дня\"]"
           ]
         }
       ]
@@ -712,7 +1396,7 @@
       "width": 1280,
       "mode": "manual-dark",
       "screen": "post",
-      "tested": 74,
+      "tested": 72,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -722,7 +1406,7 @@
       "width": 1280,
       "mode": "manual-dark",
       "screen": "calendar",
-      "tested": 124,
+      "tested": 122,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -732,7 +1416,7 @@
       "width": 1280,
       "mode": "manual-dark",
       "screen": "archive",
-      "tested": 81,
+      "tested": 79,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -742,17 +1426,33 @@
       "width": 1280,
       "mode": "manual-dark",
       "screen": "search",
-      "tested": 207,
+      "tested": 205,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
-      "axeIncomplete": []
+      "axeIncomplete": [
+        {
+          "target": [
+            "label:nth-child(1) > select"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(3) > select"
+          ]
+        },
+        {
+          "target": [
+            ".checkbox:nth-child(4)"
+          ]
+        }
+      ]
     },
     {
       "width": 1280,
       "mode": "manual-dark",
       "screen": "favorites",
-      "tested": 97,
+      "tested": 95,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -762,7 +1462,7 @@
       "width": 1280,
       "mode": "manual-dark",
       "screen": "reference",
-      "tested": 59,
+      "tested": 72,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -772,7 +1472,7 @@
       "width": 1280,
       "mode": "manual-dark",
       "screen": "reference-empty",
-      "tested": 50,
+      "tested": 63,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -792,7 +1492,7 @@
       "width": 1280,
       "mode": "manual-light",
       "screen": "feed",
-      "tested": 180,
+      "tested": 178,
       "minRatio": 4.727,
       "failures": [],
       "axeViolations": [],
@@ -814,7 +1514,7 @@
         },
         {
           "target": [
-            ".daily-actions > button"
+            "button[aria-label=\"Скопировать задачу дня\"]"
           ]
         }
       ]
@@ -823,7 +1523,7 @@
       "width": 1280,
       "mode": "manual-light",
       "screen": "post",
-      "tested": 74,
+      "tested": 72,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -833,7 +1533,7 @@
       "width": 1280,
       "mode": "manual-light",
       "screen": "calendar",
-      "tested": 124,
+      "tested": 122,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -843,7 +1543,7 @@
       "width": 1280,
       "mode": "manual-light",
       "screen": "archive",
-      "tested": 81,
+      "tested": 79,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -853,17 +1553,33 @@
       "width": 1280,
       "mode": "manual-light",
       "screen": "search",
-      "tested": 207,
+      "tested": 205,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
-      "axeIncomplete": []
+      "axeIncomplete": [
+        {
+          "target": [
+            "label:nth-child(1) > select"
+          ]
+        },
+        {
+          "target": [
+            "label:nth-child(3) > select"
+          ]
+        },
+        {
+          "target": [
+            ".checkbox:nth-child(4)"
+          ]
+        }
+      ]
     },
     {
       "width": 1280,
       "mode": "manual-light",
       "screen": "favorites",
-      "tested": 97,
+      "tested": 95,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -873,7 +1589,7 @@
       "width": 1280,
       "mode": "manual-light",
       "screen": "reference",
-      "tested": 59,
+      "tested": 72,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -883,7 +1599,7 @@
       "width": 1280,
       "mode": "manual-light",
       "screen": "reference-empty",
-      "tested": 50,
+      "tested": 63,
       "minRatio": 4.949,
       "failures": [],
       "axeViolations": [],

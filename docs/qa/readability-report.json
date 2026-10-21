@@ -1,0 +1,72 @@
+{
+  "synthetic": true,
+  "cases": [
+    {
+      "width": 390,
+      "theme": "light",
+      "input_min": 16,
+      "category": "single-toggle-and-scroll",
+      "navigation": 5,
+      "files_download_verified": true,
+      "legacy_files_link": true,
+      "text_200_percent": true,
+      "errors": 0
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "input_min": 16,
+      "category": "single-toggle-and-scroll",
+      "navigation": 5,
+      "files_download_verified": true,
+      "legacy_files_link": true,
+      "text_200_percent": true,
+      "errors": 0
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "input_min": 16,
+      "category": "single-toggle-and-scroll",
+      "navigation": 5,
+      "files_download_verified": true,
+      "legacy_files_link": true,
+      "text_200_percent": true,
+      "errors": 0
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "input_min": 16,
+      "category": "single-toggle-and-scroll",
+      "navigation": 5,
+      "files_download_verified": true,
+      "legacy_files_link": true,
+      "text_200_percent": true,
+      "errors": 0
+    },
+    {
+      "width": 1280,
+      "theme": "light",
+      "input_min": 16,
+      "category": "single-toggle-and-scroll",
+      "navigation": 5,
+      "files_download_verified": true,
+      "legacy_files_link": true,
+      "text_200_percent": true,
+      "errors": 0
+    },
+    {
+      "width": 1280,
+      "theme": "dark",
+      "input_min": 16,
+      "category": "single-toggle-and-scroll",
+      "navigation": 5,
+      "files_download_verified": true,
+      "legacy_files_link": true,
+      "text_200_percent": true,
+      "errors": 0
+    }
+  ],
+  "notes": "Browser viewport checks, not a physical iPhone Safari run."
+}

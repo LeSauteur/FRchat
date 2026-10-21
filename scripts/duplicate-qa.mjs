@@ -31,7 +31,7 @@ const makePost = (id, text) => ({
 });
 export async function checkDuplicateFlows(browser, url) {
   const cases = [];
-  for (const width of [390, 1280])
+  for (const width of [390, 430, 1280])
     for (const theme of ["light", "dark"]) {
       const old = makePost("old-tour", oldText),
         series = {
@@ -330,7 +330,7 @@ export async function checkDuplicateFlows(browser, url) {
     JSON.stringify({
       duplicate_cases: cases.length,
       themes: 2,
-      widths: [390, 1280],
+      widths: [390, 430, 1280],
       passed: true,
     }),
   );

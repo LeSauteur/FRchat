@@ -471,7 +471,7 @@ button {
   cursor: pointer;
 }
 button:disabled {
-  cursor: wait;
+  cursor: not-allowed;
   opacity: 1;
 }
 a {
@@ -2615,6 +2615,430 @@ textarea::placeholder {
   }
   .access-form .pilot-tag {
     font-size: 10px;
+  }
+}
+/* Reader typography and touch targets. Keep these after the compact layouts. */
+input,
+select,
+textarea {
+  font-size: max(1rem, 16px) !important;
+}
+.app-layout input:not([type="checkbox"]):not([type="radio"]),
+.app-layout select,
+.app-layout textarea {
+  min-height: 48px;
+}
+.checkbox {
+  font-size: max(1rem, 16px) !important;
+}
+.app-layout {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+.app-layout button,
+.app-layout a.primary,
+.app-layout a.secondary,
+.access-page button,
+.access-page input:not([type="checkbox"]),
+.access-page select {
+  min-height: 48px;
+}
+.app-layout button,
+.app-layout .primary,
+.app-layout .secondary,
+.access-form .primary,
+.access-form label,
+.access-form > p,
+.access-note {
+  font-size: 1rem;
+}
+.app-layout .eyebrow,
+.page-heading .eyebrow,
+.page-heading p,
+.pilot-tag,
+.topbar .pilot-tag,
+.category-name,
+.card-meta > .category-name,
+.pin-label,
+.card-date,
+.card-bottom,
+.status,
+.card-reminders,
+.reminder-label,
+.important-label,
+.birthday,
+.back-link,
+.post-byline,
+.date-kind,
+.date-row small,
+.date-row a,
+.date-section-heading,
+.detail-section > h2,
+.file-row small,
+.link-row small,
+.timeline-entry small,
+.agenda-event small,
+.meeting-indicator,
+.post-actions > span,
+.section-heading > span,
+.calendar-legend,
+.weekdays span,
+.agenda-day > h3,
+.page-footer,
+.brand-caption,
+.sidebar-label,
+.access-brand > .eyebrow,
+.access-brand > p,
+.access-form .pilot-tag {
+  font-size: 0.875rem;
+}
+.chip,
+.app-layout .chip {
+  font-size: 0.9375rem;
+  min-height: 48px;
+  padding: 10px 14px;
+}
+.category-chips {
+  scroll-padding-inline: 8px;
+}
+.search input {
+  min-height: 48px;
+}
+.search button,
+.filter-button,
+.topbar .icon-button,
+.feedback-button,
+.favorite-button,
+.month-heading button {
+  min-width: 48px;
+  min-height: 48px;
+}
+.favorite-button.compact {
+  width: 48px;
+  min-width: 48px;
+}
+.checkbox {
+  min-height: 48px;
+}
+.filter-options label:not(.checkbox) {
+  font-size: 1rem;
+  min-width: 0;
+}
+.post-card h3 {
+  font-size: 1.25rem;
+  line-height: 1.4;
+  letter-spacing: -0.15px;
+}
+.card-meta {
+  padding-right: 56px;
+  align-items: flex-start;
+}
+.card-date {
+  align-items: flex-start;
+}
+.card-date svg {
+  margin-top: 3px;
+}
+.card-excerpt {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+.card-bottom {
+  flex-wrap: wrap;
+}
+.post-body {
+  font-size: 1.0625rem;
+  line-height: 1.75;
+}
+.date-row strong,
+.file-row strong,
+.link-row strong,
+.timeline-entry,
+.meeting-button,
+.agenda-event strong,
+.agenda-event time,
+.empty p,
+.no-events,
+.missing-favorite p,
+.app-layout .notice,
+.modal p,
+.modal label,
+.toast {
+  font-size: 1rem;
+}
+.section-heading h2,
+.files-group h2,
+.reference-files > h2 {
+  font-size: 1.25rem;
+}
+.daily-task p,
+.daily-actions a,
+.daily-actions button {
+  font-size: 1rem;
+}
+.daily-task .eyebrow,
+.daily-note,
+.daily-progress {
+  font-size: 0.875rem;
+}
+.daily-actions a,
+.daily-actions button {
+  min-height: 48px;
+  line-height: 1.4;
+}
+.daily-actions {
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+.day-cell {
+  font-size: 1rem;
+  min-height: 52px;
+}
+.day-cell > small {
+  font-size: 0.75rem;
+}
+.month-heading h2 {
+  font-size: 1.125rem;
+}
+.calendar-toolbar {
+  flex-wrap: wrap;
+}
+.segmented {
+  flex-wrap: wrap;
+}
+.app-layout .segmented button {
+  font-size: 1rem;
+  padding: 8px 12px;
+}
+.agenda-event time {
+  width: 56px;
+  flex-shrink: 0;
+}
+.empty {
+  padding: 28px 18px;
+}
+.reference-files {
+  scroll-margin-top: 100px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.reference-files > p {
+  margin: 8px 0 20px;
+}
+.reference-files-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  color: var(--link);
+  text-decoration: underline;
+}
+.manager-edit-hint {
+  margin: 0 0 10px;
+  color: var(--text);
+}
+fieldset[aria-busy="true"] button,
+button[aria-busy="true"] {
+  cursor: progress;
+}
+@media (max-width: 760px) {
+  .main-content {
+    padding: 24px 16px 40px;
+  }
+  .topbar {
+    padding-inline: 16px;
+    gap: 8px;
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 72px;
+    padding-block: 10px;
+  }
+  .topbar .icon-button {
+    width: 48px;
+    height: 48px;
+  }
+  .topbar .icon-button svg {
+    width: 22px;
+    height: 22px;
+  }
+  .page-heading .eyebrow {
+    font-size: 0.875rem;
+    letter-spacing: 0.6px;
+  }
+  .page-heading p {
+    font-size: 0.875rem;
+  }
+  .feedback-button {
+    width: 48px;
+    height: 48px;
+  }
+  .daily-task {
+    min-height: 0;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .daily-task h2 {
+    font-size: 1.5rem;
+  }
+  .daily-task p {
+    font-size: 1rem;
+    max-width: none;
+  }
+  .daily-task .eyebrow,
+  .daily-note {
+    font-size: 0.875rem;
+  }
+  .daily-actions {
+    margin-top: 14px;
+    gap: 8px;
+    align-items: stretch;
+  }
+  .daily-actions a,
+  .daily-actions button {
+    font-size: 1rem;
+    min-height: 48px;
+  }
+  .daily-actions a {
+    padding: 12px 14px;
+  }
+  .daily-actions button {
+    text-align: left;
+  }
+  .search input {
+    min-height: 48px;
+  }
+  .category-chips {
+    margin-right: -16px;
+    padding-right: 16px;
+  }
+  .app-layout .chip {
+    font-size: 0.9375rem;
+    padding: 10px 14px;
+    max-width: 100%;
+    white-space: normal;
+    text-align: left;
+  }
+  .post-card {
+    padding: 16px;
+  }
+  .post-card h3 {
+    font-size: 1.25rem;
+    line-height: 1.4;
+  }
+  .card-meta > .category-name,
+  .card-date,
+  .card-bottom,
+  .status {
+    font-size: 0.875rem;
+  }
+  .card-excerpt {
+    font-size: 1rem;
+  }
+  .section-heading h2 {
+    font-size: 1.25rem;
+  }
+  .section-heading > span {
+    font-size: 0.875rem;
+  }
+  .post-view h1 {
+    font-size: 1.75rem;
+    line-height: 1.3;
+  }
+  .post-byline {
+    font-size: 0.875rem;
+  }
+  .post-body {
+    font-size: 1.0625rem;
+    line-height: 1.75;
+  }
+  .post-view .date-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: 16px;
+  }
+  .date-kind,
+  .date-row small,
+  .date-row a {
+    font-size: 0.875rem;
+  }
+  .date-row strong {
+    font-size: 1rem;
+  }
+  .file-row strong,
+  .link-row strong {
+    font-size: 1rem;
+  }
+  .meeting-button {
+    font-size: 1rem;
+  }
+  .app-layout .segmented button {
+    font-size: 1rem;
+    padding: 8px 10px;
+  }
+  .calendar-panel {
+    padding: 10px;
+  }
+  .day-cell {
+    font-size: 1rem;
+    min-height: 52px;
+  }
+  .month-heading h2 {
+    font-size: 1.125rem;
+  }
+  .agenda-day > h3,
+  .calendar-legend,
+  .weekdays span {
+    font-size: 0.875rem;
+  }
+  .agenda-event strong,
+  .agenda-event time {
+    font-size: 1rem;
+  }
+  .agenda-event {
+    padding: 14px 10px;
+  }
+  .agenda-event time {
+    width: 56px;
+  }
+  .bottom-nav {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    height: auto;
+    min-height: calc(78px + env(safe-area-inset-bottom));
+    padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+    gap: 2px;
+  }
+  .bottom-nav a {
+    font-size: 0.75rem;
+    min-height: 54px;
+    gap: 5px;
+    letter-spacing: -0.15px;
+    overflow-wrap: anywhere;
+  }
+  .bottom-nav svg {
+    width: 24px;
+    height: 24px;
+  }
+  .page-footer {
+    padding: 20px 16px calc(110px + env(safe-area-inset-bottom));
+    font-size: 0.875rem;
+  }
+  .toast {
+    bottom: calc(94px + env(safe-area-inset-bottom));
+    font-size: 1rem;
+  }
+  .access-brand > .eyebrow,
+  .access-form .pilot-tag {
+    font-size: 0.875rem;
+  }
+  .access-brand > p,
+  .access-form > p {
+    font-size: 1rem;
+  }
+}
+@media (max-width: 600px) {
+  .manager-app {
+    padding-bottom: 160px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

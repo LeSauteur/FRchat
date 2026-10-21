@@ -534,7 +534,7 @@ export default function ManagerEditor({
           Текст пока не сохранился на устройстве. Не закрывайте эту вкладку.
         </p>
       )}
-      <fieldset disabled={busy} className="manager-fields">
+      <fieldset disabled={busy} aria-busy={busy} className="manager-fields">
         {step === 1 && (
           <>
             <button
@@ -1107,8 +1107,20 @@ export default function ManagerEditor({
             )}
             {!match && (
               <div className="manager-bottom">
+                {field && (
+                  <p
+                    id="manager-field-hint"
+                    className="manager-edit-hint"
+                    role="status"
+                  >
+                    {field === "dates"
+                      ? "Нажмите «Готово» в блоке дат, чтобы продолжить."
+                      : "Нажмите «Готово» в открытом блоке, чтобы продолжить."}
+                  </p>
+                )}
                 <button
                   className="primary"
+                  aria-describedby={field ? "manager-field-hint" : undefined}
                   disabled={Boolean(field)}
                   onClick={() => {
                     const invalid = validate();

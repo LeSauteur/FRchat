@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { DateEntry, Identity, Post, Snapshot } from "../types";
 import { captureText, similarPosts } from "../lib/capture.mjs";
+import { prepareDuplicateUpdate, seriesPreview } from "../lib/duplicates.mjs";
 import { clearDraft, loadDraft, saveDraft } from "../lib/admin-session.mjs";
 import {
   persistDraftFile,
@@ -60,7 +61,9 @@ export function ManagerPreview({
       <h2>{post.title || "Новая публикация"}</h2>
       {post.dates.map((d) => (
         <p className="manager-date" key={d.id}>
-          <strong>{d.kind === "event" ? "Событие" : "Ответить до"}:</strong>{" "}
+          <strong>
+            {d.label || (d.kind === "event" ? "Событие" : "Срок")}:
+          </strong>{" "}
           {fullDate(d)}
           {d.recurrence && " · повторяется каждую неделю"}
         </p>
@@ -115,6 +118,9 @@ export default function ManagerEditor({
     [done, setDone] = useState<Post | null>(null),
     [copied, setCopied] = useState(false),
     [copyText, setCopyText] = useState("");
+  const [remindTarget, setRemindTarget] = useState<Post | null>(null);
+  const [seriesFocus, setSeriesFocus] = useState<any>(null);
+  const [incomingPost, setIncomingPost] = useState<Post | null>(null);
   const operation = useRef(crypto.randomUUID()),
     queue = useRef<Promise<any>>(Promise.resolve()),
     sending = useRef(false),
@@ -124,13 +130,20 @@ export default function ManagerEditor({
   const categories =
     post.type === "reference" ? REFERENCE_CATEGORIES : snapshot.categories;
   const duplicates = useMemo(
-    () =>
-      existing || keepNew
-        ? []
-        : similarPosts(post.title + " " + post.body, snapshot.posts).filter(
-            (p: any) => p.post.id !== post.id,
-          ),
-    [post.title, post.body, keepNew, snapshot.posts, existing],
+    () => (basePost || keepNew ? [] : similarPosts(post, snapshot.posts)),
+    [post, keepNew, snapshot.posts, basePost],
+  );
+  const match = duplicates[0];
+  const seriesHasLink = post.links.some(
+    (link) =>
+      link.type === "meeting" ||
+      (post.links.length === 1 && link.type === "other"),
+  );
+  const needsUpdate = Boolean(
+    match &&
+    (match.additions.links.length ||
+      match.additions.dates.length ||
+      files.length),
   );
   useEffect(() => {
     let stopped = false;
@@ -159,6 +172,8 @@ export default function ManagerEditor({
       step,
       operationId: operation.current,
       keepNew,
+      seriesFocus,
+      incomingPost,
     };
     pendingDrafts.current++;
     queue.current = queue.current
@@ -175,7 +190,17 @@ export default function ManagerEditor({
       .finally(() => {
         pendingDrafts.current--;
       });
-  }, [post, fragments, files, ready, step, keepNew]);
+  }, [
+    post,
+    basePost,
+    fragments,
+    files,
+    ready,
+    step,
+    keepNew,
+    seriesFocus,
+    incomingPost,
+  ]);
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
       if (
@@ -195,6 +220,7 @@ export default function ManagerEditor({
     setPost((p) => ({ ...p, ...value }));
     operation.current = crypto.randomUUID();
     setError("");
+    setRemindTarget(null);
   }
   function next(value: number) {
     setStep(value);
@@ -207,15 +233,18 @@ export default function ManagerEditor({
       setError("Вставьте текст сообщения.");
       return;
     }
+    if (!basePost) setKeepNew(false);
     patch({
       body: result.body,
       title: result.title,
       source: result.source || post.source,
-      links: [
-        ...new Map(
-          [...post.links, ...result.links].map((l) => [l.url, l]),
-        ).values(),
-      ],
+      links: !basePost
+        ? result.links
+        : [
+            ...new Map(
+              [...post.links, ...result.links].map((l) => [l.url, l]),
+            ).values(),
+          ],
       ...(!basePost
         ? {
             category_id: categories.some((c) => c.id === result.category_id)
@@ -324,10 +353,17 @@ export default function ManagerEditor({
   }
   async function remind(target: Post) {
     if (sending.current) return;
+    if (
+      remindTarget?.id !== target.id ||
+      needsUpdate ||
+      match?.kind === "series"
+    )
+      return;
     sending.current = true;
     setBusy(true);
     setError("");
     try {
+      await queue.current;
       if (!writer) throw { kind: "unavailable" };
       const at = moscowStamp(),
         id = operation.current;
@@ -357,6 +393,36 @@ export default function ManagerEditor({
       setBusy(false);
     }
   }
+  function updateExisting() {
+    if (!match) return;
+    try {
+      const nextPost = prepareDuplicateUpdate(post, match, {
+        id: crypto.randomUUID(),
+        at: moscowStamp(),
+        by: identity.label,
+      });
+      setIncomingPost(post);
+      setSeriesFocus(
+        match.kind === "series"
+          ? { date_id: match.date_id, occurrence_date: match.occurrence_date }
+          : null,
+      );
+      setBasePost(structuredClone(match.post));
+      setPost(nextPost);
+      setKeepNew(true);
+      setRemindTarget(null);
+      operation.current = crypto.randomUUID();
+      setWarnings([
+        match.kind === "series"
+          ? `Обновляете только ${shortDay(match.occurrence_date + "T12:00:00+03:00")}. Другие даты серии сохранятся. Проверьте карточку перед отправкой.`
+          : "Обновляете существующую публикацию. Проверьте текст, даты и ссылки перед отправкой.",
+      ]);
+      setError("");
+      requestAnimationFrame(() => window.scrollTo({ top: 0 }));
+    } catch (e: any) {
+      setError(e.message);
+    }
+  }
   async function restore() {
     try {
       const restored = await restoreDraftFiles(
@@ -376,6 +442,8 @@ export default function ManagerEditor({
     setStep(cached.step ?? 1);
     operation.current = cached.operationId ?? crypto.randomUUID();
     setKeepNew(cached.keepNew ?? Boolean(cached.basePost));
+    setSeriesFocus(cached.seriesFocus ?? null);
+    setIncomingPost(cached.incomingPost ?? null);
     setCached(null);
     setReady(true);
   }
@@ -547,22 +615,127 @@ export default function ManagerEditor({
         )}
         {step === 2 && (
           <>
-            {duplicates.length > 0 && (
-              <section className="notice manager-duplicate">
+            {match && (
+              <section
+                className="notice manager-duplicate"
+                aria-label="Проверка похожей публикации"
+              >
                 <h2>
-                  Такое уже публиковалось{" "}
-                  {shortDay(duplicates[0].post.created_at)}. Что сделать?
+                  {match.kind === "series"
+                    ? "Найдено собрание в расписании"
+                    : "Есть похожая публикация. Что сделать?"}
                 </h2>
-                <p>{duplicates[0].post.title}</p>
-                <button
-                  className="primary"
-                  onClick={() => remind(duplicates[0].post)}
-                >
-                  Напомнить о старой
-                </button>
-                <button onClick={() => setKeepNew(true)}>
-                  Опубликовать как новую
-                </button>
+                <div className="manager-compare">
+                  {[
+                    {
+                      label: "Уже опубликовано",
+                      value:
+                        match.kind === "series"
+                          ? seriesPreview(match.post, match)
+                          : match.post,
+                    },
+                    { label: "Ваше сообщение", value: post },
+                  ].map(({ label, value }) => (
+                    <article className="manager-card" key={label}>
+                      <h3>{label}</h3>
+                      <p>
+                        <strong>{value.title}</strong>
+                      </p>
+                      {value.dates.length ? (
+                        value.dates.map((date: DateEntry) => (
+                          <p key={date.id}>
+                            {date.label ||
+                              (date.kind === "deadline" ? "Срок" : "Событие")}
+                            : {fullDate(date)}
+                            {date.recurrence ? " · каждую неделю" : ""}
+                          </p>
+                        ))
+                      ) : (
+                        <p>Дата не указана</p>
+                      )}
+                      {value.links.map((link: any) => (
+                        <p className="manager-compare-link" key={link.url}>
+                          <a
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {link.label || link.url}
+                          </a>
+                        </p>
+                      ))}
+                    </article>
+                  ))}
+                </div>
+                {match.kind === "series" ? (
+                  <>
+                    <p>Ссылка будет относиться только к выбранной дате.</p>
+                    <button onClick={updateExisting}>
+                      {seriesHasLink ? "Добавить ссылку к" : "Обновить"}{" "}
+                      {match.post.dates.find(
+                        (d: DateEntry) => d.id === match.date_id,
+                      )?.kind === "event"
+                        ? seriesHasLink
+                          ? "собранию"
+                          : "собрание"
+                        : seriesHasLink
+                          ? "напоминанию"
+                          : "напоминание"}{" "}
+                      {shortDay(match.occurrence_date + "T12:00:00+03:00")}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setKeepNew(true);
+                        setRemindTarget(null);
+                      }}
+                    >
+                      Это новое
+                    </button>
+                  </>
+                ) : remindTarget ? (
+                  <div
+                    className="manager-remind-confirm"
+                    role="group"
+                    aria-label="Подтверждение напоминания"
+                  >
+                    <h3>Напомнить участникам о старой публикации?</h3>
+                    <p>
+                      Поднимется прежняя карточка. Ваш новый текст не будет
+                      добавлен. Чтобы сохранить изменения, выберите «Обновить
+                      старую».
+                    </p>
+                    <button onClick={() => void remind(remindTarget)}>
+                      Да, напомнить
+                    </button>
+                    <button onClick={() => setRemindTarget(null)}>
+                      Назад к выбору
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    {needsUpdate && (
+                      <p>
+                        В вашем сообщении есть новая ссылка, дата или файл.
+                        Выберите «Обновить старую», чтобы сохранить дополнения.
+                      </p>
+                    )}
+                    <button
+                      disabled={needsUpdate}
+                      onClick={() => setRemindTarget(match.post)}
+                    >
+                      Это повтор — напомнить
+                    </button>
+                    <button onClick={updateExisting}>Обновить старую</button>
+                    <button
+                      onClick={() => {
+                        setKeepNew(true);
+                        setRemindTarget(null);
+                      }}
+                    >
+                      Это новое
+                    </button>
+                  </>
+                )}
               </section>
             )}
             {warnings.map((w, i) => (
@@ -570,345 +743,392 @@ export default function ManagerEditor({
                 {w}
               </p>
             ))}
-            <ManagerPreview post={post} categories={categories} />
+            <ManagerPreview
+              post={seriesPreview(post, seriesFocus)}
+              categories={categories}
+            />
             {files.map((f) => (
               <p key={f.id}>📎 {f.name}</p>
             ))}
-            <div className="manager-edit-row">
-              <strong>
-                Категория:{" "}
-                {categories.find((c) => c.id === post.category_id)?.name}
-              </strong>
-              <button
-                onClick={() => setField(field === "category" ? "" : "category")}
-              >
-                Изменить категорию
-              </button>
-            </div>
-            {field === "category" && (
+            {seriesFocus && (
               <section className="manager-card">
-                <label>
-                  Раздел
-                  <select
-                    value={post.type ?? "post"}
-                    onChange={(e) =>
-                      patch({
-                        type: e.target.value as "post" | "reference",
-                        category_id:
-                          e.target.value === "reference"
-                            ? REFERENCE_CATEGORIES[0].id
-                            : "company",
-                      })
-                    }
-                  >
-                    <option value="post">Рабочие сообщения</option>
-                    <option value="reference">Справочник</option>
-                  </select>
-                </label>
-                <label>
-                  Категория
-                  <select
-                    value={post.category_id}
-                    onChange={(e) => patch({ category_id: e.target.value })}
-                  >
-                    {categories.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <button onClick={() => setField("")}>Готово</button>
+                <h2>Новое сообщение для этой даты</h2>
+                <p className="manager-body">{incomingPost?.body}</p>
+                <p>
+                  Текст сохранится в истории. Ссылка и время изменятся только у
+                  выбранной встречи.
+                </p>
+                <button
+                  onClick={() => {
+                    if (incomingPost) setPost(incomingPost);
+                    setBasePost(null);
+                    setSeriesFocus(null);
+                    setIncomingPost(null);
+                    setKeepNew(false);
+                    setWarnings([]);
+                    next(1);
+                  }}
+                >
+                  Изменить новое сообщение
+                </button>
               </section>
             )}
-            <div className="manager-edit-row">
-              <strong>Заголовок</strong>
-              <button
-                onClick={() => setField(field === "title" ? "" : "title")}
-              >
-                Изменить заголовок
-              </button>
-            </div>
-            {field === "title" && (
-              <label>
-                Заголовок
-                <input
-                  maxLength={180}
-                  value={post.title}
-                  onChange={(e) => patch({ title: e.target.value })}
-                />
-                <button onClick={() => setField("")}>Готово</button>
-              </label>
-            )}
-            <div className="manager-edit-row">
-              <strong>{post.dates.length ? "Даты" : "Дат в тексте нет"}</strong>
-              <button
-                onClick={() => setField(field === "dates" ? "" : "dates")}
-              >
-                Изменить даты
-              </button>
-            </div>
-            {field === "dates" && (
-              <section className="manager-card">
-                <p>
-                  Событие — когда проходит встреча. Ответить до — последний срок
-                  для списков и заявок.
-                </p>
-                {post.dates.map((d, i) => {
-                  const change = (p: Partial<DateEntry>) =>
-                    patch({
-                      dates: post.dates.map((v, n) =>
-                        n === i ? { ...v, ...p } : v,
-                      ),
-                    });
-                  return (
-                    <div className="manager-date-edit" key={d.id}>
-                      <label>
-                        Что означает дата
-                        <select
-                          value={d.kind}
-                          onChange={(e) =>
-                            change({
-                              kind: e.target.value as "event" | "deadline",
-                            })
-                          }
-                        >
-                          <option value="event">Событие</option>
-                          <option value="deadline">Ответить до</option>
-                        </select>
-                      </label>
-                      <label>
-                        Подпись даты
-                        <input
-                          value={d.label ?? ""}
-                          placeholder={d.kind === "event" ? "Событие" : "Срок"}
-                          onChange={(e) => change({ label: e.target.value })}
-                        />
-                      </label>
-                      <label>
-                        Дата
-                        <input
-                          type="date"
-                          value={d.start.slice(0, 10)}
-                          onChange={(e) =>
-                            change({
-                              start: e.target.value
-                                ? e.target.value +
-                                  "T" +
-                                  (d.start.match(/T(.+)$/)?.[1] ||
-                                    "00:00:00+03:00")
-                                : "",
-                            })
-                          }
-                        />
-                      </label>
-                      <label>
-                        {d.kind === "event"
-                          ? "Время начала"
-                          : "Последнее время ответа"}
-                        <input
-                          type="time"
-                          disabled={d.allDay || d.time_unspecified}
-                          value={d.start.slice(11, 16)}
-                          onChange={(e) =>
-                            change({
-                              start:
-                                d.start.slice(0, 11) +
-                                e.target.value +
-                                ":00+03:00",
-                            })
-                          }
-                        />
-                      </label>
-                      <label className="checkbox">
-                        <input
-                          type="checkbox"
-                          checked={Boolean(
-                            d.kind === "deadline"
-                              ? d.allDay
-                              : d.time_unspecified,
-                          )}
-                          onChange={(e) =>
-                            change(
-                              d.kind === "deadline"
-                                ? { allDay: e.target.checked }
-                                : { time_unspecified: e.target.checked },
-                            )
-                          }
-                        />
-                        {d.kind === "deadline"
-                          ? "До конца дня"
-                          : "Время уточняется"}
-                      </label>
-                      <label>
-                        Окончание (если известно)
-                        <input
-                          type="datetime-local"
-                          value={d.end?.slice(0, 16) ?? ""}
-                          onChange={(e) =>
-                            change({
-                              end: e.target.value
-                                ? e.target.value + ":00+03:00"
-                                : undefined,
-                            })
-                          }
-                        />
-                      </label>
-                      <label className="checkbox">
-                        <input
-                          type="checkbox"
-                          checked={Boolean(d.recurrence)}
-                          onChange={(e) =>
-                            change({
-                              recurrence: e.target.checked
-                                ? {
-                                    frequency: "weekly",
-                                    weekdays: [
-                                      new Date(
-                                        d.start.slice(0, 10) + "T12:00:00Z",
-                                      ).getUTCDay() || 7,
-                                    ],
-                                  }
-                                : undefined,
-                            })
-                          }
-                        />
-                        Повторяется каждую неделю
-                      </label>
-                      {d.recurrence && (
-                        <label>
-                          Последняя неделя (если известна)
-                          <input
-                            type="date"
-                            value={d.recurrence.until ?? ""}
-                            onChange={(e) =>
-                              change({
-                                recurrence: {
-                                  ...d.recurrence!,
-                                  until: e.target.value || undefined,
-                                },
-                              })
-                            }
-                          />
-                        </label>
-                      )}
-                      <button
-                        onClick={() =>
-                          patch({ dates: post.dates.filter((_, n) => n !== i) })
+            {!seriesFocus && (
+              <>
+                <div className="manager-edit-row">
+                  <strong>
+                    Категория:{" "}
+                    {categories.find((c) => c.id === post.category_id)?.name}
+                  </strong>
+                  <button
+                    onClick={() =>
+                      setField(field === "category" ? "" : "category")
+                    }
+                  >
+                    Изменить категорию
+                  </button>
+                </div>
+                {field === "category" && (
+                  <section className="manager-card">
+                    <label>
+                      Раздел
+                      <select
+                        value={post.type ?? "post"}
+                        onChange={(e) =>
+                          patch({
+                            type: e.target.value as "post" | "reference",
+                            category_id:
+                              e.target.value === "reference"
+                                ? REFERENCE_CATEGORIES[0].id
+                                : "company",
+                          })
                         }
                       >
-                        Убрать дату
-                      </button>
-                    </div>
-                  );
-                })}
+                        <option value="post">Рабочие сообщения</option>
+                        <option value="reference">Справочник</option>
+                      </select>
+                    </label>
+                    <label>
+                      Категория
+                      <select
+                        value={post.category_id}
+                        onChange={(e) => patch({ category_id: e.target.value })}
+                      >
+                        {categories.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <button onClick={() => setField("")}>Готово</button>
+                  </section>
+                )}
+                <div className="manager-edit-row">
+                  <strong>Заголовок</strong>
+                  <button
+                    onClick={() => setField(field === "title" ? "" : "title")}
+                  >
+                    Изменить заголовок
+                  </button>
+                </div>
+                {field === "title" && (
+                  <label>
+                    Заголовок
+                    <input
+                      maxLength={180}
+                      value={post.title}
+                      onChange={(e) => patch({ title: e.target.value })}
+                    />
+                    <button onClick={() => setField("")}>Готово</button>
+                  </label>
+                )}
+                <div className="manager-edit-row">
+                  <strong>
+                    {post.dates.length ? "Даты" : "Дат в тексте нет"}
+                  </strong>
+                  <button
+                    onClick={() => setField(field === "dates" ? "" : "dates")}
+                  >
+                    Изменить даты
+                  </button>
+                </div>
+                {field === "dates" && (
+                  <section className="manager-card">
+                    <p>
+                      Событие — когда проходит встреча. Ответить до — последний
+                      срок для списков и заявок.
+                    </p>
+                    {post.dates.map((d, i) => {
+                      const change = (p: Partial<DateEntry>) =>
+                        patch({
+                          dates: post.dates.map((v, n) =>
+                            n === i ? { ...v, ...p } : v,
+                          ),
+                        });
+                      return (
+                        <div className="manager-date-edit" key={d.id}>
+                          <label>
+                            Что означает дата
+                            <select
+                              value={d.kind}
+                              onChange={(e) =>
+                                change({
+                                  kind: e.target.value as "event" | "deadline",
+                                })
+                              }
+                            >
+                              <option value="event">Событие</option>
+                              <option value="deadline">Ответить до</option>
+                            </select>
+                          </label>
+                          <label>
+                            Подпись даты
+                            <input
+                              value={d.label ?? ""}
+                              placeholder={
+                                d.kind === "event" ? "Событие" : "Срок"
+                              }
+                              onChange={(e) =>
+                                change({ label: e.target.value })
+                              }
+                            />
+                          </label>
+                          <label>
+                            Дата
+                            <input
+                              type="date"
+                              value={d.start.slice(0, 10)}
+                              onChange={(e) =>
+                                change({
+                                  start: e.target.value
+                                    ? e.target.value +
+                                      "T" +
+                                      (d.start.match(/T(.+)$/)?.[1] ||
+                                        "00:00:00+03:00")
+                                    : "",
+                                })
+                              }
+                            />
+                          </label>
+                          <label>
+                            {d.kind === "event"
+                              ? "Время начала"
+                              : "Последнее время ответа"}
+                            <input
+                              type="time"
+                              disabled={d.allDay || d.time_unspecified}
+                              value={d.start.slice(11, 16)}
+                              onChange={(e) =>
+                                change({
+                                  start:
+                                    d.start.slice(0, 11) +
+                                    e.target.value +
+                                    ":00+03:00",
+                                })
+                              }
+                            />
+                          </label>
+                          <label className="checkbox">
+                            <input
+                              type="checkbox"
+                              checked={Boolean(
+                                d.kind === "deadline"
+                                  ? d.allDay
+                                  : d.time_unspecified,
+                              )}
+                              onChange={(e) =>
+                                change(
+                                  d.kind === "deadline"
+                                    ? { allDay: e.target.checked }
+                                    : { time_unspecified: e.target.checked },
+                                )
+                              }
+                            />
+                            {d.kind === "deadline"
+                              ? "До конца дня"
+                              : "Время уточняется"}
+                          </label>
+                          <label>
+                            Окончание (если известно)
+                            <input
+                              type="datetime-local"
+                              value={d.end?.slice(0, 16) ?? ""}
+                              onChange={(e) =>
+                                change({
+                                  end: e.target.value
+                                    ? e.target.value + ":00+03:00"
+                                    : undefined,
+                                })
+                              }
+                            />
+                          </label>
+                          <label className="checkbox">
+                            <input
+                              type="checkbox"
+                              checked={Boolean(d.recurrence)}
+                              onChange={(e) =>
+                                change({
+                                  recurrence: e.target.checked
+                                    ? {
+                                        frequency: "weekly",
+                                        weekdays: [
+                                          new Date(
+                                            d.start.slice(0, 10) + "T12:00:00Z",
+                                          ).getUTCDay() || 7,
+                                        ],
+                                      }
+                                    : undefined,
+                                })
+                              }
+                            />
+                            Повторяется каждую неделю
+                          </label>
+                          {d.recurrence && (
+                            <label>
+                              Последняя неделя (если известна)
+                              <input
+                                type="date"
+                                value={d.recurrence.until ?? ""}
+                                onChange={(e) =>
+                                  change({
+                                    recurrence: {
+                                      ...d.recurrence!,
+                                      until: e.target.value || undefined,
+                                    },
+                                  })
+                                }
+                              />
+                            </label>
+                          )}
+                          <button
+                            onClick={() =>
+                              patch({
+                                dates: post.dates.filter((_, n) => n !== i),
+                              })
+                            }
+                          >
+                            Убрать дату
+                          </button>
+                        </div>
+                      );
+                    })}
+                    <button
+                      onClick={() =>
+                        patch({
+                          dates: [
+                            ...post.dates,
+                            {
+                              id: crypto.randomUUID(),
+                              kind: "event",
+                              start: dayKey(new Date()) + "T00:00:00+03:00",
+                              time_unspecified: true,
+                            },
+                          ],
+                        })
+                      }
+                    >
+                      + Добавить дату
+                    </button>
+                    <button
+                      onClick={() => {
+                        const invalid = validate();
+                        if (invalid) setError(invalid);
+                        else setField("");
+                      }}
+                    >
+                      Готово
+                    </button>
+                  </section>
+                )}
+                <div className="manager-edit-row">
+                  <strong>Размещение</strong>
+                  <button
+                    onClick={() =>
+                      setField(field === "placement" ? "" : "placement")
+                    }
+                  >
+                    Изменить размещение
+                  </button>
+                </div>
+                {field === "placement" && (
+                  <section className="manager-card">
+                    <label>
+                      Состояние
+                      <select
+                        value={post.state}
+                        onChange={(e) =>
+                          patch({
+                            state: e.target.value,
+                            closed_at:
+                              e.target.value === "closed"
+                                ? moscowStamp()
+                                : undefined,
+                          })
+                        }
+                      >
+                        <option value="active">Актуально</option>
+                        <option value="closed">Завершено досрочно</option>
+                        <option value="cancelled">Отменено</option>
+                        <option value="postponed">
+                          Перенесено — дата уточняется
+                        </option>
+                      </select>
+                    </label>
+                    <label>
+                      Важность
+                      <select
+                        value={post.priority}
+                        onChange={(e) => patch({ priority: e.target.value })}
+                      >
+                        <option value="normal">Обычная</option>
+                        <option value="important">Важно</option>
+                        <option value="urgent">Срочно</option>
+                      </select>
+                    </label>
+                    <label className="checkbox">
+                      <input
+                        type="checkbox"
+                        checked={post.pinned}
+                        onChange={(e) => patch({ pinned: e.target.checked })}
+                      />
+                      Закрепить в ленте
+                    </label>
+                    <button onClick={() => setField("")}>Готово</button>
+                  </section>
+                )}
+                <div className="manager-edit-row">
+                  <strong>Текст и файлы</strong>
+                  <button onClick={() => next(1)}>
+                    Изменить текст и файлы
+                  </button>
+                </div>
+              </>
+            )}
+            {!match && (
+              <div className="manager-bottom">
                 <button
-                  onClick={() =>
-                    patch({
-                      dates: [
-                        ...post.dates,
-                        {
-                          id: crypto.randomUUID(),
-                          kind: "event",
-                          start: dayKey(new Date()) + "T00:00:00+03:00",
-                          time_unspecified: true,
-                        },
-                      ],
-                    })
-                  }
-                >
-                  + Добавить дату
-                </button>
-                <button
+                  className="primary"
+                  disabled={Boolean(field)}
                   onClick={() => {
                     const invalid = validate();
                     if (invalid) setError(invalid);
-                    else setField("");
+                    else next(3);
                   }}
                 >
-                  Готово
+                  Всё верно
                 </button>
-              </section>
+              </div>
             )}
-            <div className="manager-edit-row">
-              <strong>Размещение</strong>
-              <button
-                onClick={() =>
-                  setField(field === "placement" ? "" : "placement")
-                }
-              >
-                Изменить размещение
-              </button>
-            </div>
-            {field === "placement" && (
-              <section className="manager-card">
-                <label>
-                  Состояние
-                  <select
-                    value={post.state}
-                    onChange={(e) =>
-                      patch({
-                        state: e.target.value,
-                        closed_at:
-                          e.target.value === "closed"
-                            ? moscowStamp()
-                            : undefined,
-                      })
-                    }
-                  >
-                    <option value="active">Актуально</option>
-                    <option value="closed">Завершено досрочно</option>
-                    <option value="cancelled">Отменено</option>
-                    <option value="postponed">
-                      Перенесено — дата уточняется
-                    </option>
-                  </select>
-                </label>
-                <label>
-                  Важность
-                  <select
-                    value={post.priority}
-                    onChange={(e) => patch({ priority: e.target.value })}
-                  >
-                    <option value="normal">Обычная</option>
-                    <option value="important">Важно</option>
-                    <option value="urgent">Срочно</option>
-                  </select>
-                </label>
-                <label className="checkbox">
-                  <input
-                    type="checkbox"
-                    checked={post.pinned}
-                    onChange={(e) => patch({ pinned: e.target.checked })}
-                  />
-                  Закрепить в ленте
-                </label>
-                <button onClick={() => setField("")}>Готово</button>
-              </section>
-            )}
-            <div className="manager-edit-row">
-              <strong>Текст и файлы</strong>
-              <button onClick={() => next(1)}>Изменить текст и файлы</button>
-            </div>
-            <div className="manager-bottom">
-              <button
-                className="primary"
-                disabled={Boolean(field) || duplicates.length > 0}
-                onClick={() => {
-                  const invalid = validate();
-                  if (invalid) setError(invalid);
-                  else next(3);
-                }}
-              >
-                Всё верно
-              </button>
-            </div>
           </>
         )}
         {step === 3 && (
           <>
             <p>Остался один шаг. Сообщение появится у всех участников.</p>
-            <ManagerPreview post={post} categories={categories} />
+            <ManagerPreview
+              post={seriesPreview(post, seriesFocus)}
+              categories={categories}
+            />
             <button onClick={() => next(2)}>Вернуться к проверке</button>
             <div className="manager-bottom">
               <button className="primary" onClick={() => publish()}>

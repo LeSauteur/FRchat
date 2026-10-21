@@ -10,7 +10,7 @@ import {
 } from "../src/lib/crypto.mjs";
 export const syntheticAdminPassword = "qa-admin-password-only",
   syntheticReaderPassword = "qa-reader-password-only";
-export async function createAdminFixture() {
+export async function createAdminFixture({ additionalPosts = [] } = {}) {
   const fixture = await createQaFixture(),
     { manifest, objects } = fixture,
     key = await deriveKey(fixture.code, manifest.kdf);
@@ -36,6 +36,8 @@ export async function createAdminFixture() {
   }
   const index = await read(manifest.index),
     posts = (await Promise.all(index.months.map(read))).flatMap((m) => m.posts);
+  posts.push(...structuredClone(additionalPosts));
+  index.count = posts.length;
   index.categories.push({
     id: "reminders",
     name: "Напоминания",

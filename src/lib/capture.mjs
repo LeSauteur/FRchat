@@ -330,27 +330,4 @@ export function captureText(fragments, publishedAt = new Date()) {
     removed: cleaned.flatMap((p) => p.removed),
   };
 }
-export function similarPosts(text, posts) {
-  const words = (value) =>
-    new Set(
-      String(value)
-        .toLocaleLowerCase("ru")
-        .replaceAll("ё", "е")
-        .match(/[а-яa-z0-9]{4,}/gu) ?? [],
-    );
-  const query = words(text);
-  if (query.size < 3) return [];
-  return posts
-    .filter((p) => p.state !== "deleted")
-    .map((post) => {
-      const other = words(post.title + " " + post.body),
-        common = [...query].filter((w) => other.has(w)).length;
-      return {
-        post,
-        score: common / Math.min(query.size, Math.max(1, other.size)),
-      };
-    })
-    .filter((p) => p.score >= 0.55)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 3);
-}
+export { similarPosts } from "./duplicates.mjs";

@@ -15,7 +15,7 @@
       "width": 390,
       "mode": "system-light",
       "screen": "feed",
-      "tested": 165,
+      "tested": 164,
       "minRatio": 4.727,
       "failures": [],
       "axeViolations": [],
@@ -39,11 +39,6 @@
           "target": [
             ".daily-actions > button"
           ]
-        },
-        {
-          "target": [
-            ".daily-note"
-          ]
         }
       ]
     },
@@ -61,7 +56,7 @@
       "width": 390,
       "mode": "system-light",
       "screen": "calendar",
-      "tested": 114,
+      "tested": 109,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -71,7 +66,7 @@
       "width": 390,
       "mode": "system-light",
       "screen": "archive",
-      "tested": 70,
+      "tested": 67,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -81,43 +76,17 @@
       "width": 390,
       "mode": "system-light",
       "screen": "search",
-      "tested": 201,
+      "tested": 193,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
-      "axeIncomplete": [
-        {
-          "target": [
-            ".daily-task > div:nth-child(1) > .eyebrow"
-          ]
-        },
-        {
-          "target": [
-            ".daily-task > div:nth-child(1) > h2"
-          ]
-        },
-        {
-          "target": [
-            ".daily-task > div:nth-child(1) > p"
-          ]
-        },
-        {
-          "target": [
-            ".daily-actions > button"
-          ]
-        },
-        {
-          "target": [
-            ".daily-note"
-          ]
-        }
-      ]
+      "axeIncomplete": []
     },
     {
       "width": 390,
       "mode": "system-light",
       "screen": "favorites",
-      "tested": 86,
+      "tested": 83,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -127,7 +96,7 @@
       "width": 390,
       "mode": "system-light",
       "screen": "reference",
-      "tested": 44,
+      "tested": 45,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -157,7 +126,7 @@
       "width": 390,
       "mode": "system-dark",
       "screen": "feed",
-      "tested": 165,
+      "tested": 164,
       "minRatio": 5.815,
       "failures": [],
       "axeViolations": [],
@@ -180,11 +149,6 @@
         {
           "target": [
             ".daily-actions > button"
-          ]
-        },
-        {
-          "target": [
-            ".daily-note"
           ]
         }
       ]
@@ -203,7 +167,7 @@
       "width": 390,
       "mode": "system-dark",
       "screen": "calendar",
-      "tested": 114,
+      "tested": 109,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -213,7 +177,7 @@
       "width": 390,
       "mode": "system-dark",
       "screen": "archive",
-      "tested": 70,
+      "tested": 67,
       "minRatio": 6.48,
       "failures": [],
       "axeViolations": [],
@@ -223,43 +187,17 @@
       "width": 390,
       "mode": "system-dark",
       "screen": "search",
-      "tested": 201,
-      "minRatio": 5.815,
+      "tested": 193,
+      "minRatio": 6.48,
       "failures": [],
       "axeViolations": [],
-      "axeIncomplete": [
-        {
-          "target": [
-            ".daily-task > div:nth-child(1) > .eyebrow"
-          ]
-        },
-        {
-          "target": [
-            ".daily-task > div:nth-child(1) > h2"
-          ]
-        },
-        {
-          "target": [
-            ".daily-task > div:nth-child(1) > p"
-          ]
-        },
-        {
-          "target": [
-            ".daily-actions > button"
-          ]
-        },
-        {
-          "target": [
-            ".daily-note"
-          ]
-        }
-      ]
+      "axeIncomplete": []
     },
     {
       "width": 390,
       "mode": "system-dark",
       "screen": "favorites",
-      "tested": 86,
+      "tested": 83,
       "minRatio": 6.48,
       "failures": [],
       "axeViolations": [],
@@ -269,7 +207,7 @@
       "width": 390,
       "mode": "system-dark",
       "screen": "reference",
-      "tested": 44,
+      "tested": 45,
       "minRatio": 6.48,
       "failures": [],
       "axeViolations": [],
@@ -299,7 +237,7 @@
       "width": 390,
       "mode": "manual-dark",
       "screen": "feed",
-      "tested": 165,
+      "tested": 164,
       "minRatio": 5.815,
       "failures": [],
       "axeViolations": [],
@@ -322,11 +260,6 @@
         {
           "target": [
             ".daily-actions > button"
-          ]
-        },
-        {
-          "target": [
-            ".daily-note"
           ]
         }
       ]
@@ -345,7 +278,7 @@
       "width": 390,
       "mode": "manual-dark",
       "screen": "calendar",
-      "tested": 114,
+      "tested": 109,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -355,7 +288,7 @@
       "width": 390,
       "mode": "manual-dark",
       "screen": "archive",
-      "tested": 70,
+      "tested": 67,
       "minRatio": 6.48,
       "failures": [],
       "axeViolations": [],
@@ -365,43 +298,17 @@
       "width": 390,
       "mode": "manual-dark",
       "screen": "search",
-      "tested": 201,
-      "minRatio": 5.815,
+      "tested": 193,
+      "minRatio": 6.48,
       "failures": [],
       "axeViolations": [],
-      "axeIncomplete": [
-        {
-          "target": [
-            ".daily-task > div:nth-child(1) > .eyebrow"
-          ]
-        },
-        {
-          "target": [
-            ".daily-task > div:nth-child(1) > h2"
-          ]
-        },
-        {
-          "target": [
-            ".daily-task > div:nth-child(1) > p"
-          ]
-        },
-        {
-          "target": [
-            ".daily-actions > button"
-          ]
-        },
-        {
-          "target": [
-            ".daily-note"
-          ]
-        }
-      ]
+      "axeIncomplete": []
     },
     {
       "width": 390,
       "mode": "manual-dark",
       "screen": "favorites",
-      "tested": 86,
+      "tested": 83,
       "minRatio": 6.48,
       "failures": [],
       "axeViolations": [],
@@ -411,7 +318,7 @@
       "width": 390,
       "mode": "manual-dark",
       "screen": "reference",
-      "tested": 44,
+      "tested": 45,
       "minRatio": 6.48,
       "failures": [],
       "axeViolations": [],
@@ -441,7 +348,7 @@
       "width": 390,
       "mode": "manual-light",
       "screen": "feed",
-      "tested": 165,
+      "tested": 164,
       "minRatio": 4.727,
       "failures": [],
       "axeViolations": [],
@@ -465,11 +372,6 @@
           "target": [
             ".daily-actions > button"
           ]
-        },
-        {
-          "target": [
-            ".daily-note"
-          ]
         }
       ]
     },
@@ -487,7 +389,7 @@
       "width": 390,
       "mode": "manual-light",
       "screen": "calendar",
-      "tested": 114,
+      "tested": 109,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -497,7 +399,7 @@
       "width": 390,
       "mode": "manual-light",
       "screen": "archive",
-      "tested": 70,
+      "tested": 67,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -507,43 +409,17 @@
       "width": 390,
       "mode": "manual-light",
       "screen": "search",
-      "tested": 201,
+      "tested": 193,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
-      "axeIncomplete": [
-        {
-          "target": [
-            ".daily-task > div:nth-child(1) > .eyebrow"
-          ]
-        },
-        {
-          "target": [
-            ".daily-task > div:nth-child(1) > h2"
-          ]
-        },
-        {
-          "target": [
-            ".daily-task > div:nth-child(1) > p"
-          ]
-        },
-        {
-          "target": [
-            ".daily-actions > button"
-          ]
-        },
-        {
-          "target": [
-            ".daily-note"
-          ]
-        }
-      ]
+      "axeIncomplete": []
     },
     {
       "width": 390,
       "mode": "manual-light",
       "screen": "favorites",
-      "tested": 86,
+      "tested": 83,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -553,7 +429,7 @@
       "width": 390,
       "mode": "manual-light",
       "screen": "reference",
-      "tested": 44,
+      "tested": 45,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -583,7 +459,7 @@
       "width": 1280,
       "mode": "system-light",
       "screen": "feed",
-      "tested": 181,
+      "tested": 180,
       "minRatio": 4.727,
       "failures": [],
       "axeViolations": [],
@@ -607,11 +483,6 @@
           "target": [
             ".daily-actions > button"
           ]
-        },
-        {
-          "target": [
-            ".daily-note"
-          ]
         }
       ]
     },
@@ -629,7 +500,7 @@
       "width": 1280,
       "mode": "system-light",
       "screen": "calendar",
-      "tested": 129,
+      "tested": 124,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -639,7 +510,7 @@
       "width": 1280,
       "mode": "system-light",
       "screen": "archive",
-      "tested": 84,
+      "tested": 81,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -649,43 +520,17 @@
       "width": 1280,
       "mode": "system-light",
       "screen": "search",
-      "tested": 217,
+      "tested": 207,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
-      "axeIncomplete": [
-        {
-          "target": [
-            ".daily-task > div:nth-child(1) > .eyebrow"
-          ]
-        },
-        {
-          "target": [
-            ".daily-task > div:nth-child(1) > h2"
-          ]
-        },
-        {
-          "target": [
-            ".daily-task > div:nth-child(1) > p"
-          ]
-        },
-        {
-          "target": [
-            ".daily-actions > button"
-          ]
-        },
-        {
-          "target": [
-            ".daily-note"
-          ]
-        }
-      ]
+      "axeIncomplete": []
     },
     {
       "width": 1280,
       "mode": "system-light",
       "screen": "favorites",
-      "tested": 100,
+      "tested": 97,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -695,7 +540,7 @@
       "width": 1280,
       "mode": "system-light",
       "screen": "reference",
-      "tested": 58,
+      "tested": 59,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -725,7 +570,7 @@
       "width": 1280,
       "mode": "system-dark",
       "screen": "feed",
-      "tested": 181,
+      "tested": 180,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -748,11 +593,6 @@
         {
           "target": [
             ".daily-actions > button"
-          ]
-        },
-        {
-          "target": [
-            ".daily-note"
           ]
         }
       ]
@@ -771,7 +611,7 @@
       "width": 1280,
       "mode": "system-dark",
       "screen": "calendar",
-      "tested": 129,
+      "tested": 124,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -781,7 +621,7 @@
       "width": 1280,
       "mode": "system-dark",
       "screen": "archive",
-      "tested": 84,
+      "tested": 81,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -791,43 +631,17 @@
       "width": 1280,
       "mode": "system-dark",
       "screen": "search",
-      "tested": 217,
+      "tested": 207,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
-      "axeIncomplete": [
-        {
-          "target": [
-            ".daily-task > div:nth-child(1) > .eyebrow"
-          ]
-        },
-        {
-          "target": [
-            ".daily-task > div:nth-child(1) > h2"
-          ]
-        },
-        {
-          "target": [
-            ".daily-task > div:nth-child(1) > p"
-          ]
-        },
-        {
-          "target": [
-            ".daily-actions > button"
-          ]
-        },
-        {
-          "target": [
-            ".daily-note"
-          ]
-        }
-      ]
+      "axeIncomplete": []
     },
     {
       "width": 1280,
       "mode": "system-dark",
       "screen": "favorites",
-      "tested": 100,
+      "tested": 97,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -837,7 +651,7 @@
       "width": 1280,
       "mode": "system-dark",
       "screen": "reference",
-      "tested": 58,
+      "tested": 59,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -867,7 +681,7 @@
       "width": 1280,
       "mode": "manual-dark",
       "screen": "feed",
-      "tested": 181,
+      "tested": 180,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -890,11 +704,6 @@
         {
           "target": [
             ".daily-actions > button"
-          ]
-        },
-        {
-          "target": [
-            ".daily-note"
           ]
         }
       ]
@@ -913,7 +722,7 @@
       "width": 1280,
       "mode": "manual-dark",
       "screen": "calendar",
-      "tested": 129,
+      "tested": 124,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -923,7 +732,7 @@
       "width": 1280,
       "mode": "manual-dark",
       "screen": "archive",
-      "tested": 84,
+      "tested": 81,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -933,43 +742,17 @@
       "width": 1280,
       "mode": "manual-dark",
       "screen": "search",
-      "tested": 217,
+      "tested": 207,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
-      "axeIncomplete": [
-        {
-          "target": [
-            ".daily-task > div:nth-child(1) > .eyebrow"
-          ]
-        },
-        {
-          "target": [
-            ".daily-task > div:nth-child(1) > h2"
-          ]
-        },
-        {
-          "target": [
-            ".daily-task > div:nth-child(1) > p"
-          ]
-        },
-        {
-          "target": [
-            ".daily-actions > button"
-          ]
-        },
-        {
-          "target": [
-            ".daily-note"
-          ]
-        }
-      ]
+      "axeIncomplete": []
     },
     {
       "width": 1280,
       "mode": "manual-dark",
       "screen": "favorites",
-      "tested": 100,
+      "tested": 97,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -979,7 +762,7 @@
       "width": 1280,
       "mode": "manual-dark",
       "screen": "reference",
-      "tested": 58,
+      "tested": 59,
       "minRatio": 5.812,
       "failures": [],
       "axeViolations": [],
@@ -1009,7 +792,7 @@
       "width": 1280,
       "mode": "manual-light",
       "screen": "feed",
-      "tested": 181,
+      "tested": 180,
       "minRatio": 4.727,
       "failures": [],
       "axeViolations": [],
@@ -1033,11 +816,6 @@
           "target": [
             ".daily-actions > button"
           ]
-        },
-        {
-          "target": [
-            ".daily-note"
-          ]
         }
       ]
     },
@@ -1055,7 +833,7 @@
       "width": 1280,
       "mode": "manual-light",
       "screen": "calendar",
-      "tested": 129,
+      "tested": 124,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -1065,7 +843,7 @@
       "width": 1280,
       "mode": "manual-light",
       "screen": "archive",
-      "tested": 84,
+      "tested": 81,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -1075,43 +853,17 @@
       "width": 1280,
       "mode": "manual-light",
       "screen": "search",
-      "tested": 217,
+      "tested": 207,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
-      "axeIncomplete": [
-        {
-          "target": [
-            ".daily-task > div:nth-child(1) > .eyebrow"
-          ]
-        },
-        {
-          "target": [
-            ".daily-task > div:nth-child(1) > h2"
-          ]
-        },
-        {
-          "target": [
-            ".daily-task > div:nth-child(1) > p"
-          ]
-        },
-        {
-          "target": [
-            ".daily-actions > button"
-          ]
-        },
-        {
-          "target": [
-            ".daily-note"
-          ]
-        }
-      ]
+      "axeIncomplete": []
     },
     {
       "width": 1280,
       "mode": "manual-light",
       "screen": "favorites",
-      "tested": 100,
+      "tested": 97,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],
@@ -1121,7 +873,7 @@
       "width": 1280,
       "mode": "manual-light",
       "screen": "reference",
-      "tested": 58,
+      "tested": 59,
       "minRatio": 4.682,
       "failures": [],
       "axeViolations": [],

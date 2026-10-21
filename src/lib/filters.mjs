@@ -7,10 +7,8 @@ import {
   weekday,
 } from "./dates.mjs";
 import { isReference } from "./reference.mjs";
-export const normalize = (text) =>
-  String(text ?? "")
-    .toLocaleLowerCase("ru")
-    .replaceAll("ё", "е");
+import { normalize, matchesQuery, comparePublicationTime } from "./search.mjs";
+export { normalize } from "./search.mjs";
 export function periodBounds(period, now = new Date(), from = "", to = "") {
   const today = dayKey(now);
   if (period === "today") return [today, addDays(today, 1)];
@@ -98,19 +96,7 @@ export function filterPosts(
         status.id !== filters.status
       )
         return false;
-      if (
-        query &&
-        !normalize(
-          [
-            post.title,
-            post.body,
-            post.source,
-            ...(post.attachments ?? []).map((a) => a.name),
-            ...(post.expected_attachments ?? []).map((a) => a.label),
-          ].join(" "),
-        ).includes(query)
-      )
-        return false;
+      if (query && !matchesQuery(post, query)) return false;
       if (range) {
         const [start, end] = range.map(dayStart);
         if (filters.dateKind === "publication")
@@ -131,15 +117,5 @@ export function filterPosts(
       }
       return true;
     })
-    .sort((a, b) => {
-      const effective = (p) =>
-        Math.max(
-          Date.parse(p.created_at),
-          Date.parse(p.updated_at),
-          ...(p.reminded_at ?? []).map((r) =>
-            Date.parse(typeof r === "string" ? r : r.at),
-          ),
-        );
-      return Number(b.pinned) - Number(a.pinned) || effective(b) - effective(a);
-    });
+    .sort(comparePublicationTime);
 }

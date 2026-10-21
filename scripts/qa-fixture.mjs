@@ -90,6 +90,9 @@ export async function createQaFixture({ includeReferences = true } = {}) {
   ];
   posts[3].related = ["qa-council"];
   posts[4].state = "closed";
+  posts[4].body += " Отчёты принимаются только на почту: reports@example.org.";
+  posts[9].reminded_at = [{ id: "new-reminder", at: stamp(-0.1) }];
+  posts[10].updated_at = stamp(100);
   posts[4].closed_at = stamp(-24);
   posts[4].dates = [
     {
@@ -194,7 +197,28 @@ export async function createQaFixture({ includeReferences = true } = {}) {
     kdf,
     index,
   };
-  return { code, manifest, objects };
+  const dailyData = {
+    schema_version: 1,
+    content_version: "qa-editorial-1",
+    days: [
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+      "sunday",
+    ].map((id) => ({
+      id,
+      title: "Рабочая задача дня",
+      promise: "Проверьте следующий рабочий шаг",
+      checklist: [
+        { id: "first", label: "Первое действие" },
+        { id: "second", label: "Второе действие" },
+      ],
+    })),
+  };
+  return { code, manifest, objects, dailyData };
 }
 export async function installQaRoutes(page, fixture) {
   await page.route("**/config.json", (route) =>
@@ -220,8 +244,9 @@ export async function installQaRoutes(page, fixture) {
         : { status: 404 },
     );
   });
-  // The real integration is intentionally unavailable; screenshots reflect the pilot's honest fallback.
   await page.route("https://example.org/qa-days.json", (route) =>
-    route.fulfill({ status: 404 }),
+    route.fulfill(
+      fixture.dailyData ? { json: fixture.dailyData } : { status: 404 },
+    ),
   );
 }

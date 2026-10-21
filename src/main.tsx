@@ -24,6 +24,7 @@ import {
   weekday,
 } from "./lib/dates.mjs";
 import { filterPosts } from "./lib/filters.mjs";
+import { groupSearchResults } from "./lib/search.mjs";
 import {
   loadManifest,
   loadSnapshotWithKey,
@@ -717,6 +718,7 @@ function App() {
   const favorites = route.path === "/favorites";
   const reference = route.path === "/reference";
   const filters = route.filters;
+  const searching = Boolean(filters.q.trim());
   const allCategories: Category[] = [
     ...snapshot.categories,
     ...REFERENCE_CATEGORIES,
@@ -733,18 +735,23 @@ function App() {
     filters.period === "all" &&
     ["all", "deleted"].includes(filters.status);
   const filtered = filterPosts(
-    calendar ? snapshot.posts.filter((p) => !isReference(p)) : snapshot.posts,
+    calendar && !searching
+      ? snapshot.posts.filter((p) => !isReference(p))
+      : snapshot.posts,
     filters,
     now,
-    reference
-      ? "reference"
-      : favorites
-        ? "favorites"
-        : calendar
-          ? "calendar"
-          : files || ((filters.q || filters.favorites) && section === "active")
-            ? "all"
-            : section,
+    searching
+      ? "all"
+      : reference
+        ? "reference"
+        : favorites
+          ? "favorites"
+          : calendar
+            ? "calendar"
+            : files ||
+                ((filters.q || filters.favorites) && section === "active")
+              ? "all"
+              : section,
     favoriteIds,
   ) as Post[];
   const unread = snapshot.posts.filter(
@@ -890,30 +897,34 @@ function App() {
                       ИНФОРМАЦИЯ ДЛЯ СОБСТВЕННИКОВ
                     </span>
                     <h1>
-                      {calendar
-                        ? "Календарь"
-                        : files
-                          ? "Шаблоны и файлы"
-                          : section === "archive"
-                            ? "Архив"
-                            : favorites
-                              ? "Избранное"
-                              : reference
-                                ? "Справочник"
-                                : "Актуально"}
+                      {searching
+                        ? "Результаты поиска"
+                        : calendar
+                          ? "Календарь"
+                          : files
+                            ? "Шаблоны и файлы"
+                            : section === "archive"
+                              ? "Архив"
+                              : favorites
+                                ? "Избранное"
+                                : reference
+                                  ? "Справочник"
+                                  : "Актуально"}
                     </h1>
                     <p>
-                      {calendar
-                        ? "События и сроки — чтобы всё успеть."
-                        : files
-                          ? "Рабочие документы и формы из публикаций."
-                          : section === "archive"
-                            ? "Прошедшие события и завершённые задачи."
-                            : favorites
-                              ? "Избранное хранится на этом устройстве"
-                              : reference
-                                ? "Постоянная информация: оплаты, реквизиты, контакты, офисы и инструкции."
-                                : `${snapshot.posts.filter((p) => p.state !== "deleted").length} публикаций · ${unread} непрочитанных`}
+                      {searching
+                        ? "По всем публикациям: актуальное, архив и справочник."
+                        : calendar
+                          ? "События и сроки — чтобы всё успеть."
+                          : files
+                            ? "Рабочие документы и формы из публикаций."
+                            : section === "archive"
+                              ? "Прошедшие события и завершённые задачи."
+                              : favorites
+                                ? "Избранное хранится на этом устройстве"
+                                : reference
+                                  ? "Постоянная информация: оплаты, реквизиты, контакты, офисы и инструкции."
+                                  : `${snapshot.posts.filter((p) => p.state !== "deleted").length} публикаций · ${unread} непрочитанных`}
                     </p>
                   </div>
                   <button
@@ -928,7 +939,8 @@ function App() {
                   !calendar &&
                   !files &&
                   !favorites &&
-                  !reference && (
+                  !reference &&
+                  !searching && (
                     <>
                       <Birthdays snapshot={snapshot} now={now} />
                       <DailyTask config={config!} now={now} copy={copy} />
@@ -936,15 +948,33 @@ function App() {
                   )}
                 <FilterBar
                   filters={filters}
-                  categories={reference ? REFERENCE_CATEGORIES : allCategories}
+                  categories={
+                    reference && !searching
+                      ? REFERENCE_CATEGORIES
+                      : snapshot.categories
+                  }
                   onChange={(next) => {
+                    if (!searching && next.q.trim())
+                      next = {
+                        ...next,
+                        categories: next.categories.filter(
+                          (id) => !id.startsWith("reference-"),
+                        ),
+                      };
                     // Controlled inputs must update in the same event, before hashchange arrives.
                     setRoute({ ...route, filters: next });
                     go(route.path, next);
                   }}
-                  calendar={calendar}
+                  calendar={calendar && !searching}
                 />
-                {calendar ? (
+                {searching ? (
+                  <SearchResults
+                    posts={filtered}
+                    categories={allCategories}
+                    now={now}
+                    read={read}
+                  />
+                ) : calendar ? (
                   <CalendarView
                     posts={filtered}
                     categories={snapshot.categories}
@@ -1667,6 +1697,50 @@ function Feed({
   );
 }
 
+function SearchResults({
+  posts,
+  categories,
+  now,
+  read,
+}: {
+  posts: Post[];
+  categories: Category[];
+  now: Date;
+  read: Record<string, string>;
+}) {
+  if (!posts.length)
+    return (
+      <Empty
+        title="Ничего не найдено"
+        text="Попробуйте другие слова или сбросьте фильтры. Поиск охватывает актуальное, архив и справочник."
+      />
+    );
+  return (
+    <div className="search-results">
+      <p className="muted" role="status">
+        Найдено публикаций: {posts.length}
+      </p>
+      {groupSearchResults(posts, now)
+        .filter((group) => group.posts.length)
+        .map((group) => (
+          <section
+            key={group.id}
+            data-search-group={group.id}
+            className="search-group"
+          >
+            <Feed
+              posts={group.posts}
+              categories={categories}
+              now={now}
+              archive={true}
+              read={read}
+              heading={group.label}
+            />
+          </section>
+        ))}
+    </div>
+  );
+}
 function linkTitle(type: string) {
   const titles: Record<string, string> = {
     meeting: "Ссылка на встречу",

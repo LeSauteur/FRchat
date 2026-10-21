@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { installQaRoutes } from "./qa-fixture.mjs";
+import { dayKey, weekday } from "../src/lib/dates.mjs";
 async function expectCards(page, count) {
   await page.waitForFunction(
     (expected) => document.querySelectorAll(".post-card").length === expected,
@@ -13,9 +14,11 @@ export async function checkFavoritesAndReference(browser, url, fixture) {
     const context = await browser.newContext({
       colorScheme,
       viewport: { width: 390, height: 844 },
+      bypassCSP: true,
     });
     try {
       const page = await context.newPage();
+      page.setDefaultTimeout(15000);
       const errors = [];
       page.on("pageerror", (error) => errors.push(error.message));
       await installQaRoutes(page, fixture);
@@ -23,6 +26,46 @@ export async function checkFavoritesAndReference(browser, url, fixture) {
       await page.locator("#access-code").fill(fixture.code);
       await page.getByRole("button", { name: "Открыть FRchat" }).click();
       await page.locator(".post-card").first().waitFor();
+      await page
+        .locator(".daily-task h2")
+        .filter({ hasText: "Рабочая задача дня" })
+        .waitFor();
+      const today = dayKey(new Date());
+      const dayId = fixture.dailyData.days[weekday(today) - 1].id;
+      const version = fixture.dailyData.content_version;
+      const record = {
+        version: 3,
+        days: {
+          [today]: {
+            contentVersion: version,
+            tasks: { [`${dayId}:${version}:first`]: true },
+          },
+        },
+      };
+      await page.evaluate((value) => {
+        localStorage.setItem("domian:calendar:v3", JSON.stringify(value));
+        window.dispatchEvent(new Event("focus"));
+      }, record);
+      await page.getByText("Сегодня: 1 из 2", { exact: true }).waitFor();
+      record.days[today].contentVersion = "old-version";
+      await page.evaluate((value) => {
+        localStorage.setItem("domian:calendar:v3", JSON.stringify(value));
+        window.dispatchEvent(new Event("focus"));
+      }, record);
+      await page.locator(".daily-progress").waitFor({ state: "detached" });
+      await page.route("https://example.org/qa-days.json", (route) =>
+        route.fulfill({ status: 404 }),
+      );
+      await page.reload();
+      await page
+        .getByText("Тема дня пока доступна по ссылке", { exact: true })
+        .waitFor();
+      await installQaRoutes(page, fixture);
+      await page.reload();
+      await page
+        .locator(".daily-task h2")
+        .filter({ hasText: "Рабочая задача дня" })
+        .waitFor();
       await page.locator('.bottom-nav a[href="#/favorites"]').click();
       await page
         .getByRole("heading", { name: "В избранном пока пусто" })
@@ -34,6 +77,12 @@ export async function checkFavoritesAndReference(browser, url, fixture) {
         1,
       );
       await page.goto(url + "#/feed");
+      assert.equal(
+        await page
+          .locator('.category-chips [data-category^="reference-"]')
+          .count(),
+        0,
+      );
       const card = page.locator('.post-card[data-category="meetings"]');
       await card.getByRole("button", { name: "Добавить в избранное" }).click();
       assert.match(page.url(), /#\/feed$/); // Star must not follow the enclosing card link.
@@ -127,9 +176,53 @@ export async function checkFavoritesAndReference(browser, url, fixture) {
         url + "#/archive?q=" + encodeURIComponent("support@example.org"),
       );
       await page
-        .getByRole("heading", { name: "Публикаций пока нет" })
+        .locator('[data-search-group="reference"] .post-card')
         .waitFor();
-      await expectCards(page, 0);
+      await expectCards(page, 1);
+      await page.goto(
+        url + "#/feed?q=" + encodeURIComponent("тестовая публикация"),
+      );
+      await page
+        .locator('[data-search-group="active"] .post-card')
+        .first()
+        .waitFor();
+      assert.ok(
+        (await page
+          .locator('[data-search-group="archive"] .post-card')
+          .count()) > 0,
+      );
+      await page.goto(
+        url + "#/reference?q=" + encodeURIComponent("почта для отчётов"),
+      );
+      await page.locator('[data-search-group="archive"] .post-card').waitFor();
+      await expectCards(page, 1);
+      await page.goto(url + "#/feed");
+      await page
+        .getByRole("heading", { name: "Рабочая лента", exact: true })
+        .waitFor();
+      const working = page
+        .locator(".feed-section")
+        .filter({
+          has: page.getByRole("heading", {
+            name: "Рабочая лента",
+            exact: true,
+          }),
+        });
+      const ids = await working
+        .locator(".post-card-link")
+        .evaluateAll((links) =>
+          links.map((link) => link.getAttribute("href").split("/").at(-1)),
+        );
+      assert.ok(
+        ids.indexOf("qa-it") < ids.indexOf("qa-security"),
+        "Latest reminder must move a working-feed card to the top",
+      );
+      assert.equal(
+        await page
+          .locator('.category-chips [data-category^="reference-"]')
+          .count(),
+        0,
+      );
       assert.deepEqual(errors, []);
       // Denied storage must preserve the current tab's bookmarks and explain persistence limits.
       await context.addInitScript(() => {

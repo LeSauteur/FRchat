@@ -188,17 +188,39 @@ export async function checkReadability(browser, url, fixture) {
           path: `docs/qa/${width}-${theme}-readability-feed.png`,
           fullPage: false,
         });
-        await page.evaluate(
-          () => (document.documentElement.style.fontSize = "200%"),
-        );
-        assert.equal(
-          await page.evaluate(
-            () => document.documentElement.scrollWidth > innerWidth,
-          ),
-          false,
-          "200% text must not overflow horizontally",
-        );
-        await auditInputs();
+        for (const family of ["", "Arial, sans-serif"]) {
+          await page.evaluate((font) => {
+            document.documentElement.style.fontSize = "200%";
+            document.documentElement.style.fontFamily = font;
+          }, family);
+          const overflow = await page.evaluate(() =>
+            [...document.querySelectorAll("body *")]
+              .filter(
+                (e) =>
+                  !e.closest(".category-chips") &&
+                  getComputedStyle(e).display !== "none" &&
+                  e.getBoundingClientRect().width &&
+                  (e.getBoundingClientRect().right > innerWidth + 1 ||
+                    e.getBoundingClientRect().left < -1),
+              )
+              .map((e) => ({
+                tag: e.tagName,
+                className: e.className,
+                width: e.getBoundingClientRect().width,
+                right: e.getBoundingClientRect().right,
+                text: e.textContent.slice(0, 80),
+              }))
+              .slice(0, 20),
+          );
+          assert.equal(
+            await page.evaluate(
+              () => document.documentElement.scrollWidth > innerWidth,
+            ),
+            false,
+            `200% text must not overflow horizontally: ${JSON.stringify({ width, theme, family, overflow })}`,
+          );
+          await auditInputs();
+        }
         assert.deepEqual(errors, []);
         cases.push({
           width,
@@ -209,6 +231,7 @@ export async function checkReadability(browser, url, fixture) {
           files_download_verified: true,
           legacy_files_link: true,
           text_200_percent: true,
+          text_font_families: ["system", "Arial"],
           errors: 0,
         });
       } finally {

@@ -2732,6 +2732,7 @@ textarea {
 .card-meta {
   padding-right: 56px;
   align-items: flex-start;
+  flex-wrap: wrap;
 }
 .card-date {
   align-items: flex-start;

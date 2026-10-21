@@ -1,0 +1,97 @@
+{
+  "synthetic": true,
+  "cases": [
+    {
+      "width": 390,
+      "theme": "light",
+      "screen": "duplicate-new-link",
+      "minRatio": 5.067,
+      "contrast_violations": 0
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "screen": "series-link",
+      "minRatio": 5.067,
+      "contrast_violations": 0
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "screen": "series-review",
+      "minRatio": 5.067,
+      "contrast_violations": 0
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "screen": "duplicate-new-link",
+      "minRatio": 7.294,
+      "contrast_violations": 0
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "screen": "series-link",
+      "minRatio": 7.294,
+      "contrast_violations": 0
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "screen": "series-review",
+      "minRatio": 7.294,
+      "contrast_violations": 0
+    },
+    {
+      "width": 1280,
+      "theme": "light",
+      "screen": "duplicate-new-link",
+      "minRatio": 5.067,
+      "contrast_violations": 0
+    },
+    {
+      "width": 1280,
+      "theme": "light",
+      "screen": "series-link",
+      "minRatio": 5.067,
+      "contrast_violations": 0
+    },
+    {
+      "width": 1280,
+      "theme": "light",
+      "screen": "series-review",
+      "minRatio": 5.067,
+      "contrast_violations": 0
+    },
+    {
+      "width": 1280,
+      "theme": "dark",
+      "screen": "duplicate-new-link",
+      "minRatio": 7.294,
+      "contrast_violations": 0
+    },
+    {
+      "width": 1280,
+      "theme": "dark",
+      "screen": "series-link",
+      "minRatio": 7.294,
+      "contrast_violations": 0
+    },
+    {
+      "width": 1280,
+      "theme": "dark",
+      "screen": "series-review",
+      "minRatio": 5.812,
+      "contrast_violations": 0
+    }
+  ],
+  "scenarios": {
+    "new_link_requires_update": true,
+    "selection_does_not_publish": true,
+    "update_preserves_id": true,
+    "new_post_explicit": true,
+    "series_occurrence_only": true,
+    "neighboring_weeks_unchanged": true
+  }
+}

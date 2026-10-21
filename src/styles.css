@@ -385,6 +385,26 @@ main.manager-app span {
   width: 100%;
   margin-top: 12px;
 }
+.manager-compare {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  color: var(--text);
+}
+.manager-compare .manager-card {
+  min-width: 0;
+  padding: 12px;
+  overflow-wrap: anywhere;
+}
+.manager-compare h3 {
+  margin-top: 0;
+}
+.manager-compare p {
+  margin-bottom: 8px;
+}
+.manager-compare-link {
+  overflow-wrap: anywhere;
+}
 .owner-setup form {
   max-width: 680px;
 }

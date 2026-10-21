@@ -198,11 +198,33 @@ export async function checkAdmin(browser, url) {
         .getByRole("button", { name: "Проверить", exact: true })
         .click();
       await page
-        .getByRole("heading", { name: /Такое уже публиковалось/ })
+        .getByRole("heading", {
+          name: "Есть похожая публикация. Что сделать?",
+          exact: true,
+        })
         .waitFor();
       await audit("duplicate");
       await page
-        .getByRole("button", { name: "Напомнить о старой", exact: true })
+        .getByRole("button", { name: "Это повтор — напомнить", exact: true })
+        .click();
+      assert.equal(
+        f.backend.calls.filter((c) => c.method === "PATCH").length,
+        1,
+        "Selecting remind must not publish before confirmation",
+      );
+      await audit("remind-confirm");
+      await page
+        .getByRole("button", { name: "Назад к выбору", exact: true })
+        .click();
+      assert.equal(
+        f.backend.calls.filter((c) => c.method === "PATCH").length,
+        1,
+      );
+      await page
+        .getByRole("button", { name: "Это повтор — напомнить", exact: true })
+        .click();
+      await page
+        .getByRole("button", { name: "Да, напомнить", exact: true })
         .click();
       await page
         .getByRole("heading", { name: "Готово!", exact: true })

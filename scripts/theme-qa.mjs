@@ -10,6 +10,7 @@ import { createQaFixture, installQaRoutes } from "./qa-fixture.mjs";
 import { inspectContrast } from "./contrast-check.mjs";
 import { checkFavoritesAndReference } from "./feature-check.mjs";
 import { checkAdmin } from "./admin-qa.mjs";
+import { checkDuplicateFlows } from "./duplicate-qa.mjs";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const url = process.env.FRCHAT_URL ?? "http://127.0.0.1:4173/";
 const output = resolve(root, "docs/qa");
@@ -50,7 +51,8 @@ const browser = await chromium.launch({
 const matrix = [],
   errors = [];
 try {
-  await checkAdmin(browser,url);
+  await checkAdmin(browser, url);
+  await checkDuplicateFlows(browser, url);
   await checkFavoritesAndReference(browser, url, fixture);
   for (const width of [390, 1280])
     for (const mode of [

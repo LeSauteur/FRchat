@@ -37,8 +37,10 @@ try {
       await page.getByRole("alert").waitFor();
       assert.equal(await page.locator(".post-card").count(), 0);
       passed("incorrect code rejected without exposing posts");
-      const records=JSON.parse(await readFile(resolve(root,".local/pilot-accounts.json"),"utf8"));
-      const code=records.accounts.find(a=>a.id==="user1").password;
+      const records = JSON.parse(
+        await readFile(resolve(root, ".local/pilot-accounts.json"), "utf8"),
+      );
+      const code = records.accounts.find((a) => a.id === "user1").password;
       await page.locator("#account-login").selectOption("user1");
       await page.locator("#access-code").fill(code);
       await page.getByRole("button", { name: "Открыть FRchat" }).click();
@@ -76,7 +78,7 @@ try {
       passed("favorites-only search includes archived saved posts");
       await page.goto(APP_URL + "#/reference");
       await page
-        .getByRole("heading", { name: "Справочник скоро появится" })
+        .getByRole("heading", { name: "Постоянная информация скоро появится" })
         .waitFor();
       assert.equal(
         await page.locator(".category-chips [data-category]").count(),

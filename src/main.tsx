@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import type {
   Category,
@@ -83,11 +83,11 @@ function currentRoute() {
   const [path, query = ""] = location.hash.slice(1).split("?");
   const params = new URLSearchParams(query);
   return {
-    path: path || "/feed",
+    path: path === "/files" ? "/reference" : path || "/feed",
     filters: {
       ...initialFilters,
       q: params.get("q") ?? "",
-      categories: params.getAll("category"),
+      categories: params.getAll("category").slice(-1),
       period: params.get("period") ?? "all",
       dateKind:
         path === "/calendar"
@@ -714,7 +714,6 @@ function App() {
     );
   const section = route.path === "/archive" ? "archive" : "active";
   const calendar = route.path === "/calendar";
-  const files = route.path === "/files";
   const favorites = route.path === "/favorites";
   const reference = route.path === "/reference";
   const filters = route.filters;
@@ -748,8 +747,7 @@ function App() {
           ? "favorites"
           : calendar
             ? "calendar"
-            : files ||
-                ((filters.q || filters.favorites) && section === "active")
+            : (filters.q || filters.favorites) && section === "active"
               ? "all"
               : section,
     favoriteIds,
@@ -764,7 +762,6 @@ function App() {
     { path: "/calendar", icon: "calendar", label: "Календарь" },
     { path: "/favorites", icon: "star", label: "Избранное" },
     { path: "/reference", icon: "book", label: "Справочник" },
-    { path: "/files", icon: "files", label: "Файлы" },
     { path: "/archive", icon: "archive", label: "Архив" },
   ];
   const navActive = (path: string) =>
@@ -901,30 +898,26 @@ function App() {
                         ? "Результаты поиска"
                         : calendar
                           ? "Календарь"
-                          : files
-                            ? "Шаблоны и файлы"
-                            : section === "archive"
-                              ? "Архив"
-                              : favorites
-                                ? "Избранное"
-                                : reference
-                                  ? "Справочник"
-                                  : "Актуально"}
+                          : section === "archive"
+                            ? "Архив"
+                            : favorites
+                              ? "Избранное"
+                              : reference
+                                ? "Справочник"
+                                : "Актуально"}
                     </h1>
                     <p>
                       {searching
                         ? "По всем публикациям: актуальное, архив и справочник."
                         : calendar
                           ? "События и сроки — чтобы всё успеть."
-                          : files
-                            ? "Рабочие документы и формы из публикаций."
-                            : section === "archive"
-                              ? "Прошедшие события и завершённые задачи."
-                              : favorites
-                                ? "Избранное хранится на этом устройстве"
-                                : reference
-                                  ? "Постоянная информация: оплаты, реквизиты, контакты, офисы и инструкции."
-                                  : `${snapshot.posts.filter((p) => p.state !== "deleted").length} публикаций · ${unread} непрочитанных`}
+                          : section === "archive"
+                            ? "Прошедшие события и завершённые задачи."
+                            : favorites
+                              ? "Избранное хранится на этом устройстве"
+                              : reference
+                                ? "Постоянная информация: оплаты, реквизиты, контакты, офисы и инструкции."
+                                : `${snapshot.posts.filter((p) => p.state !== "deleted").length} публикаций · ${unread} непрочитанных`}
                     </p>
                   </div>
                   <button
@@ -937,7 +930,6 @@ function App() {
                 </div>
                 {section === "active" &&
                   !calendar &&
-                  !files &&
                   !favorites &&
                   !reference &&
                   !searching && (
@@ -967,6 +959,19 @@ function App() {
                   }}
                   calendar={calendar && !searching}
                 />
+                {reference && !searching && (
+                  <button
+                    className="reference-files-link"
+                    onClick={() =>
+                      document
+                        .getElementById("reference-files")
+                        ?.scrollIntoView({ block: "start" })
+                    }
+                  >
+                    <Icon name="files" />
+                    Шаблоны и файлы <Icon name="arrow" />
+                  </button>
+                )}
                 {searching ? (
                   <SearchResults
                     posts={filtered}
@@ -993,15 +998,13 @@ function App() {
                       go(route.path, next);
                     }}
                   />
-                ) : files ? (
-                  <FilesView posts={filtered} download={download} />
                 ) : reference &&
                   !snapshot.posts.some(
                     (p) => isReference(p) && p.state !== "deleted",
                   ) ? (
                   <Empty
-                    title="Справочник скоро появится"
-                    text="Алексей готовит материалы для пилота. Здесь будут оплаты и взносы, реквизиты и почты, контакты техподдержки, банков и партнёров, офисы и территории, инструкции."
+                    title="Постоянная информация скоро появится"
+                    text="Алексей готовит оплаты и взносы, реквизиты и почты, контакты, офисы и инструкции. Шаблоны и документы собраны ниже."
                   />
                 ) : favorites && favoriteIds.length === 0 ? (
                   <Empty
@@ -1033,6 +1036,24 @@ function App() {
                       !filters.categories.length
                     }
                   />
+                )}
+                {reference && !searching && (
+                  <section
+                    id="reference-files"
+                    className="reference-files"
+                    aria-label="Шаблоны и файлы"
+                  >
+                    <h2>Шаблоны и файлы</h2>
+                    <p className="muted">
+                      Документы из актуальных и архивных публикаций.
+                    </p>
+                    <FilesView
+                      posts={
+                        filterPosts(snapshot.posts, {}, now, "all") as Post[]
+                      }
+                      download={download}
+                    />
+                  </section>
                 )}
                 {showMissingFavorites &&
                   missingFavorites.map((id) => (
@@ -1287,13 +1308,14 @@ function DailyTask({
             Открыть чек-лист <Icon name="arrow" size={17} />
           </a>
           <button
+            aria-label="Скопировать задачу дня"
             onClick={() =>
               void copy(
                 `${DAY_NAMES[index]} · ${day?.title ?? "Задача дня"}\n${day?.promise ?? "Откройте чек-лист дня в приложении «7 дней». https://lesauteur.github.io/domian-7-days/"}\n${url}`,
               )
             }
           >
-            Скопировать задачу дня
+            Скопировать
           </button>
         </div>
         {!day && (
@@ -1320,6 +1342,20 @@ function FilterBar({
   calendar: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const categoryRow = useRef<HTMLDivElement>(null);
+  const selectedCategory = filters.categories.at(-1) ?? "";
+  useEffect(() => {
+    const row = categoryRow.current;
+    const selected = row?.querySelector<HTMLElement>(".chip.selected");
+    if (!row || !selected) return;
+    const bounds = row.getBoundingClientRect(),
+      item = selected.getBoundingClientRect();
+    if (item.left < bounds.left || item.right > bounds.right)
+      row.scrollTo({
+        left: Math.max(0, row.scrollLeft + item.left - bounds.left - 8),
+        behavior: "auto",
+      });
+  }, [selectedCategory]);
   const set = (key: keyof Filters, value: any) =>
     onChange({ ...filters, [key]: value });
   const active =
@@ -1337,7 +1373,7 @@ function FilterBar({
           <Icon name="search" />
           <input
             aria-label="Поиск по публикациям"
-            placeholder="Найти сообщение, событие или файл"
+            placeholder="Поиск по публикациям"
             value={filters.q}
             onChange={(e) => set("q", e.target.value)}
           />
@@ -1358,9 +1394,10 @@ function FilterBar({
           {Boolean(active) && <i />}
         </button>
       </div>
-      <div className="category-chips">
+      <div className="category-chips" ref={categoryRow}>
         <button
           className={!filters.categories.length ? "chip selected" : "chip"}
+          aria-pressed={!filters.categories.length}
           onClick={() => set("categories", [])}
         >
           Все категории
@@ -1374,12 +1411,7 @@ function FilterBar({
             }
             aria-pressed={filters.categories.includes(c.id)}
             onClick={() =>
-              set(
-                "categories",
-                filters.categories.includes(c.id)
-                  ? filters.categories.filter((id) => id !== c.id)
-                  : [...filters.categories, c.id],
-              )
+              set("categories", filters.categories.includes(c.id) ? [] : [c.id])
             }
           >
             <span className="category-dot" />
@@ -2356,8 +2388,8 @@ function FilesView({
     </div>
   ) : (
     <Empty
-      title="Файлы не найдены"
-      text="Попробуйте изменить поисковый запрос или категории."
+      title="Шаблоны и файлы пока не добавлены"
+      text="Когда появятся документы из публикаций, их можно будет открыть здесь."
     />
   );
 }

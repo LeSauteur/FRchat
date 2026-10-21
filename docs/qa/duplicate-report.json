@@ -44,6 +44,48 @@
       "contrast_violations": 0
     },
     {
+      "width": 430,
+      "theme": "light",
+      "screen": "duplicate-new-link",
+      "minRatio": 5.067,
+      "contrast_violations": 0
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "screen": "series-link",
+      "minRatio": 5.067,
+      "contrast_violations": 0
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "screen": "series-review",
+      "minRatio": 5.067,
+      "contrast_violations": 0
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "screen": "duplicate-new-link",
+      "minRatio": 7.294,
+      "contrast_violations": 0
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "screen": "series-link",
+      "minRatio": 7.294,
+      "contrast_violations": 0
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "screen": "series-review",
+      "minRatio": 5.812,
+      "contrast_violations": 0
+    },
+    {
       "width": 1280,
       "theme": "light",
       "screen": "duplicate-new-link",

@@ -196,7 +196,27 @@ export async function checkDuplicateFlows(browser, url) {
         assert.equal(writes(), 1);
         const weeklyText =
           "Еженедельное собрание офисов\n27 октября 2026 в 11:30. Ссылка на подключение https://domian.ktalk.ru/qa-oct27";
-        await start(weeklyText);
+        await start(weeklyText + "\nhttps://domian.ktalk.ru/qa-extra-link");
+        await page
+          .getByRole("button", {
+            name: "Добавить ссылку к собранию 27 октября",
+            exact: true,
+          })
+          .click();
+        await page
+          .getByRole("alert")
+          .filter({ hasText: "Оставьте одну ссылку" })
+          .waitFor();
+        assert.equal(writes(), 1);
+        await page
+          .getByRole("button", { name: "Изменить текст и файлы", exact: true })
+          .click();
+        await page
+          .getByRole("textbox", { name: "Текст сообщения 1", exact: true })
+          .fill(weeklyText);
+        await page
+          .getByRole("button", { name: "Проверить", exact: true })
+          .click();
         await page
           .getByRole("button", {
             name: "Добавить ссылку к собранию 27 октября",

@@ -238,11 +238,13 @@ export default function ManagerEditor({
       body: result.body,
       title: result.title,
       source: result.source || post.source,
-      links: [
-        ...new Map(
-          [...post.links, ...result.links].map((l) => [l.url, l]),
-        ).values(),
-      ],
+      links: !basePost
+        ? result.links
+        : [
+            ...new Map(
+              [...post.links, ...result.links].map((l) => [l.url, l]),
+            ).values(),
+          ],
       ...(!basePost
         ? {
             category_id: categories.some((c) => c.id === result.category_id)

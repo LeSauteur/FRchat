@@ -129,7 +129,8 @@
     }
   ],
   "scenarios": {
-    "new_link_requires_update": true,
+    "new_link_offers_append": true,
+    "append_preserves_existing_body": true,
     "selection_does_not_publish": true,
     "update_preserves_id": true,
     "new_post_explicit": true,

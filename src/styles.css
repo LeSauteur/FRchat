@@ -116,7 +116,7 @@ body {
   color: var(--muted);
   font-size: 0.875rem;
 }
-.reminder-choice {
+.manager-app .reminder-choice {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -127,12 +127,14 @@ body {
   border-radius: 10px;
   cursor: pointer;
 }
-.reminder-choice input {
+.manager-app .reminder-choice input[type="radio"] {
   flex: 0 0 24px;
   width: 24px;
   height: 24px;
+  min-height: 24px;
+  padding: 0;
 }
-.reminder-choice:has(input:checked) {
+.manager-app .reminder-choice:has(input:checked) {
   background: var(--upcoming-bg);
   border-color: var(--link);
 }
@@ -151,6 +153,13 @@ body {
   border-radius: 6px;
   margin: 8px 0;
   overflow-wrap: anywhere;
+}
+.fresh-reminders-section .section-heading {
+  flex-wrap: wrap;
+}
+.fresh-reminders-section .section-heading h2 {
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 .manager-app {
   font-size: 16px;

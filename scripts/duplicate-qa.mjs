@@ -158,16 +158,16 @@ export async function checkDuplicateFlows(browser, url) {
         assert.equal(
           await notice
             .getByRole("button", {
-              name: "Это повтор — напомнить",
+              name: "Напомнить о старой",
               exact: true,
             })
             .isDisabled(),
-          true,
+          false,
         );
         assert.equal(writes(), 0);
         await audit("duplicate-new-link");
         await notice
-          .getByRole("button", { name: "Обновить старую", exact: true })
+          .getByRole("button", { name: "Дописать в старую", exact: true })
           .click();
         assert.equal(writes(), 0);
         await page
@@ -183,7 +183,7 @@ export async function checkDuplicateFlows(browser, url) {
         assert.equal(state.posts.filter((p) => p.id === "old-tour").length, 1);
         assert.equal(
           state.posts.find((p) => p.id === "old-tour").body,
-          newText,
+          old.body + "\n\n" + newText,
         );
         assert.equal(
           state.posts.find((p) => p.id === "old-tour").created_at,
@@ -226,7 +226,7 @@ export async function checkDuplicateFlows(browser, url) {
         assert.equal(
           await page
             .getByRole("button", {
-              name: "Это повтор — напомнить",
+              name: "Напомнить о старой",
               exact: true,
             })
             .count(),
@@ -287,7 +287,7 @@ export async function checkDuplicateFlows(browser, url) {
         );
         await start(newText);
         await page
-          .getByRole("button", { name: "Это новое", exact: true })
+          .getByRole("button", { name: "Опубликовать как новую", exact: true })
           .click();
         assert.equal(writes(), 2);
         await page
@@ -314,7 +314,8 @@ export async function checkDuplicateFlows(browser, url) {
         synthetic: true,
         cases,
         scenarios: {
-          new_link_requires_update: true,
+          new_link_offers_append: true,
+          append_preserves_existing_body: true,
           selection_does_not_publish: true,
           update_preserves_id: true,
           new_post_explicit: true,

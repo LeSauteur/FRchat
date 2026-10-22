@@ -52,13 +52,18 @@ export function recentReminder(post, now = new Date()) {
 }
 export function prepareReminder(post, { id, at, by, choiceKey }) {
   if (!canRemind(post, at))
-    throw new Error(
-      "Событие завершено или все сроки уже прошли. Напоминание не отправлено.",
+    throw Object.assign(
+      new Error(
+        "Событие завершено или все сроки уже прошли. Напоминание не отправлено.",
+      ),
+      { kind: "validation" },
     );
   const choices = reminderDates(post, at);
   const chosen = choices.find((d) => reminderChoiceKey(d) === choiceKey);
   if (choices.length && !chosen)
-    throw new Error("Выберите действующий срок ещё раз.");
+    throw Object.assign(new Error("Выберите действующий срок ещё раз."), {
+      kind: "validation",
+    });
   const event = !choices.length ? nextPostDate(post, "event", at) : undefined;
   const target = chosen ?? event;
   const reminder = {

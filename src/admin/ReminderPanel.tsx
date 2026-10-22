@@ -10,6 +10,7 @@ import {
 } from "../lib/reminders.mjs";
 import { fullDate, humanError } from "../lib/manager.mjs";
 import { moscowStamp } from "../lib/writer.mjs";
+import { nextPostDate } from "../lib/dates.mjs";
 /** One confirmation and write path, used both from management and duplicate review. */
 export default function ReminderPanel({
   post,
@@ -28,6 +29,8 @@ export default function ReminderPanel({
   beforeSend?: () => Promise<void>;
   incoming?: Post;
 }) {
+  const [currentPost, setCurrentPost] = useState(post);
+  post = currentPost;
   const dates = reminderDates(post),
     [choice, setChoice] = useState(dates[0] ? reminderChoiceKey(dates[0]) : ""),
     [busy, setBusy] = useState(false),
@@ -39,6 +42,7 @@ export default function ReminderPanel({
   const operation = useRef(crypto.randomUUID()),
     sending = useRef(false);
   const recent = recentReminder(post);
+  const event = !dates.length ? nextPostDate(post, "event") : null;
   async function send() {
     if (sending.current || (recent && !recentAccepted)) return;
     sending.current = true;
@@ -62,15 +66,26 @@ export default function ReminderPanel({
       setDone(result.snapshot.posts.find((p: Post) => p.id === post.id));
       window.scrollTo({ top: 0 });
     } catch (e: any) {
-      setError(
-        e.message &&
-          !e.status &&
-          e.name !== "PostConflict" &&
-          !e.kind &&
-          !(e instanceof TypeError)
-          ? e.message
-          : humanError(e, true),
-      );
+      if (e.name === "PostConflict") {
+        try {
+          const latest = await writer.readSnapshot();
+          onSaved(latest);
+          const updated = latest.snapshot.posts.find(
+            (p: Post) => p.id === post.id,
+          );
+          if (updated) setCurrentPost(updated);
+          setRecentAccepted(false);
+          operation.current = crypto.randomUUID();
+          setError(
+            "Публикацию уже успели изменить. Мы открыли свежую версию — проверьте срок и подтвердите ещё раз.",
+          );
+        } catch {
+          setError(
+            "Не удалось обновить публикацию. Вернитесь назад и попробуйте ещё раз, когда появится связь.",
+          );
+        }
+      } else
+        setError(e.kind === "validation" ? e.message : humanError(e, true));
     } finally {
       sending.current = false;
       setBusy(false);
@@ -179,7 +194,9 @@ export default function ReminderPanel({
         </fieldset>
       ) : (
         <p>
-          Поднимется существующая карточка с датой события, если она указана.
+          {event
+            ? `${event.label || "Событие"}: ${fullDate(event)}`
+            : "Напоминание о публикации без даты."}
         </p>
       )}
       <p>

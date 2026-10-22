@@ -198,24 +198,24 @@ export async function checkFavoritesAndReference(browser, url, fixture) {
       await expectCards(page, 1);
       await page.goto(url + "#/feed");
       await page
-        .getByRole("heading", { name: "Рабочая лента", exact: true })
+        .getByRole("heading", { name: "Напомнили участникам", exact: true })
         .waitFor();
-      const working = page
-        .locator(".feed-section")
-        .filter({
-          has: page.getByRole("heading", {
-            name: "Рабочая лента",
-            exact: true,
-          }),
-        });
+      const working = page.locator(".feed-section").filter({
+        has: page.getByRole("heading", {
+          name: "Напомнили участникам",
+          exact: true,
+        }),
+      });
       const ids = await working
         .locator(".post-card-link")
         .evaluateAll((links) =>
           links.map((link) => link.getAttribute("href").split("/").at(-1)),
         );
       assert.ok(
-        ids.indexOf("qa-it") < ids.indexOf("qa-security"),
-        "Latest reminder must move a working-feed card to the top",
+        ids.includes("qa-it") &&
+          ids.includes("qa-security") &&
+          ids.indexOf("qa-it") < ids.indexOf("qa-security"),
+        "Latest reminder must lead the raised cards; maintenance edits do not change order",
       );
       assert.equal(
         await page

@@ -28,6 +28,11 @@ import {
 import { filterPosts } from "./lib/filters.mjs";
 import { groupSearchResults } from "./lib/search.mjs";
 import {
+  editCount,
+  freshReminder,
+  reminderDescription,
+} from "./lib/reminders.mjs";
+import {
   loadManifest,
   loadSnapshotWithKey,
   loadObject,
@@ -1540,9 +1545,10 @@ function PostCard({
   const status = postStatus(post, now);
   const nextEvent = nextPostDate(post, "event", now),
     nextDeadline = nextPostDate(post, "deadline", now);
+  const reminder = freshReminder(post, now);
   return (
     <article
-      className={`post-card ${post.category_id === "money" && !status.archive ? "money-card" : ""}`}
+      className={`post-card ${reminder ? "fresh-reminder" : ""} ${post.category_id === "money" && !status.archive ? "money-card" : ""}`}
       data-category={post.category_id}
     >
       <FavoriteButton id={post.id} />
@@ -1566,6 +1572,11 @@ function PostCard({
           )}
         </div>
         <h3>{post.title}</h3>
+        {reminder && (
+          <p className="fresh-reminder-label">
+            {reminderDescription(reminder)}
+          </p>
+        )}
         {[nextEvent, nextDeadline].filter(Boolean).map((next) => (
           <div
             key={next!.id}
@@ -1654,16 +1665,29 @@ function Feed({
   collapseReminders?: boolean;
 }) {
   const reminders = collapseReminders
-    ? posts.filter((p) => p.category_id === "reminders")
+    ? posts.filter(
+        (p) => p.category_id === "reminders" && !freshReminder(p, now),
+      )
     : [];
-  const hot = !archive ? posts.filter((p) => isHot(p, now)) : [];
+  const fresh = !archive ? posts.filter((p) => freshReminder(p, now)) : [];
+  const hot = !archive
+    ? posts.filter((p) => !fresh.includes(p) && isHot(p, now))
+    : [];
   const pinned = !archive
     ? posts.filter(
-        (p) => p.pinned && !hot.includes(p) && !reminders.includes(p),
+        (p) =>
+          p.pinned &&
+          !fresh.includes(p) &&
+          !hot.includes(p) &&
+          !reminders.includes(p),
       )
     : [];
   const other = posts.filter(
-    (p) => !hot.includes(p) && !pinned.includes(p) && !reminders.includes(p),
+    (p) =>
+      !fresh.includes(p) &&
+      !hot.includes(p) &&
+      !pinned.includes(p) &&
+      !reminders.includes(p),
   );
   const render = (items: Post[]) => (
     <div className="post-grid">
@@ -1680,6 +1704,15 @@ function Feed({
   );
   return (
     <>
+      {fresh.length > 0 && (
+        <section className="feed-section fresh-reminders-section">
+          <div className="section-heading">
+            <h2>Напомнили участникам</h2>
+            <span>За последние сутки</span>
+          </div>
+          {render(fresh)}
+        </section>
+      )}
       {hot.length > 0 && (
         <section className="feed-section">
           <div className="section-heading">
@@ -1902,8 +1935,13 @@ function PostView({
             {post.priority === "urgent" ? "Срочно" : "Важно"}
           </span>
         )}
-        {post.history.length > 0 && (
-          <span className="status">Обновлено · {post.history.length}</span>
+        {editCount(post) > 0 && (
+          <span className="status">Изменено · {editCount(post)}</span>
+        )}
+        {freshReminder(post, now) && (
+          <span className="status fresh-reminder-label">
+            {reminderDescription(freshReminder(post, now))}
+          </span>
         )}
       </div>
       <div className="post-byline">
@@ -2052,7 +2090,7 @@ function PostView({
                 )
                 .map((r) => ({
                   ...r,
-                  text: "Напоминание о публикации",
+                  text: reminderDescription(r),
                   type: "reminded",
                 })),
             ]

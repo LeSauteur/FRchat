@@ -62,7 +62,19 @@ export interface Post {
   attachments: FileEntry[];
   expected_attachments: { label: string }[];
   history: { id: string; at: string; text: string; type: string; by: string }[];
-  reminded_at: { id: string; at: string }[];
+  reminded_at: {
+    id: string;
+    at: string;
+    by?: string;
+    date_id?: string;
+    date_kind?: string;
+    date_label?: string;
+    date_start?: string;
+    date_end?: string;
+    date_all_day?: boolean;
+    date_time_unspecified?: boolean;
+    occurrence_date?: string;
+  }[];
   related: string[];
 }
 export interface Snapshot {

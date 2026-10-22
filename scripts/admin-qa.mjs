@@ -239,7 +239,7 @@ export async function checkAdmin(browser, url) {
         .waitFor();
       await audit("duplicate");
       await page
-        .getByRole("button", { name: "Это повтор — напомнить", exact: true })
+        .getByRole("button", { name: "Напомнить о старой", exact: true })
         .click();
       assert.equal(
         f.backend.calls.filter((c) => c.method === "PATCH").length,
@@ -255,7 +255,7 @@ export async function checkAdmin(browser, url) {
         1,
       );
       await page
-        .getByRole("button", { name: "Это повтор — напомнить", exact: true })
+        .getByRole("button", { name: "Напомнить о старой", exact: true })
         .click();
       await page
         .getByRole("button", { name: "Да, напомнить", exact: true })

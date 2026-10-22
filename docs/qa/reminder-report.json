@@ -1,0 +1,196 @@
+{
+  "synthetic": true,
+  "cases": [
+    {
+      "width": 390,
+      "theme": "light",
+      "screen": "select",
+      "minContrast": 5.812
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "screen": "success",
+      "minContrast": 5.812
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "screen": "link-after-login",
+      "minContrast": 4.682
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "screen": "feed",
+      "minContrast": 4.727
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "screen": "repeat-warning",
+      "minContrast": 5.524
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "screen": "select",
+      "minContrast": 7.294
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "screen": "success",
+      "minContrast": 7.294
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "screen": "link-after-login",
+      "minContrast": 6.48
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "screen": "feed",
+      "minContrast": 5.815
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "screen": "repeat-warning",
+      "minContrast": 7.294
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "screen": "select",
+      "minContrast": 5.812
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "screen": "success",
+      "minContrast": 5.812
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "screen": "link-after-login",
+      "minContrast": 4.682
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "screen": "feed",
+      "minContrast": 4.727
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "screen": "repeat-warning",
+      "minContrast": 5.524
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "screen": "select",
+      "minContrast": 7.294
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "screen": "success",
+      "minContrast": 7.294
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "screen": "link-after-login",
+      "minContrast": 6.48
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "screen": "feed",
+      "minContrast": 5.815
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "screen": "repeat-warning",
+      "minContrast": 7.294
+    },
+    {
+      "width": 1280,
+      "theme": "light",
+      "screen": "select",
+      "minContrast": 5.812
+    },
+    {
+      "width": 1280,
+      "theme": "light",
+      "screen": "success",
+      "minContrast": 5.812
+    },
+    {
+      "width": 1280,
+      "theme": "light",
+      "screen": "link-after-login",
+      "minContrast": 4.682
+    },
+    {
+      "width": 1280,
+      "theme": "light",
+      "screen": "feed",
+      "minContrast": 4.727
+    },
+    {
+      "width": 1280,
+      "theme": "light",
+      "screen": "repeat-warning",
+      "minContrast": 5.524
+    },
+    {
+      "width": 1280,
+      "theme": "dark",
+      "screen": "select",
+      "minContrast": 7.294
+    },
+    {
+      "width": 1280,
+      "theme": "dark",
+      "screen": "success",
+      "minContrast": 7.294
+    },
+    {
+      "width": 1280,
+      "theme": "dark",
+      "screen": "link-after-login",
+      "minContrast": 5.812
+    },
+    {
+      "width": 1280,
+      "theme": "dark",
+      "screen": "feed",
+      "minContrast": 5.812
+    },
+    {
+      "width": 1280,
+      "theme": "dark",
+      "screen": "repeat-warning",
+      "minContrast": 7.294
+    }
+  ],
+  "scenarios": [
+    "selected deadline",
+    "offline retry and double click",
+    "clean browser deep link after password",
+    "two readers unread counts",
+    "single raised card",
+    "12-hour warning",
+    "event without selector",
+    "duplicate draft and attachment recovery",
+    "append preserves history"
+  ]
+}

@@ -12,6 +12,7 @@ import { checkFavoritesAndReference } from "./feature-check.mjs";
 import { checkAdmin } from "./admin-qa.mjs";
 import { checkDuplicateFlows } from "./duplicate-qa.mjs";
 import { checkReadability, inspectInputs } from "./readability-qa.mjs";
+import { checkDeadlines } from "./deadline-qa.mjs";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const url = process.env.FRCHAT_URL ?? "http://127.0.0.1:4173/";
 const output = resolve(root, "docs/qa");
@@ -52,6 +53,7 @@ const browser = await chromium.launch({
 const matrix = [],
   errors = [];
 try {
+  await checkDeadlines(browser, url);
   await checkReadability(browser, url, fixture);
   await checkAdmin(browser, url);
   await checkDuplicateFlows(browser, url);

@@ -228,7 +228,11 @@ export function similarPosts(incoming, posts) {
 }
 
 /** Prepare an update for the ordinary review/publish flow. No network write. */
-export function prepareDuplicateUpdate(incoming, match, { id, at, by }) {
+export function prepareDuplicateUpdate(
+  incoming,
+  match,
+  { id, at, by, mode = "replace" },
+) {
   const target = match.post;
   if (match.kind === "series") {
     const changed = structuredClone(target);
@@ -296,8 +300,11 @@ export function prepareDuplicateUpdate(incoming, match, { id, at, by }) {
   }
   return {
     ...structuredClone(target),
-    title: incoming.title,
-    body: incoming.body,
+    title: mode === "append" ? target.title : incoming.title,
+    body:
+      mode === "append" && target.body.trim() !== incoming.body.trim()
+        ? `${target.body}\n\n${incoming.body}`
+        : incoming.body,
     source: incoming.source || target.source,
     dates: [
       ...new Map(

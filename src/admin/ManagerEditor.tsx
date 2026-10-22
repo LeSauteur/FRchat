@@ -17,6 +17,8 @@ import {
 } from "../lib/manager.mjs";
 import { REFERENCE_CATEGORIES } from "../lib/reference.mjs";
 import { dayKey } from "../lib/dates.mjs";
+import ReminderPanel from "./ReminderPanel";
+import { canRemind } from "../lib/reminders.mjs";
 type Upload = {
   id: string;
   name: string;
@@ -351,48 +353,6 @@ export default function ManagerEditor({
       setBusy(false);
     }
   }
-  async function remind(target: Post) {
-    if (sending.current) return;
-    if (
-      remindTarget?.id !== target.id ||
-      needsUpdate ||
-      match?.kind === "series"
-    )
-      return;
-    sending.current = true;
-    setBusy(true);
-    setError("");
-    try {
-      await queue.current;
-      if (!writer) throw { kind: "unavailable" };
-      const at = moscowStamp(),
-        id = operation.current;
-      const result = await writer.savePost({
-        post: {
-          ...target,
-          reminded_at: [...target.reminded_at, { id, at }],
-          history: [
-            ...target.history,
-            {
-              id,
-              at,
-              type: "reminded",
-              text: "Напоминание о публикации",
-              by: identity.label,
-            },
-          ],
-        },
-        basePost: target,
-        operationId: id,
-      });
-      await finish(result, target.id);
-    } catch (e: any) {
-      setError(humanError(e, saved));
-    } finally {
-      sending.current = false;
-      setBusy(false);
-    }
-  }
   function updateExisting() {
     if (!match) return;
     try {
@@ -400,6 +360,7 @@ export default function ManagerEditor({
         id: crypto.randomUUID(),
         at: moscowStamp(),
         by: identity.label,
+        mode: "append",
       });
       setIncomingPost(post);
       setSeriesFocus(
@@ -468,6 +429,22 @@ export default function ManagerEditor({
       </section>
     );
   if (!ready) return <p role="status">Открываем ваш текст…</p>;
+  if (remindTarget)
+    return (
+      <ReminderPanel
+        key={remindTarget.id}
+        post={remindTarget}
+        incoming={post}
+        identity={identity}
+        writer={writer}
+        onSaved={onSaved}
+        onBack={() => setRemindTarget(null)}
+        beforeSend={async () => {
+          const ok = await queue.current;
+          if (!ok) throw { kind: "draft" };
+        }}
+      />
+    );
   if (done)
     return (
       <section className="manager-focus manager-done">
@@ -692,47 +669,29 @@ export default function ManagerEditor({
                       Это новое
                     </button>
                   </>
-                ) : remindTarget ? (
-                  <div
-                    className="manager-remind-confirm"
-                    role="group"
-                    aria-label="Подтверждение напоминания"
-                  >
-                    <h3>Напомнить участникам о старой публикации?</h3>
-                    <p>
-                      Поднимется прежняя карточка. Ваш новый текст не будет
-                      добавлен. Чтобы сохранить изменения, выберите «Обновить
-                      старую».
-                    </p>
-                    <button onClick={() => void remind(remindTarget)}>
-                      Да, напомнить
-                    </button>
-                    <button onClick={() => setRemindTarget(null)}>
-                      Назад к выбору
-                    </button>
-                  </div>
                 ) : (
                   <>
                     {needsUpdate && (
                       <p>
                         В вашем сообщении есть новая ссылка, дата или файл.
-                        Выберите «Обновить старую», чтобы сохранить дополнения.
+                        Выберите «Дописать в старую», чтобы сохранить
+                        дополнения.
                       </p>
                     )}
                     <button
-                      disabled={needsUpdate}
+                      disabled={!canRemind(match.post)}
                       onClick={() => setRemindTarget(match.post)}
                     >
-                      Это повтор — напомнить
+                      Напомнить о старой
                     </button>
-                    <button onClick={updateExisting}>Обновить старую</button>
+                    <button onClick={updateExisting}>Дописать в старую</button>
                     <button
                       onClick={() => {
                         setKeepNew(true);
                         setRemindTarget(null);
                       }}
                     >
-                      Это новое
+                      Опубликовать как новую
                     </button>
                   </>
                 )}

@@ -7,6 +7,8 @@ import { moscowStamp } from "../lib/writer.mjs";
 import { postStatus } from "../lib/dates.mjs";
 import { readLocal, writeLocal } from "../lib/storage.mjs";
 import { REFERENCE_CATEGORIES } from "../lib/reference.mjs";
+import ReminderPanel from "./ReminderPanel";
+import { canRemind, reminderDescription } from "../lib/reminders.mjs";
 export default function ManagerApp({
   snapshot,
   identity,
@@ -47,7 +49,8 @@ export default function ManagerApp({
     [undo, setUndo] = useState<Post | null>(null),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
-    [settings, setSettings] = useState(false);
+    [settings, setSettings] = useState(false),
+    [remind, setRemind] = useState<Post | null>(null);
   const categories = [...snapshot.categories, ...REFERENCE_CATEGORIES];
   async function changeState(post: Post, state: string) {
     if (busy) return;
@@ -146,6 +149,17 @@ export default function ManagerApp({
       </section>,
     );
   }
+  if (remind)
+    return shell(
+      <ReminderPanel
+        key={remind.id}
+        post={remind}
+        identity={identity}
+        writer={writer}
+        onSaved={onSaved}
+        onBack={() => setRemind(null)}
+      />,
+    );
   if (path === "/admin/new" || path.startsWith("/admin/edit/")) {
     const id = path.startsWith("/admin/edit/")
         ? decodeURIComponent(path.slice(12))
@@ -207,6 +221,15 @@ export default function ManagerApp({
           >
             Исправить
           </a>
+          <button
+            disabled={busy || !canRemind(p)}
+            onClick={() => {
+              setRemind(p);
+              window.scrollTo({ top: 0 });
+            }}
+          >
+            Напомнить
+          </button>
           <button
             className="manager-delete"
             disabled={busy}
@@ -301,6 +324,7 @@ export default function ManagerApp({
             ← На главную
           </a>
           <ManagerPreview post={selected} categories={categories} />
+          <ReminderHistory post={selected} />
           {actions(selected)}
         </>
       ) : (
@@ -361,10 +385,27 @@ export default function ManagerApp({
                 </p>
               ))}
               {actions(p)}
+              <ReminderHistory post={p} />
             </article>
           ))}
         </>
       )}
     </>,
+  );
+}
+function ReminderHistory({ post }: { post: Post }) {
+  if (!post.reminded_at.length) return <p>Напоминали 0 раз</p>;
+  return (
+    <details className="manager-reminder-history">
+      <summary>Напоминали {post.reminded_at.length} раз</summary>
+      {[...post.reminded_at]
+        .sort((a, b) => Date.parse(b.at) - Date.parse(a.at))
+        .map((r) => (
+          <p key={r.id}>
+            {fullDate({ kind: "event", start: r.at })} ·{" "}
+            {reminderDescription(r)}
+          </p>
+        ))}
+    </details>
   );
 }

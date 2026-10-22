@@ -116,6 +116,42 @@ body {
   color: var(--muted);
   font-size: 0.875rem;
 }
+.reminder-choice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.reminder-choice input {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+}
+.reminder-choice:has(input:checked) {
+  background: var(--upcoming-bg);
+  border-color: var(--link);
+}
+.manager-reminder-history summary {
+  min-height: 48px;
+  padding: 12px 0;
+  cursor: pointer;
+}
+.post-card.fresh-reminder {
+  border: 2px solid var(--link);
+}
+.fresh-reminder-label {
+  background: var(--upcoming-bg);
+  color: var(--upcoming);
+  padding: 8px;
+  border-radius: 6px;
+  margin: 8px 0;
+  overflow-wrap: anywhere;
+}
 .manager-app {
   font-size: 16px;
   line-height: 1.5;

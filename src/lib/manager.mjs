@@ -21,6 +21,8 @@ export function fullDate(date) {
   return `${day}, ${time}`;
 }
 export function humanError(error, saved = true) {
+  if (error?.kind === "draft")
+    return "Не удалось сохранить ваш текст на устройстве. Не закрывайте страницу. Вернитесь к тексту и скопируйте его перед повтором.";
   if ([401, 403, 404].includes(error?.status) || error?.kind === "unavailable")
     return (
       "Публикация временно недоступна, напишите Алексею." +

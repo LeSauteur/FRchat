@@ -249,6 +249,9 @@ export async function checkReminders(browser, url) {
         await page
           .getByRole("link", { name: "На главную", exact: true })
           .click();
+        await page
+          .getByRole("heading", { name: "Ваши публикации", exact: true })
+          .waitFor();
         const card = page
           .locator(".manager-card")
           .filter({
@@ -289,13 +292,11 @@ export async function checkReminders(browser, url) {
         await page
           .getByRole("textbox", { name: "Текст сообщения 1", exact: true })
           .fill(incoming);
-        await page
-          .locator("input[type=file]")
-          .setInputFiles({
-            name: "qa-note.txt",
-            mimeType: "text/plain",
-            buffer: Buffer.from("Synthetic draft attachment"),
-          });
+        await page.locator("input[type=file]").setInputFiles({
+          name: "qa-note.txt",
+          mimeType: "text/plain",
+          buffer: Buffer.from("Synthetic draft attachment"),
+        });
         await page
           .getByRole("button", { name: "Проверить", exact: true })
           .click();

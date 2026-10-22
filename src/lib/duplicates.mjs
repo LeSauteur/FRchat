@@ -83,6 +83,17 @@ function similarity(incoming, target, template) {
     normalizedBody(incoming) === normalizedBody(target)
   )
     return 1;
+  // An appended MAX message remains a recognizable complete fragment. Compare
+  // whole paragraphs (never individual template sentences); date/period gates
+  // above this function still apply before accepting a duplicate.
+  const body = normalizedBody(incoming);
+  if (
+    body.length >= 60 &&
+    target.body
+      .split(/\n\s*\n/u)
+      .some((fragment) => normalizedBody({ body: fragment }) === body)
+  )
+    return 1;
   const a = new Set(
     [...words(textOf(incoming))].filter((w) => !template.has(w)),
   );
@@ -331,6 +342,7 @@ export function prepareDuplicateUpdate(
         type: "edited",
         text: "Публикация дополнена новым сообщением",
         previous_body: target.body,
+        added_body: incoming.body,
       },
     ],
   };

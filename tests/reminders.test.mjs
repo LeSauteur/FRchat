@@ -11,7 +11,10 @@ import {
   freshReminder,
   editCount,
 } from "../src/lib/reminders.mjs";
-import { prepareDuplicateUpdate } from "../src/lib/duplicates.mjs";
+import {
+  prepareDuplicateUpdate,
+  similarPosts,
+} from "../src/lib/duplicates.mjs";
 import { GitDataWriter } from "../src/lib/writer.mjs";
 import { createAdminFixture } from "../scripts/admin-fixture.mjs";
 const now = "2026-10-22T12:00:00+03:00";
@@ -188,4 +191,22 @@ test("atomic reminder retry is idempotent and advances updated_at for every read
   assert.equal(saved.history.filter((h) => h.type === "reminded").length, 1);
   assert.notEqual(saved.updated_at, post.updated_at);
   assert.equal(editCount(saved), 0);
+});
+test("a complete message appended earlier is still recognized as a repeat", () => {
+  const incoming = {
+    ...post,
+    id: "incoming",
+    body: "Учебные подарки для команды. Подайте заявку до 1 ноября 2026 в 18:00 и оплатите заказ до 10 ноября 2026.",
+  };
+  const combined = prepareDuplicateUpdate(
+    incoming,
+    { kind: "duplicate", post },
+    { id: "append", at: now, by: "Руководство", mode: "append" },
+  );
+  assert.equal(similarPosts(incoming, [combined])[0]?.post.id, post.id);
+  const otherDate = {
+    ...incoming,
+    dates: [{ ...incoming.dates[0], start: "2027-01-01T18:00:00+03:00" }],
+  };
+  assert.deepEqual(similarPosts(otherDate, [combined]), []);
 });

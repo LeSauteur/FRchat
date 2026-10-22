@@ -87,6 +87,35 @@ body {
   background: var(--bg);
   color: var(--text);
 }
+.card-date.deadline-approaching,
+.date-row.deadline-approaching {
+  background: var(--notice-bg);
+  color: var(--notice-text);
+  border-left: 3px solid var(--notice-text);
+  padding: 8px;
+  border-radius: 6px;
+}
+.card-date.deadline-urgent,
+.date-row.deadline-urgent {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-left: 4px solid var(--danger);
+  padding: 8px;
+  border-radius: 6px;
+  font-weight: 700;
+}
+.deadline-urgent small,
+.deadline-approaching small {
+  color: inherit;
+}
+.card-date.deadline-expired,
+.date-row.deadline-expired {
+  color: var(--danger);
+}
+.completed-deadline {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
 .manager-app {
   font-size: 16px;
   line-height: 1.5;

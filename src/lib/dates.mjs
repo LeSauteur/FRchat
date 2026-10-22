@@ -24,6 +24,36 @@ export function dateEnd(date) {
     Date.parse(date.start) + (date.kind === "deadline" ? 0 : 2 * 3_600_000)
   );
 }
+/** Deadline windows are elapsed hours; all-day cutoffs are Moscow midnight. */
+export function deadlineStatus(date, now = new Date()) {
+  if (date.kind !== "deadline" || date.cancelled)
+    return { id: "none", label: "" };
+  const remaining = dateEnd(date) - +new Date(now);
+  if (remaining <= 0) return { id: "expired", label: "Срок истёк" };
+  if (remaining <= DAY)
+    return { id: "urgent", label: "Осталось не больше суток" };
+  if (remaining <= 3 * DAY)
+    return { id: "approaching", label: "Срок приближается" };
+  return { id: "pending", label: "" };
+}
+/** Same next-date rule for list cards, reminders and sharing. */
+export function nextPostDate(post, kind, now = new Date()) {
+  const at = +new Date(now);
+  const dates = [
+    ...occurrences(
+      post,
+      new Date(at - DAY).toISOString(),
+      new Date(at + 32 * DAY).toISOString(),
+    ),
+    ...post.dates.filter((d) => !d.recurrence),
+  ].filter((d) => d.kind === kind && !d.cancelled);
+  return (
+    dates
+      .filter((d) => dateEnd(d) > at)
+      .sort((a, b) => dateEnd(a) - dateEnd(b))[0] ??
+    dates.sort((a, b) => dateEnd(b) - dateEnd(a))[0]
+  );
+}
 export function expandDate(date, from, to) {
   const lower = Date.parse(from),
     upper = Date.parse(to);
@@ -124,7 +154,11 @@ export function postStatus(post, now = new Date()) {
     (d) => dateEnd(d) <= at && dateEnd(d) + DAY > at,
   );
   const running = dates.some(
-    (d) => d.kind === "event" && !d.time_unspecified && Date.parse(d.start) <= at && dateEnd(d) > at,
+    (d) =>
+      d.kind === "event" &&
+      !d.time_unspecified &&
+      Date.parse(d.start) <= at &&
+      dateEnd(d) > at,
   );
   const bounds = post.dates
     .filter((d) => !d.recurrence)
@@ -155,11 +189,17 @@ export function postStatus(post, now = new Date()) {
       ? Date.parse(post.expires_at) <= at
       : bounds.length > 0 && Math.max(...bounds) <= at);
   if (archive) return { id: "past", label: "В архиве", archive: true };
-  if (overdue) return { id: "overdue", label: "Срок истёк", archive: false };
+  const nextDeadline = nextPostDate(post, "deadline", now);
+  if (overdue && !(nextDeadline && dateEnd(nextDeadline) > at))
+    return { id: "overdue", label: "Срок истёк", archive: false };
   if (running) return { id: "ongoing", label: "Идёт сейчас", archive: false };
   const future =
     activeSeries ||
-    dates.some((d) => Date.parse(d.start) > at || ((d.kind === "deadline" || d.time_unspecified) && dateEnd(d) > at)) ||
+    dates.some(
+      (d) =>
+        Date.parse(d.start) > at ||
+        ((d.kind === "deadline" || d.time_unspecified) && dateEnd(d) > at),
+    ) ||
     post.dates.some((d) => !d.recurrence && Date.parse(d.start) > at);
   return {
     id: future ? "upcoming" : "active",

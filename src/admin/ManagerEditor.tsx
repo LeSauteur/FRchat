@@ -856,8 +856,9 @@ export default function ManagerEditor({
                 {field === "dates" && (
                   <section className="manager-card">
                     <p>
-                      Событие — когда проходит встреча. Ответить до — последний
-                      срок для списков и заявок.
+                      Событие — когда проходит встреча. Срок — до какого дня и
+                      времени нужно подать заявку, оплатить или отправить отчёт.
+                      Все даты и время — московские.
                     </p>
                     {post.dates.map((d, i) => {
                       const change = (p: Partial<DateEntry>) =>
@@ -879,7 +880,7 @@ export default function ManagerEditor({
                               }
                             >
                               <option value="event">Событие</option>
-                              <option value="deadline">Ответить до</option>
+                              <option value="deadline">Срок</option>
                             </select>
                           </label>
                           <label>
@@ -914,7 +915,7 @@ export default function ManagerEditor({
                           <label>
                             {d.kind === "event"
                               ? "Время начала"
-                              : "Последнее время ответа"}
+                              : "Последнее время"}
                             <input
                               type="time"
                               disabled={d.allDay || d.time_unspecified}

@@ -15,11 +15,13 @@ import {
   addDays,
   dateEnd,
   dateLabel,
+  deadlineStatus,
   dayKey,
   dayStart,
   formatDate,
   isHot,
   occurrences,
+  nextPostDate,
   postStatus,
   weekday,
 } from "./lib/dates.mjs";
@@ -1536,21 +1538,8 @@ function PostCard({
   read?: string;
 }) {
   const status = postStatus(post, now);
-  const dates = occurrences(
-    post,
-    new Date(+now - DAY).toISOString(),
-    new Date(+now + 32 * DAY).toISOString(),
-  ) as DateEntry[];
-  const nextFor = (kind: string) =>
-    dates.find((d) => d.kind === kind && dateEnd(d) >= +now && !d.cancelled) ??
-    post.dates
-      .filter((d) => d.kind === kind && !d.recurrence)
-      .sort((a, b) => a.start.localeCompare(b.start))
-      .find((d) => dateEnd(d) >= +now) ??
-    dates.filter((d) => d.kind === kind).at(-1) ??
-    post.dates.filter((d) => d.kind === kind).at(-1);
-  const nextEvent = nextFor("event"),
-    nextDeadline = nextFor("deadline");
+  const nextEvent = nextPostDate(post, "event", now),
+    nextDeadline = nextPostDate(post, "deadline", now);
   return (
     <article
       className={`post-card ${post.category_id === "money" && !status.archive ? "money-card" : ""}`}
@@ -1583,8 +1572,8 @@ function PostCard({
             data-date-kind={next!.kind}
             className={
               "card-date " +
-              (next!.kind === "deadline" && status.id === "overdue"
-                ? "danger"
+              (!status.archive && post.state === "active"
+                ? `deadline-${deadlineStatus(next!, now).id}`
                 : "")
             }
           >
@@ -1596,12 +1585,25 @@ function PostCard({
                 :{" "}
               </span>
               {dateLabel(next!)}
-              {next!.kind === "deadline" && dateEnd(next!) <= +now
-                ? " · срок истёк"
+              {next!.kind === "deadline" && deadlineStatus(next!, now).label
+                ? ` · ${deadlineStatus(next!, now).label.toLocaleLowerCase("ru")}`
                 : ""}
             </span>
           </div>
         ))}
+        {post.dates
+          .filter(
+            (d) =>
+              d.kind === "deadline" &&
+              !d.recurrence &&
+              d.id !== nextDeadline?.id &&
+              deadlineStatus(d, now).id === "expired",
+          )
+          .map((d) => (
+            <p className="completed-deadline" key={d.id}>
+              {d.label || "Срок"} · срок истёк
+            </p>
+          ))}
         <p className="card-excerpt">
           {post.body.replace(/https?:\/\/\S+/g, "").slice(0, 155)}
         </p>
@@ -1937,6 +1939,9 @@ function PostView({
               key={`${d.id}-${d.start}-${i}`}
               className={
                 "date-row " +
+                (!status.archive && post.state === "active"
+                  ? `deadline-${deadlineStatus(d, now).id} `
+                  : "") +
                 (d.cancelled || post.state === "postponed"
                   ? "cancelled-date"
                   : "")
@@ -1948,6 +1953,9 @@ function PostView({
               <div>
                 <strong>{dateLabel(d)}</strong>
                 {d.label && <small>{d.label}</small>}
+                {d.kind === "deadline" && (
+                  <small>{deadlineStatus(d, now).label}</small>
+                )}
                 {d.cancelled && <small>Отменено / перенесено</small>}
                 {d.meeting_url && safeUrl(d.meeting_url) && (
                   <a

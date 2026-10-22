@@ -1,0 +1,89 @@
+{
+  "synthetic": true,
+  "cases": [
+    {
+      "width": 390,
+      "theme": "light",
+      "timezone": "Pacific/Honolulu",
+      "screen": "approaching",
+      "minContrast": 5.067
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "timezone": "Pacific/Honolulu",
+      "screen": "urgent",
+      "minContrast": 4.727
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "timezone": "Pacific/Honolulu",
+      "screen": "approaching",
+      "minContrast": 6.897
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "timezone": "Pacific/Honolulu",
+      "screen": "urgent",
+      "minContrast": 6.673
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "timezone": "Pacific/Honolulu",
+      "screen": "approaching",
+      "minContrast": 5.067
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "timezone": "Pacific/Honolulu",
+      "screen": "urgent",
+      "minContrast": 4.727
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "timezone": "Pacific/Honolulu",
+      "screen": "approaching",
+      "minContrast": 6.897
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "timezone": "Pacific/Honolulu",
+      "screen": "urgent",
+      "minContrast": 6.673
+    },
+    {
+      "width": 1280,
+      "theme": "light",
+      "timezone": "Pacific/Honolulu",
+      "screen": "approaching",
+      "minContrast": 5.067
+    },
+    {
+      "width": 1280,
+      "theme": "light",
+      "timezone": "Pacific/Honolulu",
+      "screen": "urgent",
+      "minContrast": 4.727
+    },
+    {
+      "width": 1280,
+      "theme": "dark",
+      "timezone": "Pacific/Honolulu",
+      "screen": "approaching",
+      "minContrast": 5.812
+    },
+    {
+      "width": 1280,
+      "theme": "dark",
+      "timezone": "Pacific/Honolulu",
+      "screen": "urgent",
+      "minContrast": 5.812
+    }
+  ]
+}

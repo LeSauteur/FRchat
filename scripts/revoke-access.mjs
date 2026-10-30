@@ -3,9 +3,13 @@ import { deriveKey, decodeJson } from "../src/lib/crypto.mjs";
 import { GitDataWriter } from "../src/lib/writer.mjs";
 import { rotateAccess } from "../src/lib/access-rotation.mjs";
 import { ghData, DATA, atomicDataWrite } from "./gh-data.mjs";
-const id = process.argv.find((a) => /^user[1-5]$/.test(a));
-if (!id)
-  throw new Error("Использование: npm run access:revoke -- user3 [--apply]");
+const args = process.argv.slice(2),
+  ids = args.filter((a) => a !== "--apply"),
+  id = ids[0];
+if (ids.length !== 1 || !/^[a-z0-9-]{1,40}$/.test(id) || id === "admin")
+  throw new Error(
+    "Использование: npm run access:revoke -- <логин участника> [--apply]. Доступ admin отзывать нельзя.",
+  );
 const records = JSON.parse(
   await readFile(".local/pilot-accounts.json", "utf8"),
 );

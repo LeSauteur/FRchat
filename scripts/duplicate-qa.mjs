@@ -82,6 +82,9 @@ export async function checkDuplicateFlows(browser, url) {
       );
       const page = await context.newPage(),
         errors = [];
+      // These two fixture series describe October 2026; keep their occurrence
+      // in the future regardless of the date when CI runs.
+      await page.clock.setFixedTime(new Date("2026-10-22T12:00:00+03:00"));
       page.on("pageerror", (e) => errors.push(e.message));
       await installAdminRoutes(page, fixture);
       const writes = () =>

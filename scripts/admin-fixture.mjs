@@ -10,7 +10,10 @@ import {
 } from "../src/lib/crypto.mjs";
 export const syntheticAdminPassword = "qa-admin-password-only",
   syntheticReaderPassword = "qa-reader-password-only";
-export async function createAdminFixture({ additionalPosts = [] } = {}) {
+export async function createAdminFixture({
+  additionalPosts = [],
+  additionalAccounts = [],
+} = {}) {
   const fixture = await createQaFixture(),
     { manifest, objects } = fixture,
     key = await deriveKey(fixture.code, manifest.kdf);
@@ -59,6 +62,7 @@ export async function createAdminFixture({ additionalPosts = [] } = {}) {
     ["admin", "admin", syntheticAdminPassword],
     ["user1", "reader", syntheticReaderPassword],
     ["user2", "reader", syntheticReaderPassword + "2"],
+    ...additionalAccounts.map((a) => [a.id, "reader", a.password]),
   ]) {
     const kdf = newKdf(),
       accessKey = await deriveKey(password, kdf),

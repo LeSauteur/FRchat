@@ -17,10 +17,13 @@ export async function rotateAccess({
   readBytes,
 }) {
   if (
-    !/^user[1-5]$/.test(revokedId) ||
+    !/^[a-z0-9-]{1,40}$/.test(revokedId) ||
+    revokedId === "admin" ||
     !remote.manifest.accounts.some((a) => a.id === revokedId)
   )
-    throw new Error("Выберите действующий пользовательский доступ user1–user5");
+    throw new Error(
+      "Выберите действующий доступ участника; доступ admin отзывать нельзя",
+    );
   const epoch = crypto.randomUUID().replaceAll("-", ""),
     code = Array.from(crypto.getRandomValues(new Uint8Array(32)), (n) =>
       n.toString(16).padStart(2, "0"),

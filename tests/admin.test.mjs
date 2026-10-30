@@ -286,6 +286,50 @@ test("leader errors contain an action and hide infrastructure terminology", () =
       /GitHub|токен|API|401|403|409|конфликт/iu,
     );
 });
+test("named reader revocation preserves existing pilot accounts and rejects admin", async () => {
+  const namedPassword = "synthetic-named-reader-password-only";
+  const f = await createAdminFixture({
+      additionalAccounts: [{ id: "council-test", password: namedPassword }],
+    }),
+    remote = await makeWriter(f).readSnapshot();
+  const config = {
+    remote,
+    oldKey: f.key,
+    accounts: [
+      { id: "admin", password: syntheticAdminPassword },
+      { id: "user1", password: syntheticReaderPassword },
+      { id: "user2", password: syntheticReaderPassword + "2" },
+      { id: "council-test", password: namedPassword },
+    ],
+    readBytes: (ref) => f.backend.files.get(ref.path),
+  };
+  await assert.rejects(
+    rotateAccess({ ...config, revokedId: "admin" }),
+    /admin/,
+  );
+  await assert.rejects(
+    rotateAccess({ ...config, revokedId: "missing" }),
+    /действующий/,
+  );
+  const next = await rotateAccess({ ...config, revokedId: "council-test" });
+  assert.deepEqual(
+    next.manifest.accounts.map((a) => a.id),
+    ["admin", "user1", "user2"],
+  );
+  const reader = next.manifest.accounts.find((a) => a.id === "user1"),
+    key = await deriveKey(syntheticReaderPassword, reader.kdf);
+  const access = decodeJson(
+    await decryptBytes(
+      next.objects.get(reader.credential.path),
+      key,
+      next.manifest.key_epoch,
+      reader.credential.object_id,
+    ),
+  );
+  assert.equal(access.id, "user1");
+  assert.equal(access.role, "reader");
+  assert.equal(access.data_code, next.code);
+});
 test("revoking one reader rotates all data and attachments, preserving other passwords and encrypted publishing access", async () => {
   const f = await createAdminFixture(),
     remote = await makeWriter(f).readSnapshot();

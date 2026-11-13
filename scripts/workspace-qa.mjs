@@ -125,14 +125,24 @@ try {
         // The browser owns its PDF viewer. Headless Chromium may download a PDF
         // instead, or retain a pending "load" after committing its blob URL.
         // Require a real blob navigation OR a valid native PDF download.
-        let resolveNative;
-        const nativeDownload = new Promise((resolve) => {
+        let resolveNative, nativeTimer, popup;
+        const nativeDownload = new Promise((resolve, reject) => {
           resolveNative = resolve;
+          nativeTimer = setTimeout(
+            () =>
+              reject(
+                new Error(
+                  "PDF preview produced neither a committed blob nor a native download: " +
+                    popup?.url(),
+                ),
+              ),
+            20000,
+          );
         });
-        const onPreviewPage = (p) =>
-          p.once("download", (d) => resolveNative({ download: d }));
+        const onNativeDownload = (d) => resolveNative({ download: d });
+        const onPreviewPage = (p) => p.once("download", onNativeDownload);
         context.on("page", onPreviewPage);
-        let popup;
+        page.on("download", onNativeDownload);
         try {
           [popup] = await Promise.all([
             page.waitForEvent("popup"),
@@ -141,7 +151,14 @@ try {
           const outcome = await Promise.race([
             popup
               .waitForURL(/^blob:/, { waitUntil: "commit" })
-              .then(() => ({ view: true })),
+              .then(() => ({ view: true }))
+              .catch((error) => {
+                // A native download aborts navigation before its download event
+                // is delivered. Keep waiting for the validated file in this case.
+                if (error.message.includes("net::ERR_ABORTED"))
+                  return new Promise(() => {});
+                throw error;
+              }),
             nativeDownload,
           ]);
           if (outcome.download) {
@@ -153,7 +170,9 @@ try {
             );
           } else assert.match(popup.url(), /^blob:/);
         } finally {
+          clearTimeout(nativeTimer);
           context.off("page", onPreviewPage);
+          page.off("download", onNativeDownload);
           await popup?.close();
         }
         await page.goto(url + "#/tools");

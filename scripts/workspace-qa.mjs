@@ -1,7 +1,7 @@
 import { chromium } from "playwright";
 import axe from "axe-core";
 import assert from "node:assert/strict";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, writeFile, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { startWorkspacePreview } from "./workspace-preview.mjs";
 import { inspectContrast } from "./contrast-check.mjs";
@@ -118,12 +118,44 @@ try {
           page.locator(".attachment-actions .file-row").click(),
         ]);
         assert.equal(download.suggestedFilename(), "synthetic-regulation.pdf");
-        const [popup] = await Promise.all([
-          page.waitForEvent("popup"),
-          page.getByRole("button", { name: "Просмотреть файл" }).click(),
-        ]);
-        await popup.waitForURL(/^blob:/);
-        await popup.close();
+        assert.equal(
+          (await readFile(await download.path())).subarray(0, 5).toString(),
+          "%PDF-",
+        );
+        // The browser owns its PDF viewer. Headless Chromium may download a PDF
+        // instead, or retain a pending "load" after committing its blob URL.
+        // Require a real blob navigation OR a valid native PDF download.
+        let resolveNative;
+        const nativeDownload = new Promise((resolve) => {
+          resolveNative = resolve;
+        });
+        const onPreviewPage = (p) =>
+          p.once("download", (d) => resolveNative({ download: d }));
+        context.on("page", onPreviewPage);
+        let popup;
+        try {
+          [popup] = await Promise.all([
+            page.waitForEvent("popup"),
+            page.getByRole("button", { name: "Просмотреть файл" }).click(),
+          ]);
+          const outcome = await Promise.race([
+            popup
+              .waitForURL(/^blob:/, { waitUntil: "commit" })
+              .then(() => ({ view: true })),
+            nativeDownload,
+          ]);
+          if (outcome.download) {
+            assert.equal(
+              (await readFile(await outcome.download.path()))
+                .subarray(0, 5)
+                .toString(),
+              "%PDF-",
+            );
+          } else assert.match(popup.url(), /^blob:/);
+        } finally {
+          context.off("page", onPreviewPage);
+          await popup?.close();
+        }
         await page.goto(url + "#/tools");
         assert.equal(
           await page.locator(".tool-open").getAttribute("href"),

@@ -19,3 +19,5 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Check both system schemes and manual overrides
         run: npm run test:themes -- --start-server
+      - name: Check unified workspace and content management on synthetic data
+        run: npm run test:workspace

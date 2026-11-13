@@ -87,7 +87,7 @@ export async function checkReadability(browser, url, fixture) {
         await page.locator(".post-card").first().waitFor();
         assert.deepEqual(
           await page.locator(".bottom-nav a").allTextContents(),
-          ["Актуально", "Календарь", "Избранное", "Справочник", "Архив"],
+          ["Новости", "Календарь", "Документы", "Инструменты"],
         );
         assert.equal(
           await page.locator('.sidebar nav a[href="#/files"]').count(),
@@ -137,7 +137,7 @@ export async function checkReadability(browser, url, fixture) {
         await assertCategory("meetings");
         await page.goto(url + "#/reference");
         await page
-          .getByRole("heading", { name: "Справочник", exact: true })
+          .getByRole("heading", { name: "Документы", exact: true })
           .waitFor();
         const files = page.getByRole("region", { name: "Шаблоны и файлы" });
         await files.waitFor();
@@ -157,12 +157,12 @@ export async function checkReadability(browser, url, fixture) {
         );
         await page.goto(url + "#/files");
         await page
-          .getByRole("heading", { name: "Справочник", exact: true })
+          .getByRole("heading", { name: "Документы", exact: true })
           .waitFor();
         await files.waitFor();
         await page.goto(url + "#/feed");
         await page
-          .getByRole("heading", { name: "Актуально", exact: true })
+          .getByRole("heading", { name: "Рабочая сводка", exact: true })
           .waitFor();
         await auditInputs();
         assert.equal(
@@ -185,7 +185,7 @@ export async function checkReadability(browser, url, fixture) {
             });
           });
         await page.screenshot({
-          path: `docs/qa/${width}-${theme}-readability-feed.png`,
+          path: `${process.env.FRCHAT_QA_OUTPUT ?? "docs/qa"}/${width}-${theme}-readability-feed.png`,
           fullPage: false,
         });
         for (const family of ["", "Arial, sans-serif"]) {
@@ -227,7 +227,7 @@ export async function checkReadability(browser, url, fixture) {
           theme,
           input_min: 16,
           category: "single-toggle-and-scroll",
-          navigation: 5,
+          navigation: 4,
           files_download_verified: true,
           legacy_files_link: true,
           text_200_percent: true,
@@ -239,7 +239,7 @@ export async function checkReadability(browser, url, fixture) {
       }
     }
   await writeFile(
-    "docs/qa/readability-report.json",
+    `${process.env.FRCHAT_QA_OUTPUT ?? "docs/qa"}/readability-report.json`,
     JSON.stringify(
       {
         synthetic: true,

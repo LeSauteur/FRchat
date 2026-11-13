@@ -1,5 +1,11 @@
 const isoDate = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?\+03:00$/;
 import { REFERENCE_CATEGORIES, isReference } from "./reference.mjs";
+import {
+  validateDocument,
+  validateWorkspace,
+  isWorkspaceSettings,
+  documentCategories,
+} from "./workspace.mjs";
 const states = new Set([
   "active",
   "cancelled",
@@ -16,9 +22,13 @@ export function importSeed(seed) {
     throw new Error("Неподдерживаемый seed");
   const ids = new Set();
   const categories = new Set(seed.categories.map((c) => c.id));
-  const referenceCategories = new Set(REFERENCE_CATEGORIES.map((c) => c.id));
   if (seed.references !== undefined && !Array.isArray(seed.references))
     throw new Error("Некорректный справочник");
+  const referenceCategories = new Set(
+    documentCategories({
+      posts: [...seed.posts, ...(seed.references ?? [])],
+    }).map((c) => c.id),
+  );
   const posts = [
     ...seed.posts,
     ...(seed.references ?? []).map((p) => ({ ...p, type: "reference" })),
@@ -79,14 +89,14 @@ export function importSeed(seed) {
   for (const p of posts)
     if ((p.related ?? []).some((id) => !ids.has(id)))
       throw new Error("Связанный пост не найден");
-  return {
+  return validateSnapshot({
     schema_version: 1,
     generated_at: seed.generated_at,
     period: seed.period,
     categories: structuredClone(seed.categories),
     birthdays: structuredClone(seed.birthdays ?? []),
     posts,
-  };
+  });
 }
 export function safeUrl(value) {
   try {
@@ -112,5 +122,17 @@ export function validateSnapshot(value) {
     )
   )
     throw new Error("Данные не поддерживаются этой версией");
+  for (const post of value.posts) {
+    if (post.document) {
+      if (!isReference(post))
+        throw new Error("Документ должен быть справочным материалом");
+      validateDocument(post.document);
+    }
+    if (isWorkspaceSettings(post)) {
+      if (!isReference(post) || post.state === "deleted")
+        throw new Error("Некорректные настройки разделов");
+      validateWorkspace(post.workspace);
+    }
+  }
   return value;
 }

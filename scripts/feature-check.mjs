@@ -66,7 +66,7 @@ export async function checkFavoritesAndReference(browser, url, fixture) {
         .locator(".daily-task h2")
         .filter({ hasText: "Рабочая задача дня" })
         .waitFor();
-      await page.locator('.bottom-nav a[href="#/favorites"]').click();
+      await page.locator('.workspace-subnav a[href="#/favorites"]').click();
       await page
         .getByRole("heading", { name: "В избранном пока пусто" })
         .waitFor();
@@ -146,26 +146,21 @@ export async function checkFavoritesAndReference(browser, url, fixture) {
         .getByRole("heading", { name: "Контакты тестовой поддержки" })
         .waitFor();
       assert.equal(
-        await page.locator(".category-chips [data-category]").count(),
-        5,
+        await page.locator(".document-categories button").count(),
+        9,
       );
-      assert.equal(
-        await page.locator(".post-card .status-reference").count(),
-        1,
-      );
+      assert.equal(await page.locator(".document-card").count(), 1);
+      await page.getByRole("button", { name: /^Оплаты и взносы/ }).click();
       await page
-        .locator('.category-chips [data-category="reference-payments"]')
-        .click();
-      await page
-        .getByRole("heading", { name: "Публикаций пока нет" })
+        .getByRole("heading", { name: "Материалы не найдены" })
         .waitFor();
       await expectCards(page, 0);
       await page
-        .getByRole("button", { name: "Все категории", exact: true })
+        .getByRole("button", { name: "Показать все документы", exact: true })
         .click();
-      await page.locator(".post-card-link").click();
+      await page.locator(".document-card").click();
       await page
-        .getByRole("button", { name: "В справочник", exact: true })
+        .getByRole("button", { name: "В документы", exact: true })
         .waitFor();
       await page.goto(
         url + "#/feed?q=" + encodeURIComponent("support@example.org"),
@@ -249,7 +244,7 @@ export async function checkFavoritesAndReference(browser, url, fixture) {
         .getByRole("status")
         .filter({ hasText: "Браузер не разрешил сохранить избранное" })
         .waitFor();
-      await page.locator('.bottom-nav a[href="#/favorites"]').click();
+      await page.locator('.workspace-subnav a[href="#/favorites"]').click();
       await page
         .getByRole("heading", { name: "Избранное", exact: true })
         .waitFor();

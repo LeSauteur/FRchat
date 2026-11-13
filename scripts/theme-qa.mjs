@@ -16,7 +16,7 @@ import { checkDeadlines } from "./deadline-qa.mjs";
 import { checkReminders } from "./reminder-qa.mjs";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const url = process.env.FRCHAT_URL ?? "http://127.0.0.1:4173/";
-const output = resolve(root, "docs/qa");
+const output = resolve(root, process.env.FRCHAT_QA_OUTPUT ?? "docs/qa");
 await mkdir(output, { recursive: true });
 const fixture = await createQaFixture();
 const emptyReferenceFixture = await createQaFixture({
@@ -32,7 +32,7 @@ if (process.argv.includes("--start-server")) {
       "--host",
       "127.0.0.1",
       "--port",
-      "4173",
+      new URL(url).port || "4173",
       "--strictPort",
     ],
     { cwd: root, stdio: "ignore", windowsHide: true },
@@ -138,7 +138,7 @@ try {
           await page.getByRole("button", { name: "Открыть FRchat" }).click();
           await page
             .getByRole("heading", {
-              name: "Постоянная информация скоро появится",
+              name: "База знаний скоро появится",
             })
             .waitFor();
         } else await page.locator(".main-content").waitFor();

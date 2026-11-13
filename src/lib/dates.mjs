@@ -130,7 +130,7 @@ export function postStatus(post, now = new Date()) {
   if (post.state === "deleted")
     return { id: "deleted", label: "Удалено", archive: true };
   if (isReference(post))
-    return { id: "reference", label: "Справочник", archive: false };
+    return { id: "reference", label: "Документ", archive: false };
   if (post.state === "closed")
     return { id: "closed", label: "Завершено", archive: true };
   if (post.state === "cancelled")

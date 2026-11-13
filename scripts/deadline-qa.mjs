@@ -101,7 +101,7 @@ export async function checkDeadlines(browser, url) {
             false,
           );
           await page.screenshot({
-            path: `docs/qa/${width}-${theme}-deadline-${kind}.png`,
+            path: `${process.env.FRCHAT_QA_OUTPUT ?? "docs/qa"}/${width}-${theme}-deadline-${kind}.png`,
             fullPage: false,
           });
           cases.push({
@@ -126,7 +126,7 @@ export async function checkDeadlines(browser, url) {
           /Заявки на подарки/,
         );
         await page.screenshot({
-          path: `docs/qa/${width}-${theme}-deadline-feed.png`,
+          path: `${process.env.FRCHAT_QA_OUTPUT ?? "docs/qa"}/${width}-${theme}-deadline-feed.png`,
           fullPage: false,
         });
         assert.deepEqual(errors, []);
@@ -135,7 +135,7 @@ export async function checkDeadlines(browser, url) {
       }
     }
   await writeFile(
-    "docs/qa/deadline-report.json",
+    `${process.env.FRCHAT_QA_OUTPUT ?? "docs/qa"}/deadline-report.json`,
     JSON.stringify({ synthetic: true, cases }, null, 2) + "\n",
   );
   console.log(

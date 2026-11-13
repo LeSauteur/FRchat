@@ -1,0 +1,248 @@
+{
+  "screens": [
+    {
+      "name": "390-light-summary",
+      "contrast": 4.727,
+      "measured": 215
+    },
+    {
+      "name": "390-light-calendar",
+      "contrast": 4.682,
+      "measured": 138
+    },
+    {
+      "name": "390-light-documents",
+      "contrast": 4.704,
+      "measured": 85
+    },
+    {
+      "name": "390-light-document",
+      "contrast": 4.682,
+      "measured": 55
+    },
+    {
+      "name": "390-light-tools",
+      "contrast": 5.067,
+      "measured": 32
+    },
+    {
+      "name": "390-light-search",
+      "contrast": 4.682,
+      "measured": 64
+    },
+    {
+      "name": "390-light-manual-toggle",
+      "contrast": 5.812,
+      "measured": 33
+    },
+    {
+      "name": "390-dark-summary",
+      "contrast": 5.815,
+      "measured": 215
+    },
+    {
+      "name": "390-dark-calendar",
+      "contrast": 5.812,
+      "measured": 138
+    },
+    {
+      "name": "390-dark-documents",
+      "contrast": 6.932,
+      "measured": 85
+    },
+    {
+      "name": "390-dark-document",
+      "contrast": 6.48,
+      "measured": 55
+    },
+    {
+      "name": "390-dark-tools",
+      "contrast": 5.812,
+      "measured": 32
+    },
+    {
+      "name": "390-dark-search",
+      "contrast": 6.48,
+      "measured": 64
+    },
+    {
+      "name": "390-dark-manual-toggle",
+      "contrast": 5.067,
+      "measured": 33
+    },
+    {
+      "name": "430-light-summary",
+      "contrast": 4.727,
+      "measured": 215
+    },
+    {
+      "name": "430-light-calendar",
+      "contrast": 4.682,
+      "measured": 138
+    },
+    {
+      "name": "430-light-documents",
+      "contrast": 4.704,
+      "measured": 85
+    },
+    {
+      "name": "430-light-document",
+      "contrast": 4.682,
+      "measured": 55
+    },
+    {
+      "name": "430-light-tools",
+      "contrast": 5.067,
+      "measured": 32
+    },
+    {
+      "name": "430-light-search",
+      "contrast": 4.682,
+      "measured": 64
+    },
+    {
+      "name": "430-light-manual-toggle",
+      "contrast": 5.812,
+      "measured": 33
+    },
+    {
+      "name": "430-dark-summary",
+      "contrast": 5.815,
+      "measured": 215
+    },
+    {
+      "name": "430-dark-calendar",
+      "contrast": 5.812,
+      "measured": 138
+    },
+    {
+      "name": "430-dark-documents",
+      "contrast": 6.932,
+      "measured": 85
+    },
+    {
+      "name": "430-dark-document",
+      "contrast": 6.48,
+      "measured": 55
+    },
+    {
+      "name": "430-dark-tools",
+      "contrast": 5.812,
+      "measured": 32
+    },
+    {
+      "name": "430-dark-search",
+      "contrast": 6.48,
+      "measured": 64
+    },
+    {
+      "name": "430-dark-manual-toggle",
+      "contrast": 5.067,
+      "measured": 33
+    },
+    {
+      "name": "1280-light-summary",
+      "contrast": 4.727,
+      "measured": 234
+    },
+    {
+      "name": "1280-light-calendar",
+      "contrast": 4.682,
+      "measured": 153
+    },
+    {
+      "name": "1280-light-documents",
+      "contrast": 4.704,
+      "measured": 97
+    },
+    {
+      "name": "1280-light-document",
+      "contrast": 4.682,
+      "measured": 67
+    },
+    {
+      "name": "1280-light-tools",
+      "contrast": 4.949,
+      "measured": 44
+    },
+    {
+      "name": "1280-light-search",
+      "contrast": 4.682,
+      "measured": 78
+    },
+    {
+      "name": "1280-light-manual-toggle",
+      "contrast": 5.812,
+      "measured": 45
+    },
+    {
+      "name": "1280-dark-summary",
+      "contrast": 5.812,
+      "measured": 234
+    },
+    {
+      "name": "1280-dark-calendar",
+      "contrast": 5.812,
+      "measured": 153
+    },
+    {
+      "name": "1280-dark-documents",
+      "contrast": 5.812,
+      "measured": 97
+    },
+    {
+      "name": "1280-dark-document",
+      "contrast": 5.812,
+      "measured": 67
+    },
+    {
+      "name": "1280-dark-tools",
+      "contrast": 5.812,
+      "measured": 44
+    },
+    {
+      "name": "1280-dark-search",
+      "contrast": 5.812,
+      "measured": 78
+    },
+    {
+      "name": "1280-dark-manual-toggle",
+      "contrast": 4.949,
+      "measured": 45
+    },
+    {
+      "name": "390-light-admin-tools",
+      "contrast": 5.067,
+      "measured": 34
+    },
+    {
+      "name": "390-light-admin-document",
+      "contrast": 5.067,
+      "measured": 35
+    },
+    {
+      "name": "390-dark-admin-tools",
+      "contrast": 5.812,
+      "measured": 43
+    },
+    {
+      "name": "390-dark-admin-document",
+      "contrast": 5.812,
+      "measured": 35
+    }
+  ],
+  "errors": [],
+  "checks": [
+    "four sections",
+    "old routes",
+    "global and document search",
+    "secure file download and preview",
+    "both themes and manual toggle",
+    "admin creates categories and tools",
+    "encrypted draft and attachment recovery",
+    "offline retry without duplicate",
+    "simultaneous settings edit requires an explicit choice",
+    "legacy document category URL persists after reload"
+  ],
+  "syntheticOnly": true
+}

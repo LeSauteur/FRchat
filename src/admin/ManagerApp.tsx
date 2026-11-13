@@ -9,6 +9,8 @@ import { readLocal, writeLocal } from "../lib/storage.mjs";
 import { REFERENCE_CATEGORIES } from "../lib/reference.mjs";
 import ReminderPanel from "./ReminderPanel";
 import { canRemind, reminderDescription } from "../lib/reminders.mjs";
+import ContentAdmin from "./ContentAdmin";
+import { documentCategories, isWorkspaceSettings } from "../lib/workspace.mjs";
 export default function ManagerApp({
   snapshot,
   identity,
@@ -51,7 +53,7 @@ export default function ManagerApp({
     [error, setError] = useState(""),
     [settings, setSettings] = useState(false),
     [remind, setRemind] = useState<Post | null>(null);
-  const categories = [...snapshot.categories, ...REFERENCE_CATEGORIES];
+  const categories = [...snapshot.categories, ...documentCategories(snapshot)];
   async function changeState(post: Post, state: string) {
     if (busy) return;
     setBusy(true);
@@ -116,6 +118,25 @@ export default function ManagerApp({
         epoch={epoch}
         access={access}
         onConnected={onConnected}
+      />,
+    );
+  if (path === "/admin/content" || path.startsWith("/admin/document/"))
+    return shell(
+      <ContentAdmin
+        key={path}
+        snapshot={snapshot}
+        identity={identity}
+        dataKey={dataKey}
+        epoch={epoch}
+        writer={writer}
+        onSaved={onSaved}
+        initialPost={
+          path.startsWith("/admin/document/")
+            ? snapshot.posts.find(
+                (p) => p.id === decodeURIComponent(path.slice(16)),
+              )
+            : undefined
+        }
       />,
     );
   if (help !== null) {
@@ -190,6 +211,7 @@ export default function ManagerApp({
     : null;
   const rows = snapshot.posts
     .filter((p) => {
+      if (isWorkspaceSettings(p)) return false;
       if (
         query &&
         !`${p.title} ${p.body}`
@@ -217,7 +239,7 @@ export default function ManagerApp({
         <>
           <a
             className="secondary manager-edit"
-            href={`#/admin/edit/${encodeURIComponent(p.id)}`}
+            href={`#/${p.type === "reference" ? "admin/document" : "admin/edit"}/${encodeURIComponent(p.id)}`}
           >
             Исправить
           </a>
@@ -279,6 +301,9 @@ export default function ManagerApp({
         </div>
         <div className="manager-home-tools">
           <button onClick={onView}>Как видят участники</button>
+          <a className="secondary" href="#/admin/content">
+            Документы и инструменты
+          </a>
           <button onClick={() => setHelp(0)}>Как это работает?</button>
           <button onClick={() => setSettings(!settings)}>Настройки</button>
         </div>
@@ -334,7 +359,7 @@ export default function ManagerApp({
               ["active", "Актуально"],
               ["archive", "Архив"],
               ["reminders", "Напоминания"],
-              ["reference", "Справочник"],
+              ["reference", "Документы"],
               ["deleted", "Удалённые"],
             ].map(([id, label]) => (
               <button
@@ -359,7 +384,7 @@ export default function ManagerApp({
             <section className="manager-card">
               <h2>
                 {section === "reference"
-                  ? "Справочник пока пуст"
+                  ? "Документы пока не добавлены"
                   : "Публикаций пока нет"}
               </h2>
               <p>

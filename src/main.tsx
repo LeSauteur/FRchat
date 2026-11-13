@@ -50,7 +50,17 @@ import { REFERENCE_CATEGORIES, isReference } from "./lib/reference.mjs";
 import { sha256 } from "./lib/crypto.mjs";
 import { GitDataWriter } from "./lib/writer.mjs";
 import ManagerApp from "./admin/ManagerApp";
+import { documentCategories, isWorkspaceSettings } from "./lib/workspace.mjs";
+import {
+  WorkSummary,
+  Upcoming,
+  NewsLinks,
+  DocumentsView,
+  ToolsView,
+  DocumentInfo,
+} from "./workspace/WorkspaceViews";
 import "./styles.css";
+import "./workspace/workspace.css";
 
 const CODE_KEY = "frchat.access.v1";
 const LOGIN_KEY = "frchat.login.v2";
@@ -90,7 +100,9 @@ function currentRoute() {
   const [path, query = ""] = location.hash.slice(1).split("?");
   const params = new URLSearchParams(query);
   return {
-    path: path === "/files" ? "/reference" : path || "/feed",
+    path: ["/files", "/reference"].includes(path)
+      ? "/documents"
+      : path || "/feed",
     filters: {
       ...initialFilters,
       q: params.get("q") ?? "",
@@ -320,6 +332,7 @@ function App() {
         login,
       );
       setSnapshot(result.snapshot as Snapshot);
+      requestAnimationFrame(() => window.scrollTo({ top: 0 }));
       setSessionKey(result.key);
       setAccessKey(result.accessKey);
       setAccess(result.access);
@@ -548,8 +561,19 @@ function App() {
       setRefreshing(false);
     }
   }
-  async function download(file: FileEntry) {
+  async function download(file: FileEntry, preview = false) {
     if (!sessionKey || !config) return;
+    const canPreview =
+      preview &&
+      [
+        "application/pdf",
+        "image/png",
+        "image/jpeg",
+        "image/webp",
+        "text/plain",
+      ].includes(file.mime);
+    const viewer = canPreview ? window.open("about:blank", "_blank") : null;
+    if (viewer) viewer.opener = null;
     setToast("Подготавливаем файл…");
     try {
       const bytes = await loadObject(
@@ -562,13 +586,19 @@ function App() {
       if ((await sha256(bytes)) !== file.sha256)
         throw new Error("Контрольная сумма файла не совпала");
       const url = URL.createObjectURL(new Blob([bytes], { type: file.mime }));
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = file.name;
-      anchor.click();
-      setTimeout(() => URL.revokeObjectURL(url), 60_000);
-      setToast("Файл готов к скачиванию");
+      if (viewer) viewer.location.href = url;
+      else {
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = file.name;
+        anchor.click();
+      }
+      setTimeout(() => URL.revokeObjectURL(url), viewer ? 600_000 : 60_000);
+      setToast(
+        viewer ? "Файл открыт в отдельной вкладке" : "Файл готов к скачиванию",
+      );
     } catch (e) {
+      viewer?.close();
       setToast((e as Error).message);
     }
   }
@@ -579,7 +609,7 @@ function App() {
           <div className="brand">
             <img src="./icon-192.png" alt="" />
             <span>
-              FRchat<span className="brand-dot">•</span>
+              Домиан<span className="brand-dot">•</span>
             </span>
           </div>
           <span className="eyebrow">ДОМИАН · ФРАНШИЗА</span>
@@ -588,7 +618,7 @@ function App() {
             <br />В одном месте.
           </h1>
           <p>
-            События, сроки и рабочие сообщения
+            Новости, документы и инструменты
             <br />
             для собственников офисов.
           </p>
@@ -605,7 +635,7 @@ function App() {
           <h2>Добро пожаловать</h2>
           <p>
             {manifest?.schema === "frchat-manifest/2"
-              ? "Выберите свой логин и введите временный пароль участника пилота."
+              ? "Выберите свой логин и введите пароль."
               : "Введите код, который вам передали для участия в пилоте."}
           </p>
           <form
@@ -722,12 +752,13 @@ function App() {
   const section = route.path === "/archive" ? "archive" : "active";
   const calendar = route.path === "/calendar";
   const favorites = route.path === "/favorites";
-  const reference = route.path === "/reference";
+  const reference = route.path === "/documents";
+  const tools = route.path === "/tools";
   const filters = route.filters;
   const searching = Boolean(filters.q.trim());
   const allCategories: Category[] = [
     ...snapshot.categories,
-    ...REFERENCE_CATEGORIES,
+    ...documentCategories(snapshot),
   ];
   const missingFavorites = favoriteIds.filter(
     (id) => !snapshot.posts.some((p) => p.id === id),
@@ -760,19 +791,27 @@ function App() {
     favoriteIds,
   ) as Post[];
   const unread = snapshot.posts.filter(
-    (p) => p.state !== "deleted" && read[p.id] !== p.updated_at,
+    (p) =>
+      !isWorkspaceSettings(p) &&
+      p.state !== "deleted" &&
+      read[p.id] !== p.updated_at,
   ).length;
   const category = (post: Post) =>
-    allCategories.find((c) => c.id === post.category_id)!;
+    allCategories.find((c) => c.id === post.category_id) ?? {
+      id: post.category_id,
+      name: "Материал",
+      emoji: "",
+      retention_days: null,
+    };
   const nav = [
-    { path: "/feed", icon: "home", label: "Актуально" },
+    { path: "/feed", icon: "home", label: "Новости" },
     { path: "/calendar", icon: "calendar", label: "Календарь" },
-    { path: "/favorites", icon: "star", label: "Избранное" },
-    { path: "/reference", icon: "book", label: "Справочник" },
-    { path: "/archive", icon: "archive", label: "Архив" },
+    { path: "/documents", icon: "book", label: "Документы" },
+    { path: "/tools", icon: "link", label: "Инструменты" },
   ];
   const navActive = (path: string) =>
-    route.path === path || (path === "/feed" && route.path === "/");
+    route.path === path ||
+    (path === "/feed" && ["/", "/favorites", "/archive"].includes(route.path));
   return (
     <FavoritesContext.Provider
       value={{ ids: favoriteIds, toggle: toggleFavorite }}
@@ -782,10 +821,14 @@ function App() {
           <a className="brand" href="#/feed">
             <img src="./icon-192.png" alt="" />
             <span>
-              FRchat<span className="brand-dot">•</span>
+              Домиан<span className="brand-dot">•</span>
             </span>
           </a>
-          <p className="brand-caption">Домиан · франшиза</p>
+          <p className="brand-caption">
+            Франчайзинг
+            <br />
+            Единое информационное пространство
+          </p>
           <div className="sidebar-label">РАБОЧЕЕ ПРОСТРАНСТВО</div>
           <nav>
             {nav.map((n) => (
@@ -823,7 +866,9 @@ function App() {
           <header className="topbar">
             <a className="mobile-brand" href="#/feed">
               <img src="./icon-192.png" alt="" />
-              <strong>FRchat</strong>
+              <strong>
+                Домиан <small>Франчайзинг</small>
+              </strong>
             </a>
             <span className="topbar-date">{formatDate(now, false)}</span>
             <span className="pilot-tag">Пилот</span>
@@ -851,6 +896,28 @@ function App() {
             </button>
           </header>
           <main className="main-content" id="content">
+            <form
+              className="workspace-global-search"
+              role="search"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const q = String(
+                  new FormData(e.currentTarget).get("q") ?? "",
+                ).trim();
+                if (q) go("/feed", { ...initialFilters, q });
+              }}
+            >
+              <label className="sr-only" htmlFor="workspace-search">
+                Поиск по всему пространству
+              </label>
+              <input
+                id="workspace-search"
+                name="q"
+                type="search"
+                placeholder="Найти новость, срок или документ"
+              />
+              <button type="submit">Найти</button>
+            </form>
             {participantView && (
               <div className="participant-preview-banner">
                 <p>Вы смотрите ленту глазами участника</p>
@@ -876,7 +943,7 @@ function App() {
                 </p>
               )}
             {postId ? (
-              selectedPost ? (
+              selectedPost && !isWorkspaceSettings(selectedPost) ? (
                 <>
                   <PostView
                     post={selectedPost}
@@ -893,8 +960,22 @@ function App() {
                   text="Возможно, ссылка устарела. Откройте ленту или воспользуйтесь поиском."
                 />
               )
+            ) : tools ? (
+              <ToolsView snapshot={snapshot} />
+            ) : reference && !searching ? (
+              <DocumentsView
+                snapshot={snapshot}
+                download={download}
+                categoryId={filters.categories[0] ?? ""}
+                onCategory={(id) => {
+                  const next = { ...filters, categories: id ? [id] : [] };
+                  setRoute({ ...route, filters: next });
+                  go("/documents", next);
+                }}
+              />
             ) : (
               <>
+                {!calendar && <NewsLinks path={route.path} />}
                 <div className="page-heading">
                   <div>
                     <span className="eyebrow">
@@ -910,12 +991,12 @@ function App() {
                             : favorites
                               ? "Избранное"
                               : reference
-                                ? "Справочник"
-                                : "Актуально"}
+                                ? "Документы"
+                                : "Рабочая сводка"}
                     </h1>
                     <p>
                       {searching
-                        ? "По всем публикациям: актуальное, архив и справочник."
+                        ? "По всем новостям, архиву и документам."
                         : calendar
                           ? "События и сроки — чтобы всё успеть."
                           : section === "archive"
@@ -924,7 +1005,7 @@ function App() {
                               ? "Избранное хранится на этом устройстве"
                               : reference
                                 ? "Постоянная информация: оплаты, реквизиты, контакты, офисы и инструкции."
-                                : `${snapshot.posts.filter((p) => p.state !== "deleted").length} публикаций · ${unread} непрочитанных`}
+                                : `${snapshot.posts.filter((p) => !isWorkspaceSettings(p) && p.state !== "deleted").length} публикаций · ${unread} непрочитанных`}
                     </p>
                   </div>
                   <button
@@ -941,6 +1022,7 @@ function App() {
                   !reference &&
                   !searching && (
                     <>
+                      <WorkSummary snapshot={snapshot} now={now} />
                       <Birthdays snapshot={snapshot} now={now} />
                       <DailyTask config={config!} now={now} copy={copy} />
                     </>
@@ -979,71 +1061,76 @@ function App() {
                     Шаблоны и файлы <Icon name="arrow" />
                   </button>
                 )}
-                {searching ? (
-                  <SearchResults
-                    posts={filtered}
-                    categories={allCategories}
-                    now={now}
-                    read={read}
-                  />
-                ) : calendar ? (
-                  <CalendarView
-                    posts={filtered}
-                    categories={snapshot.categories}
-                    now={now}
-                    dateKind={filters.dateKind}
-                    onDateKind={(dateKind) =>
-                      go(route.path, { ...filters, dateKind })
-                    }
-                    reminders={
-                      filters.reminders ||
-                      filters.categories.includes("reminders")
-                    }
-                    onReminders={(reminders) => {
-                      const next = { ...filters, reminders };
-                      setRoute({ ...route, filters: next });
-                      go(route.path, next);
-                    }}
-                  />
-                ) : reference &&
-                  !snapshot.posts.some(
-                    (p) => isReference(p) && p.state !== "deleted",
-                  ) ? (
-                  <Empty
-                    title="Постоянная информация скоро появится"
-                    text="Алексей готовит оплаты и взносы, реквизиты и почты, контакты, офисы и инструкции. Шаблоны и документы собраны ниже."
-                  />
-                ) : favorites && favoriteIds.length === 0 ? (
-                  <Empty
-                    title="В избранном пока пусто"
-                    text="Нажмите звёздочку в списке или в карточке публикации, чтобы быстро вернуться к ней."
-                  />
-                ) : (
-                  <Feed
-                    posts={filtered}
-                    categories={allCategories}
-                    now={now}
-                    archive={section === "archive" || favorites || reference}
-                    read={read}
-                    heading={
-                      favorites
-                        ? "Сохранённые публикации"
-                        : reference
-                          ? "Постоянная информация"
-                          : undefined
-                    }
-                    hideEmpty={
-                      showMissingFavorites && missingFavorites.length > 0
-                    }
-                    collapseReminders={
-                      section === "active" &&
-                      !favorites &&
-                      !reference &&
-                      !filters.q &&
-                      !filters.categories.length
-                    }
-                  />
+                {calendar && !searching && (
+                  <Upcoming snapshot={snapshot} now={now} />
                 )}
+                <div id="news-feed">
+                  {searching ? (
+                    <SearchResults
+                      posts={filtered}
+                      categories={allCategories}
+                      now={now}
+                      read={read}
+                    />
+                  ) : calendar ? (
+                    <CalendarView
+                      posts={filtered}
+                      categories={snapshot.categories}
+                      now={now}
+                      dateKind={filters.dateKind}
+                      onDateKind={(dateKind) =>
+                        go(route.path, { ...filters, dateKind })
+                      }
+                      reminders={
+                        filters.reminders ||
+                        filters.categories.includes("reminders")
+                      }
+                      onReminders={(reminders) => {
+                        const next = { ...filters, reminders };
+                        setRoute({ ...route, filters: next });
+                        go(route.path, next);
+                      }}
+                    />
+                  ) : reference &&
+                    !snapshot.posts.some(
+                      (p) => isReference(p) && p.state !== "deleted",
+                    ) ? (
+                    <Empty
+                      title="Постоянная информация скоро появится"
+                      text="Алексей готовит оплаты и взносы, реквизиты и почты, контакты, офисы и инструкции. Шаблоны и документы собраны ниже."
+                    />
+                  ) : favorites && favoriteIds.length === 0 ? (
+                    <Empty
+                      title="В избранном пока пусто"
+                      text="Нажмите звёздочку в списке или в карточке публикации, чтобы быстро вернуться к ней."
+                    />
+                  ) : (
+                    <Feed
+                      posts={filtered}
+                      categories={allCategories}
+                      now={now}
+                      archive={section === "archive" || favorites || reference}
+                      read={read}
+                      heading={
+                        favorites
+                          ? "Сохранённые публикации"
+                          : reference
+                            ? "Постоянная информация"
+                            : undefined
+                      }
+                      hideEmpty={
+                        showMissingFavorites && missingFavorites.length > 0
+                      }
+                      collapseReminders={
+                        section === "active" &&
+                        !favorites &&
+                        !reference &&
+                        !filters.q &&
+                        !filters.categories.length
+                      }
+                    />
+                  )}
+                </div>
                 {reference && !searching && (
                   <section
                     id="reference-files"
@@ -1080,7 +1167,7 @@ function App() {
             )}
           </main>
           <footer className="page-footer">
-            <span>FRchat · Домиан</span>
+            <span>Домиан Франчайзинг</span>
             <button onClick={() => refresh()} disabled={refreshing}>
               {refreshing ? "Обновляем…" : "Обновить ленту"}
             </button>
@@ -1471,7 +1558,7 @@ function FilterBar({
               <option value="past">В архиве</option>
               <option value="cancelled">Отменено</option>
               <option value="postponed">Перенесено</option>
-              <option value="reference">Справочник</option>
+              <option value="reference">Документы</option>
               <option value="deleted">Удалено (в избранном)</option>
             </select>
           </label>
@@ -1779,7 +1866,7 @@ function SearchResults({
     return (
       <Empty
         title="Ничего не найдено"
-        text="Попробуйте другие слова или сбросьте фильтры. Поиск охватывает актуальное, архив и справочник."
+        text="Попробуйте другие слова или сбросьте фильтры. Поиск охватывает новости, архив и документы."
       />
     );
   return (
@@ -1844,24 +1931,40 @@ function Attachment({
   download,
 }: {
   file: FileEntry;
-  download: (file: FileEntry) => Promise<void>;
+  download: (file: FileEntry, preview?: boolean) => Promise<void>;
 }) {
   return (
-    <button className="file-row" onClick={() => void download(file)}>
-      <span className="file-icon">
-        <Icon name="files" />
-      </span>
-      <span>
-        <strong>{file.name}</strong>
-        <small>
-          {(file.size / 1024).toLocaleString("ru-RU", {
-            maximumFractionDigits: 0,
-          })}{" "}
-          КБ · Скачать
-        </small>
-      </span>
-      <Icon name="arrow" size={18} />
-    </button>
+    <div className="attachment-actions">
+      <button className="file-row" onClick={() => void download(file)}>
+        <span className="file-icon">
+          <Icon name="files" />
+        </span>
+        <span>
+          <strong>{file.name}</strong>
+          <small>
+            {(file.size / 1024).toLocaleString("ru-RU", {
+              maximumFractionDigits: 0,
+            })}{" "}
+            КБ · Скачать
+          </small>
+        </span>
+        <Icon name="arrow" size={18} />
+      </button>
+      {[
+        "application/pdf",
+        "image/png",
+        "image/jpeg",
+        "image/webp",
+        "text/plain",
+      ].includes(file.mime) && (
+        <button
+          className="attachment-preview"
+          onClick={() => void download(file, true)}
+        >
+          Просмотреть файл
+        </button>
+      )}
+    </div>
   );
 }
 function PostView({
@@ -1916,7 +2019,7 @@ function PostView({
         {post.state === "deleted"
           ? "В избранное"
           : isReference(post)
-            ? "В справочник"
+            ? "В документы"
             : status.archive
               ? "В архив"
               : "К ленте"}
@@ -2009,6 +2112,7 @@ function PostView({
           ))}
         </section>
       )}
+      {isReference(post) && <DocumentInfo post={post} />}
       <TextBody text={post.body} />
       {post.links.filter((link) => !series.length || link.type !== "meeting")
         .length > 0 && (
@@ -2043,9 +2147,28 @@ function PostView({
         post.expected_attachments.length > 0) && (
         <section className="detail-section">
           <h2>Файлы</h2>
-          {post.attachments.map((f) => (
-            <Attachment key={f.id} file={f} download={download} />
-          ))}
+          {post.attachments
+            .filter((f) => !f.superseded_at)
+            .map((f) => (
+              <Attachment key={f.id} file={f} download={download} />
+            ))}
+          {post.attachments.some((f) => f.superseded_at) && (
+            <details className="previous-files">
+              <summary>Прежние версии файлов</summary>
+              <p className="muted">
+                Сохранены для истории. Для работы используйте действующие файлы
+                выше.
+              </p>
+              {post.attachments
+                .filter((f) => f.superseded_at)
+                .map((f) => (
+                  <div key={f.id}>
+                    <p>Версия: {f.version_label || "Прежняя"}</p>
+                    <Attachment file={f} download={download} />
+                  </div>
+                ))}
+            </details>
+          )}
           {post.expected_attachments.map((f, i) => (
             <div className="file-row pending-file" key={i}>
               <Icon name="files" />

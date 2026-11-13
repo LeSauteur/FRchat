@@ -48,6 +48,8 @@ export function matchesQuery(post, query) {
     post.title,
     post.body,
     post.source,
+    post.document?.description,
+    post.document?.owner,
     ...(post.links ?? []).flatMap((l) => [l.label, l.url]),
     ...(post.attachments ?? []).map((f) => f.name),
     ...(post.expected_attachments ?? []).map((f) => f.label),
@@ -90,6 +92,6 @@ export function groupSearchResults(posts, now = new Date()) {
       label: "Архив",
       posts: posts.filter((p) => !isReference(p) && postStatus(p, now).archive),
     },
-    { id: "reference", label: "Справочник", posts: posts.filter(isReference) },
+    { id: "reference", label: "Документы", posts: posts.filter(isReference) },
   ].map((g) => ({ ...g, posts: [...g.posts].sort(comparePublicationTime) }));
 }

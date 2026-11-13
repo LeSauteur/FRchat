@@ -36,6 +36,8 @@ export interface FileEntry {
   sha256: string;
   ref: ObjectRef;
   permanent_template?: boolean;
+  superseded_at?: string;
+  version_label?: string;
 }
 export interface ObjectRef {
   path: string;
@@ -45,6 +47,24 @@ export interface ObjectRef {
 export interface Post {
   id: string;
   type?: "post" | "reference";
+  document?: {
+    description: string;
+    reviewed_on: string;
+    owner: string;
+    version: string;
+    status: "current" | "outdated";
+  };
+  workspace?: {
+    version: number;
+    document_categories: { id: string; name: string; archived?: boolean }[];
+    tools: {
+      id: string;
+      title: string;
+      description: string;
+      url: string;
+      enabled: boolean;
+    }[];
+  };
   category_id: string;
   title: string;
   body: string;

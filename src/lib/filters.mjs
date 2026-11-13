@@ -8,6 +8,7 @@ import {
 } from "./dates.mjs";
 import { isReference } from "./reference.mjs";
 import { normalize, matchesQuery, comparePublicationTime } from "./search.mjs";
+import { isWorkspaceSettings } from "./workspace.mjs";
 export { normalize } from "./search.mjs";
 export function periodBounds(period, now = new Date(), from = "", to = "") {
   const today = dayKey(now);
@@ -51,6 +52,7 @@ export function filterPosts(
   const range = periodBounds(filters.period, now, filters.from, filters.to);
   return posts
     .filter((post) => {
+      if (isWorkspaceSettings(post)) return false;
       const status = postStatus(post, now);
       if (
         section === "calendar" &&

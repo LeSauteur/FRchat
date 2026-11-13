@@ -16,6 +16,7 @@ import {
   shortDay,
 } from "../lib/manager.mjs";
 import { REFERENCE_CATEGORIES } from "../lib/reference.mjs";
+import { documentCategories } from "../lib/workspace.mjs";
 import { dayKey } from "../lib/dates.mjs";
 import ReminderPanel from "./ReminderPanel";
 import { canRemind } from "../lib/reminders.mjs";
@@ -130,7 +131,9 @@ export default function ManagerEditor({
     attachmentWork = useRef(false),
     pendingDrafts = useRef(0);
   const categories =
-    post.type === "reference" ? REFERENCE_CATEGORIES : snapshot.categories;
+    post.type === "reference"
+      ? documentCategories(snapshot)
+      : snapshot.categories;
   const duplicates = useMemo(
     () => (basePost || keepNew ? [] : similarPosts(post, snapshot.posts)),
     [post, keepNew, snapshot.posts, basePost],
@@ -764,7 +767,7 @@ export default function ManagerEditor({
                         }
                       >
                         <option value="post">Рабочие сообщения</option>
-                        <option value="reference">Справочник</option>
+                        <option value="reference">Документы</option>
                       </select>
                     </label>
                     <label>

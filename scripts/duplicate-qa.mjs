@@ -123,7 +123,7 @@ export async function checkDuplicateFlows(browser, url) {
           false,
         );
         await page.screenshot({
-          path: `docs/qa/${width}-${theme}-admin-${screen}.png`,
+          path: `${process.env.FRCHAT_QA_OUTPUT ?? "docs/qa"}/${width}-${theme}-admin-${screen}.png`,
           fullPage: true,
         });
         cases.push({
@@ -311,7 +311,7 @@ export async function checkDuplicateFlows(browser, url) {
       }
     }
   await writeFile(
-    "docs/qa/duplicate-report.json",
+    `${process.env.FRCHAT_QA_OUTPUT ?? "docs/qa"}/duplicate-report.json`,
     JSON.stringify(
       {
         synthetic: true,

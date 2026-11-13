@@ -18,7 +18,7 @@ async function login(page, url) {
   await page.getByRole("button", { name: "Открыть FRchat" }).click();
 }
 export async function checkAdmin(browser, url) {
-  const output = resolve("docs/qa"),
+  const output = resolve(process.env.FRCHAT_QA_OUTPUT ?? "docs/qa"),
     cases = [],
     errors = [];
   await mkdir(output, { recursive: true });

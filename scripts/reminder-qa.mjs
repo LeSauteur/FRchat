@@ -125,7 +125,7 @@ export async function checkReminders(browser, url) {
           screen,
         );
         await page.screenshot({
-          path: `docs/qa/${width}-${theme}-reminder-${screen}.png`,
+          path: `${process.env.FRCHAT_QA_OUTPUT ?? "docs/qa"}/${width}-${theme}-reminder-${screen}.png`,
           fullPage: false,
         });
         cases.push({ width, theme, screen, minContrast: contrast.minRatio });
@@ -378,7 +378,7 @@ export async function checkReminders(browser, url) {
       }
     }
   await writeFile(
-    "docs/qa/reminder-report.json",
+    `${process.env.FRCHAT_QA_OUTPUT ?? "docs/qa"}/reminder-report.json`,
     JSON.stringify(
       {
         synthetic: true,

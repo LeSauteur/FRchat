@@ -121,6 +121,14 @@ try {
         await page
           .getByRole("heading", { name: "Поползина Екатерина", exact: true })
           .waitFor();
+        await page.reload();
+        assert.equal(
+          await page.getByLabel("Найти контакт", { exact: true }).inputValue(),
+          "928 774",
+        );
+        await page
+          .getByRole("heading", { name: "Поползина Екатерина", exact: true })
+          .waitFor();
         await page
           .getByLabel("Поиск по всему пространству", { exact: true })
           .fill("Лилекина");
@@ -148,6 +156,19 @@ try {
             encodeURIComponent("Иловайский"),
         );
         assert.equal(await page.locator(".instruction-group").count(), 1);
+        await page.reload();
+        await page.getByLabel("Найти группу MAX", { exact: true }).waitFor();
+        assert.equal(await page.locator(".instruction-group").count(), 1);
+        await page
+          .getByRole("link", { name: "Документы", exact: true })
+          .first()
+          .click();
+        await page
+          .getByRole("heading", { name: "Документы", exact: true })
+          .waitFor();
+        await page.goBack();
+        await page.getByLabel("Найти группу MAX", { exact: true }).waitFor();
+        assert.equal(await page.locator(".instruction-group").count(), 1);
         await page.goto(
           url + "#/documents/instruction/groups?category=Новостройки",
         );
@@ -173,6 +194,9 @@ try {
           .getByRole("button", { name: "Офисы Павла Орлова", exact: true })
           .click();
         await page.getByLabel("Найти офис", { exact: true }).fill("");
+        assert.equal(await page.locator(".instruction-person").count(), 9);
+        await page.reload();
+        await page.getByLabel("Найти офис", { exact: true }).waitFor();
         assert.equal(await page.locator(".instruction-person").count(), 9);
         await page.goto(url + "#/documents/instruction/registration");
         await page.getByRole("checkbox", { name: "ИНН", exact: true }).check();
@@ -234,6 +258,7 @@ try {
           "all 12 sections",
           "catalog and global search",
           "contacts by name and phone",
+          "directory query and category persist through reload and browser back",
           "MAX category deep link and reset",
           "office groups",
           "checklist and copy",

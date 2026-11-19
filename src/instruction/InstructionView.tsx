@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import type { InstructionArticle, InstructionNode } from "./types";
 import {
   instruction,
@@ -251,6 +251,21 @@ function EmptyDirectory({ onReset }: { onReset: () => void }) {
   );
 }
 
+// Keep a directory's filters in its URL without adding a history entry for
+// every keystroke or remounting the focused input. Back/reload restore them.
+function useDirectoryUrl(slug: string, query: string, category = "") {
+  useEffect(() => {
+    const path = `/documents/instruction/${slug}`;
+    if (location.hash.slice(1).split("?")[0] !== path) return;
+    const params = new URLSearchParams();
+    if (query) params.set("q", query);
+    if (category && category !== "Все" && category !== "all")
+      params.set("category", category);
+    const hash = `#${path}${params.size ? "?" + params.toString() : ""}`;
+    if (location.hash !== hash) history.replaceState(history.state, "", hash);
+  }, [slug, query, category]);
+}
+
 function Groups({
   initialCategory,
   initialQuery,
@@ -266,6 +281,7 @@ function Groups({
     categories.includes(initialCategory) ? initialCategory : "Все",
   );
   const [query, setQuery] = useState(initialQuery);
+  useDirectoryUrl("groups", query, category);
   const found = instruction.groups.filter(
     (group) =>
       (category === "Все" || group.category === category) &&
@@ -325,9 +341,18 @@ function Groups({
   );
 }
 
-function Offices({ initialQuery }: { initialQuery: string }) {
+function Offices({
+  initialQuery,
+  initialCategory,
+}: {
+  initialQuery: string;
+  initialCategory: string;
+}) {
   const [query, setQuery] = useState(initialQuery);
-  const [category, setCategory] = useState("all");
+  const [category, setCategory] = useState(
+    ["network", "orlov"].includes(initialCategory) ? initialCategory : "all",
+  );
+  useDirectoryUrl("offices", query, category);
   const found = instruction.offices.filter(
     (office) =>
       (category === "all" || office.group === category) &&
@@ -428,6 +453,7 @@ function Offices({ initialQuery }: { initialQuery: string }) {
 
 function Contacts({ initialQuery }: { initialQuery: string }) {
   const [query, setQuery] = useState(initialQuery);
+  useDirectoryUrl("important-contacts", query);
   const found = instruction.contacts.filter((contact) =>
     instructionMatches(
       `${contact.name} ${contact.department} ${contact.role} ${contact.phones.join(" ")}`,
@@ -521,7 +547,10 @@ export function InstructionView({
       {slug === "groups" ? (
         <Groups initialCategory={initialCategory} initialQuery={initialQuery} />
       ) : slug === "offices" ? (
-        <Offices initialQuery={initialQuery} />
+        <Offices
+          initialQuery={initialQuery}
+          initialCategory={initialCategory}
+        />
       ) : slug === "important-contacts" ? (
         <Contacts initialQuery={initialQuery} />
       ) : slug === "documents" ? (

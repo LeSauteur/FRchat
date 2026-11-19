@@ -268,7 +268,22 @@ function App() {
   const [sessionKey, setSessionKey] = useState<CryptoKey | null>(null);
   const [accessKey, setAccessKey] = useState<CryptoKey | null>(null);
   const [access, setAccess] = useState<any>(null);
-  const [participantView, setParticipantView] = useState(false);
+  const [participantView, setParticipantView] = useState(() => {
+    try {
+      return sessionStorage.getItem("frchat.participant-view.v1") === "1";
+    } catch {
+      return false;
+    }
+  });
+  function changeParticipantView(value: boolean) {
+    try {
+      if (value) sessionStorage.setItem("frchat.participant-view.v1", "1");
+      else sessionStorage.removeItem("frchat.participant-view.v1");
+    } catch {
+      /* The current tab can still switch without storage. */
+    }
+    setParticipantView(value);
+  }
   const [identity, setIdentity] = useState<Identity>({
     id: "legacy",
     label: "Участник пилота",
@@ -513,7 +528,7 @@ function App() {
     setSessionKey(null);
     setAccessKey(null);
     setAccess(null);
-    setParticipantView(false);
+    changeParticipantView(false);
     setWriter(null);
     setIdentity({ id: "legacy", role: "reader", label: "Участник пилота" });
     setCode("");
@@ -729,7 +744,12 @@ function App() {
         </section>
       </main>
     );
-  if (identity.role === "admin" && sessionKey && !participantView)
+  const participantMode =
+    identity.role === "admin" &&
+    participantView &&
+    !route.path.startsWith("/admin/") &&
+    route.path !== "/setup";
+  if (identity.role === "admin" && sessionKey && !participantMode)
     return (
       <ManagerApp
         snapshot={snapshot}
@@ -740,6 +760,8 @@ function App() {
         access={access}
         writer={writer}
         path={route.path}
+        instructionQuery={route.filters.q}
+        instructionCategory={route.filters.categories[0] ?? ""}
         onSaved={updateSnapshot}
         onConnected={(result, nextWriter) => {
           updateSnapshot(result);
@@ -748,7 +770,7 @@ function App() {
         }}
         onLogout={lock}
         onView={() => {
-          setParticipantView(true);
+          changeParticipantView(true);
           go("/feed");
         }}
         theme={theme ?? "system"}
@@ -932,13 +954,13 @@ function App() {
               />
               <button type="submit">Найти</button>
             </form>
-            {participantView && (
+            {participantMode && (
               <div className="participant-preview-banner">
                 <p>Вы смотрите ленту глазами участника</p>
                 <button
                   className="primary"
                   onClick={() => {
-                    setParticipantView(false);
+                    changeParticipantView(false);
                     go("/feed");
                   }}
                 >

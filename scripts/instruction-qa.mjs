@@ -28,7 +28,17 @@ async function expectCount(page, selector, count, message = selector) {
   );
   assert.equal(await page.locator(selector).count(), count, message);
 }
-async function inspect(page, name) {
+async function reloadAdmin(page) {
+  await page.reload();
+  // Admin passwords are not remembered by default. Exercise a normal fresh
+  // sign-in rather than weakening that behavior to test the UI preference.
+  await page.locator("#access-code").fill("qa-admin-password-only");
+  await page.getByRole("checkbox").uncheck();
+  await page
+    .getByRole("button", { name: "Открыть FRchat", exact: true })
+    .click();
+}
+async function inspect(page, name, admin = false) {
   assert.equal(
     await page.evaluate(
       () => document.documentElement.scrollWidth > innerWidth,
@@ -37,13 +47,19 @@ async function inspect(page, name) {
     name + " overflow",
   );
   assert.equal(
-    await page.locator(".main-content h1").count(),
+    await page
+      .locator(admin ? ".manager-content h1" : ".main-content h1")
+      .count(),
     1,
     name + " single title",
   );
   assert.equal(
     await page
-      .locator('a[href="#/documents"][aria-current=page]:visible')
+      .locator(
+        admin
+          ? ".manager-header"
+          : 'a[href="#/documents"][aria-current=page]:visible',
+      )
       .count(),
     1,
     name + " documents navigation",
@@ -255,6 +271,144 @@ try {
         await context.close();
       }
     }
+  for (const width of [390, 1280])
+    for (const colorScheme of ["light", "dark"]) {
+      const context = await browser.newContext({
+        viewport: { width, height: 900 },
+        colorScheme,
+        bypassCSP: true,
+        permissions: ["clipboard-read", "clipboard-write"],
+      });
+      await context.addInitScript(() =>
+        localStorage.setItem("frchat.manager-help.v1", "done"),
+      );
+      const page = await context.newPage();
+      page.setDefaultTimeout(15000);
+      page.on("pageerror", (error) => errors.push(error.message));
+      try {
+        await page.goto(url + "#/admin/content");
+        await page.locator("#account-login").selectOption("admin");
+        await page.locator("#access-code").fill("qa-admin-password-only");
+        await page
+          .getByRole("button", { name: "Открыть FRchat", exact: true })
+          .click();
+        await page
+          .getByRole("heading", {
+            name: "Документы и инструменты",
+            exact: true,
+          })
+          .waitFor();
+        await expectCount(page, ".instruction-card", 12);
+        await inspect(page, `${width}-${colorScheme}-admin-catalog`, true);
+        await page.screenshot({
+          path: resolve(output, `${width}-${colorScheme}-admin-catalog.png`),
+          fullPage: false,
+        });
+        for (const article of instruction.articles) {
+          await page.goto(url + "#/documents/instruction/" + article.slug);
+          await page
+            .getByRole("heading", { name: article.title, exact: true })
+            .waitFor();
+          assert.equal(
+            await page.locator(".manager-app").count(),
+            1,
+            "admin keeps the manager shell",
+          );
+          assert.equal(
+            await page.locator(".participant-preview-banner").count(),
+            0,
+          );
+          await inspect(
+            page,
+            `${width}-${colorScheme}-admin-${article.slug}`,
+            true,
+          );
+        }
+        await page.goto(url + "#/admin/content");
+        await page
+          .getByLabel("Найти документ", { exact: true })
+          .fill("Лилекина");
+        await expectCount(page, ".instruction-card", 1);
+        await page.locator(".instruction-card").click();
+        await page
+          .getByRole("heading", {
+            name: "Лилекина Инна Сергеевна",
+            exact: true,
+          })
+          .waitFor();
+        await reloadAdmin(page);
+        await page
+          .getByRole("heading", {
+            name: "Лилекина Инна Сергеевна",
+            exact: true,
+          })
+          .waitFor();
+        await expectCount(page, ".instruction-person", 1);
+        assert.equal(await page.locator(".manager-app").count(), 1);
+        await page.goto(
+          url + "#/documents/instruction/groups?category=Новостройки",
+        );
+        await expectCount(page, ".instruction-group", 35);
+        await page.goto(url + "#/documents/instruction/registration");
+        await page
+          .getByRole("heading", { name: "Регистрация сотрудника", exact: true })
+          .waitFor();
+        assert.equal(
+          await page.locator(".instruction-checklist legend").textContent(),
+          "Комплект для Domianix 3",
+        );
+        await page
+          .getByRole("button", { name: "Скопировать шапку ⧉", exact: true })
+          .click();
+        await page
+          .getByRole("status")
+          .filter({ hasText: "Скопировано" })
+          .waitFor();
+        assert.match(
+          await page.evaluate(() => navigator.clipboard.readText()),
+          /ФИО \(полностью\)/,
+        );
+        await page.goto(url + "#/feed");
+        await page
+          .getByRole("button", { name: "Как видят участники", exact: true })
+          .click();
+        await page.locator(".participant-preview-banner").waitFor();
+        await page.goto(url + "#/documents/instruction/registration");
+        await page
+          .getByRole("heading", { name: "Регистрация сотрудника", exact: true })
+          .waitFor();
+        await reloadAdmin(page);
+        await page.locator(".participant-preview-banner").waitFor();
+        await page
+          .getByRole("heading", { name: "Регистрация сотрудника", exact: true })
+          .waitFor();
+        assert.equal(
+          await page.locator(".manager-app").count(),
+          0,
+          "preview remains after reload",
+        );
+        await page
+          .getByRole("button", {
+            name: "Вернуться к своим публикациям",
+            exact: true,
+          })
+          .click();
+        await page
+          .getByRole("heading", { name: "Ваши публикации", exact: true })
+          .waitFor();
+        await reloadAdmin(page);
+        await page
+          .getByRole("heading", { name: "Ваши публикации", exact: true })
+          .waitFor();
+        assert.equal(
+          await page.locator(".participant-preview-banner").count(),
+          0,
+          "return clears the stored preview",
+        );
+      } finally {
+        await context.close();
+      }
+    }
   assert.deepEqual(errors, []);
   await writeFile(
     resolve(output, "report.json"),
@@ -264,6 +418,9 @@ try {
         errors,
         checks: [
           "normal login",
+          "admin catalog includes all 12 built-in articles and its existing editor",
+          "admin direct guide links, search, copy and reload",
+          "participant preview survives reload and exits explicitly",
           "native routes",
           "all 12 sections",
           "catalog and global search",

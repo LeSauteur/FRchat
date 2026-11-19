@@ -91,6 +91,9 @@ export function InstructionFiles({ query = "" }: { query?: string }) {
 }
 
 function Checklist({ node }: { node: Exclude<InstructionNode, string> }) {
+  const legend = node.children.find(
+    (child) => typeof child !== "string" && child.tag === "legend",
+  );
   const labels = node.children.filter(
     (child): child is Exclude<InstructionNode, string> =>
       typeof child !== "string" && child.tag === "label",
@@ -98,7 +101,9 @@ function Checklist({ node }: { node: Exclude<InstructionNode, string> }) {
   const [checked, setChecked] = useState<string[]>([]);
   return (
     <fieldset className="instruction-checklist">
-      <legend>Комплект для Domianix 3 и TopnLab</legend>
+      <legend>
+        {legend ? instructionNodeText(legend) : "Комплект документов"}
+      </legend>
       {labels.map((label, index) => (
         <label key={index}>
           <input

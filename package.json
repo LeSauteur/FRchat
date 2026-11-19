@@ -17,6 +17,7 @@
     "check:repo": "node scripts/check-repository.mjs",
     "test:themes": "node scripts/theme-qa.mjs",
     "test:workspace": "node scripts/workspace-qa.mjs",
+    "test:instruction": "node scripts/instruction-qa.mjs",
     "preview:workspace": "node scripts/workspace-preview.mjs",
     "access:revoke": "node scripts/revoke-access.mjs"
   },

@@ -7,6 +7,12 @@ import {
   upcomingActions,
   workspaceSettings,
 } from "../lib/workspace.mjs";
+import { instructionArticles } from "../lib/instruction.mjs";
+import {
+  InstructionCard,
+  InstructionFiles,
+  InstructionShortcuts,
+} from "../instruction/InstructionView";
 
 export function NewsLinks({ path }: { path: string }) {
   return (
@@ -151,6 +157,9 @@ export function WorkSummary({
             <p className="muted">Все важные объявления появятся здесь.</p>
           )}
           <div className="quick-actions">
+            <a href="#/documents/instruction/registration">
+              Регистрация сотрудника
+            </a>
             <a href="#/documents">Найти документ →</a>
             <a href="#/tools">Открыть инструмент →</a>
           </div>
@@ -187,6 +196,8 @@ export function DocumentsView({
   const categories = documentCategories(snapshot);
   const all = documents(snapshot),
     found = documents(snapshot, query, selected);
+  const guideAll = instructionArticles(),
+    guideFound = instructionArticles(query, selected);
   const files = snapshot.posts
     .filter((p) => p.type !== "reference" && p.state !== "deleted")
     .flatMap((p) =>
@@ -206,6 +217,7 @@ export function DocumentsView({
         <h1>Документы</h1>
         <p>Правила, инструкции и формы — в одном месте.</p>
       </header>
+      <InstructionShortcuts />
       <label className="catalog-search">
         Найти документ
         <input
@@ -233,11 +245,13 @@ export function DocumentsView({
             aria-pressed={!selected}
             onClick={() => setSelected("")}
           >
-            Все документы <span>{all.length}</span>
+            Все документы <span>{all.length + guideAll.length}</span>
           </button>
           {categories
             .filter(
-              (c) => !c.archived || all.some((p) => p.category_id === c.id),
+              (c) =>
+                !c.archived ||
+                [...all, ...guideAll].some((p) => p.category_id === c.id),
             )
             .map((c) => (
               <button
@@ -253,7 +267,12 @@ export function DocumentsView({
                 }}
               >
                 {c.name}
-                <span>{all.filter((p) => p.category_id === c.id).length}</span>
+                <span>
+                  {
+                    [...all, ...guideAll].filter((p) => p.category_id === c.id)
+                      .length
+                  }
+                </span>
               </button>
             ))}
         </nav>
@@ -263,8 +282,15 @@ export function DocumentsView({
               {categories.find((c) => c.id === selected)?.name ||
                 "Все документы"}
             </h2>
-            <span className="muted">{found.length}</span>
+            <span className="muted">{found.length + guideFound.length}</span>
           </div>
+          {guideFound.map((article) => (
+            <InstructionCard
+              key={article.slug}
+              article={article}
+              query={query}
+            />
+          ))}
           {found.length ? (
             found.map((p) => (
               <a
@@ -302,7 +328,7 @@ export function DocumentsView({
                 <span className="document-open">Открыть материал →</span>
               </a>
             ))
-          ) : (
+          ) : !guideFound.length ? (
             <div className="catalog-empty">
               <h3>
                 {query || selected
@@ -325,7 +351,7 @@ export function DocumentsView({
                 </button>
               )}
             </div>
-          )}
+          ) : null}
           <section
             className="catalog-files"
             id="reference-files"
@@ -333,9 +359,11 @@ export function DocumentsView({
           >
             <h2>Шаблоны и файлы</h2>
             <p className="muted">
-              Вложения из новостей и архива. Файлы справочных материалов
-              открываются в карточке документа.
+              Анкета и офферы из инструкции франшизы, а также вложения из
+              новостей и архива. Файлы справочных материалов открываются в
+              карточке документа.
             </p>
+            <InstructionFiles query={query} />
             {files
               .filter(
                 ({ file, post }) =>
@@ -377,12 +405,6 @@ export function DocumentsView({
                   </a>
                 </div>
               ))}
-            {!files.length && (
-              <p>
-                Файлы ещё не добавлены. Ожидаемые вложения в новостях
-                сохраняются в исходных карточках.
-              </p>
-            )}
           </section>
         </div>
       </div>

@@ -21,3 +21,5 @@ jobs:
         run: npm run test:themes -- --start-server
       - name: Check unified workspace and content management on synthetic data
         run: npm run test:workspace
+      - name: Check imported instruction, search, filters and forms
+        run: npm run test:instruction

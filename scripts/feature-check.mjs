@@ -149,8 +149,17 @@ export async function checkFavoritesAndReference(browser, url, fixture) {
         await page.locator(".document-categories button").count(),
         9,
       );
-      assert.equal(await page.locator(".document-card").count(), 1);
+      assert.equal(await page.locator(".instruction-card").count(), 12);
+      assert.equal(
+        await page.locator(".document-card:not(.instruction-card)").count(),
+        1,
+      );
       await page.getByRole("button", { name: /^Оплаты и взносы/ }).click();
+      await page
+        .getByRole("heading", { name: "Оплаты и отчётность", exact: true })
+        .waitFor();
+      assert.equal(await page.locator(".instruction-card").count(), 1);
+      await page.getByRole("button", { name: /^Бренд и логотипы/ }).click();
       await page
         .getByRole("heading", { name: "Материалы не найдены" })
         .waitFor();
@@ -158,7 +167,7 @@ export async function checkFavoritesAndReference(browser, url, fixture) {
       await page
         .getByRole("button", { name: "Показать все документы", exact: true })
         .click();
-      await page.locator(".document-card").click();
+      await page.locator(".document-card:not(.instruction-card)").click();
       await page
         .getByRole("button", { name: "В документы", exact: true })
         .waitFor();

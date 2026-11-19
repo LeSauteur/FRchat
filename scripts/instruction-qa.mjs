@@ -19,6 +19,15 @@ const browser = await chromium.launch({
 });
 const screens = [],
   errors = [];
+async function expectCount(page, selector, count, message = selector) {
+  await page.waitForFunction(
+    ({ selector, count }) =>
+      document.querySelectorAll(selector).length === count,
+    { selector, count },
+    { timeout: 15000 },
+  );
+  assert.equal(await page.locator(selector).count(), count, message);
+}
 async function inspect(page, name) {
   assert.equal(
     await page.evaluate(
@@ -105,15 +114,16 @@ try {
         await page
           .getByLabel("Найти документ", { exact: true })
           .fill("Лилекина");
-        assert.equal(await page.locator(".instruction-card").count(), 1);
+        await expectCount(page, ".instruction-card", 1);
         await page.locator(".instruction-card").click();
-        assert.equal(
-          await page.locator(".instruction-person").count(),
+        await expectCount(
+          page,
+          ".instruction-person",
           1,
           "catalog result opens filtered contact",
         );
         await page.getByLabel("Найти контакт", { exact: true }).fill("съемка");
-        assert.equal(await page.locator(".instruction-person").count(), 1);
+        await expectCount(page, ".instruction-person", 1);
         await page
           .getByRole("heading", { name: "Плешаков Тимур", exact: true })
           .waitFor();
@@ -136,17 +146,17 @@ try {
         await page
           .locator(".instruction-search-results .instruction-card")
           .waitFor();
-        assert.equal(
-          await page
-            .locator(".instruction-search-results .instruction-card")
-            .count(),
+        await expectCount(
+          page,
+          ".instruction-search-results .instruction-card",
           1,
         );
         await page
           .locator(".instruction-search-results .instruction-card")
           .click();
-        assert.equal(
-          await page.locator(".instruction-person").count(),
+        await expectCount(
+          page,
+          ".instruction-person",
           1,
           "global result opens filtered contact",
         );
@@ -155,10 +165,10 @@ try {
             "#/documents/instruction/groups?q=" +
             encodeURIComponent("Иловайский"),
         );
-        assert.equal(await page.locator(".instruction-group").count(), 1);
+        await expectCount(page, ".instruction-group", 1);
         await page.reload();
         await page.getByLabel("Найти группу MAX", { exact: true }).waitFor();
-        assert.equal(await page.locator(".instruction-group").count(), 1);
+        await expectCount(page, ".instruction-group", 1);
         await page
           .getByRole("link", { name: "Документы", exact: true })
           .first()
@@ -168,15 +178,15 @@ try {
           .waitFor();
         await page.goBack();
         await page.getByLabel("Найти группу MAX", { exact: true }).waitFor();
-        assert.equal(await page.locator(".instruction-group").count(), 1);
+        await expectCount(page, ".instruction-group", 1);
         await page.goto(
           url + "#/documents/instruction/groups?category=Новостройки",
         );
-        assert.equal(await page.locator(".instruction-group").count(), 35);
+        await expectCount(page, ".instruction-group", 35);
         await page
           .getByRole("button", { name: "Ипотека", exact: true })
           .click();
-        assert.equal(await page.locator(".instruction-group").count(), 2);
+        await expectCount(page, ".instruction-group", 2);
         await page
           .getByLabel("Найти группу MAX", { exact: true })
           .fill("неттакойгруппы");
@@ -186,18 +196,18 @@ try {
         await page
           .getByRole("button", { name: "Сбросить поиск", exact: true })
           .click();
-        assert.equal(await page.locator(".instruction-group").count(), 43);
+        await expectCount(page, ".instruction-group", 43);
         await page.goto(url + "#/documents/instruction/offices");
         await page.getByLabel("Найти офис", { exact: true }).fill("Шахты");
-        assert.equal(await page.locator(".instruction-person").count(), 2);
+        await expectCount(page, ".instruction-person", 2);
         await page
           .getByRole("button", { name: "Офисы Павла Орлова", exact: true })
           .click();
         await page.getByLabel("Найти офис", { exact: true }).fill("");
-        assert.equal(await page.locator(".instruction-person").count(), 9);
+        await expectCount(page, ".instruction-person", 9);
         await page.reload();
         await page.getByLabel("Найти офис", { exact: true }).waitFor();
-        assert.equal(await page.locator(".instruction-person").count(), 9);
+        await expectCount(page, ".instruction-person", 9);
         await page.goto(url + "#/documents/instruction/registration");
         await page.getByRole("checkbox", { name: "ИНН", exact: true }).check();
         await page.getByText("Готово 1 из 6", { exact: true }).waitFor();

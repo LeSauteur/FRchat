@@ -11,6 +11,8 @@ import ReminderPanel from "./ReminderPanel";
 import { canRemind, reminderDescription } from "../lib/reminders.mjs";
 import ContentAdmin from "./ContentAdmin";
 import { documentCategories, isWorkspaceSettings } from "../lib/workspace.mjs";
+import { InstructionView } from "../instruction/InstructionView";
+import { instructionSlug } from "../lib/instruction.mjs";
 export default function ManagerApp({
   snapshot,
   identity,
@@ -20,6 +22,8 @@ export default function ManagerApp({
   access,
   writer,
   path,
+  instructionQuery = "",
+  instructionCategory = "",
   onSaved,
   onConnected,
   onLogout,
@@ -35,6 +39,8 @@ export default function ManagerApp({
   access: any;
   writer: any;
   path: string;
+  instructionQuery?: string;
+  instructionCategory?: string;
   onSaved: (result: any) => void;
   onConnected: (result: any, writer: any) => void;
   onLogout: () => void;
@@ -52,7 +58,9 @@ export default function ManagerApp({
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [settings, setSettings] = useState(false),
-    [remind, setRemind] = useState<Post | null>(null);
+    [remind, setRemind] = useState<Post | null>(null),
+    [copied, setCopied] = useState(false),
+    [copyFallback, setCopyFallback] = useState("");
   const categories = [...snapshot.categories, ...documentCategories(snapshot)];
   async function changeState(post: Post, state: string) {
     if (busy) return;
@@ -109,6 +117,50 @@ export default function ManagerApp({
       <div className="manager-content">{content}</div>
     </main>
   );
+  const guideSlug = instructionSlug(path);
+  if (guideSlug !== null)
+    return shell(
+      <>
+        <a className="manager-back" href="#/admin/content">
+          ← Документы и инструменты
+        </a>
+        {copied && (
+          <p className="notice" role="status">
+            Скопировано
+          </p>
+        )}
+        {copyFallback && (
+          <label>
+            Скопируйте текст вручную
+            <textarea
+              readOnly
+              value={copyFallback}
+              onFocus={(event) => event.currentTarget.select()}
+            />
+          </label>
+        )}
+        <InstructionView
+          key={JSON.stringify([
+            guideSlug,
+            instructionQuery,
+            instructionCategory,
+          ])}
+          slug={guideSlug}
+          initialQuery={instructionQuery}
+          initialCategory={instructionCategory}
+          copy={async (text) => {
+            setCopied(false);
+            setCopyFallback("");
+            try {
+              await navigator.clipboard.writeText(text);
+              setCopied(true);
+            } catch {
+              setCopyFallback(text);
+            }
+          }}
+        />
+      </>,
+    );
   if (path === "/setup")
     return shell(
       <OwnerSetup
@@ -120,7 +172,11 @@ export default function ManagerApp({
         onConnected={onConnected}
       />,
     );
-  if (path === "/admin/content" || path.startsWith("/admin/document/"))
+  if (
+    path === "/admin/content" ||
+    path === "/documents" ||
+    path.startsWith("/admin/document/")
+  )
     return shell(
       <ContentAdmin
         key={path}

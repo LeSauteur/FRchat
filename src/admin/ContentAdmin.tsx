@@ -18,6 +18,11 @@ import {
   restoreDraftFiles,
   removeDraftFiles,
 } from "../lib/draft-files.mjs";
+import {
+  instructionArticles,
+  instructionMatches,
+} from "../lib/instruction.mjs";
+import { InstructionCard } from "../instruction/InstructionView";
 type Props = {
   snapshot: Snapshot;
   identity: Identity;
@@ -37,6 +42,7 @@ export default function ContentAdmin({
   initialPost,
 }: Props) {
   const [tab, setTab] = useState("documents"),
+    [query, setQuery] = useState(""),
     [post, setPost] = useState<Post | null>(null),
     [basePost, setBasePost] = useState<Post | null>(null),
     [uploads, setUploads] = useState<any[]>([]);
@@ -64,6 +70,13 @@ export default function ContentAdmin({
     sending = useRef(false),
     operation = useRef(crypto.randomUUID());
   const categories = documentCategories(snapshot);
+  const guideDocuments = instructionArticles(query);
+  const ownDocuments = documents(snapshot).filter((p) =>
+    instructionMatches(
+      `${p.title} ${p.body} ${p.document?.description ?? ""}`,
+      query,
+    ),
+  );
   useEffect(() => {
     let stopped = false;
     loadDraft(scope, dataKey, epoch).then((value) => {
@@ -664,12 +677,28 @@ export default function ContentAdmin({
                 >
                   + Добавить документ
                 </button>
+                <label>
+                  Найти документ
+                  <input
+                    type="search"
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder="Название, вопрос, фамилия или телефон"
+                  />
+                </label>
                 {dirty && (
                   <p className="notice">
                     Сначала сохраните изменения категорий и инструментов.
                   </p>
                 )}
-                {documents(snapshot).map((p) => (
+                {guideDocuments.map((article) => (
+                  <InstructionCard
+                    key={article.slug}
+                    article={article}
+                    query={query}
+                  />
+                ))}
+                {ownDocuments.map((p) => (
                   <article className="manager-card" key={p.id}>
                     <h2>{p.title}</h2>
                     <p>
@@ -687,13 +716,10 @@ export default function ContentAdmin({
                     </a>
                   </article>
                 ))}
-                {!documents(snapshot).length && (
+                {!ownDocuments.length && !guideDocuments.length && (
                   <section className="manager-card">
-                    <h2>База знаний пока пуста</h2>
-                    <p>
-                      Добавьте инструкцию, регламент или шаблон. Участники
-                      увидят материал в разделе «Документы».
-                    </p>
+                    <h2>Документы не найдены</h2>
+                    <p>Попробуйте другое название или очистите поиск.</p>
                   </section>
                 )}
               </>

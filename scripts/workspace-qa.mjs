@@ -6,7 +6,7 @@ import { resolve } from "node:path";
 import { startWorkspacePreview } from "./workspace-preview.mjs";
 import { inspectContrast } from "./contrast-check.mjs";
 import { GitDataWriter } from "../src/lib/writer.mjs";
-const output = resolve("docs/qa/workspace");
+const output = resolve(process.env.FRCHAT_QA_OUTPUT ?? "docs/qa/workspace");
 await mkdir(output, { recursive: true });
 const { server, fixture, url } = await startWorkspacePreview(4186);
 const browser = await chromium.launch({
@@ -373,7 +373,7 @@ try {
           "simultaneous settings edit requires an explicit choice",
           "legacy document category URL persists after reload",
         ],
-        syntheticOnly: true,
+        privateData: "synthetic only; instruction material is already public",
       },
       null,
       2,

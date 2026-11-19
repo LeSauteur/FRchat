@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "classification": "already-public",
+  "reviewed_on": "2026-11-19",
+  "source_url": "https://lesauteur.github.io/Instrukciya/",
+  "source_revision": "45925e3d1f3a92942a00c5df75ac0ef35c225045",
+  "bundle_sha256": "44f55130d0cd556c7c69eb4143b5189721609510bbe126a3e1829a38294f304b",
+  "counts": {
+    "articles": 12,
+    "offices": 68,
+    "groups": 43,
+    "contacts": 19,
+    "files": 3
+  },
+  "files": [
+    {
+      "name": "anketa-2026.doc",
+      "sha256": "ccc17d83fbf0fc341b4b6fc33df17b409e7e4ef9d51d357d4d12f837a41cfd38"
+    },
+    {
+      "name": "agent-offer.docx",
+      "sha256": "e3be7f6c95a3dc2f3718f30b82e451fa72752a8a647ee2e58e89cb3ece1d87f6"
+    },
+    {
+      "name": "admin-offer.docx",
+      "sha256": "7eb005d77d81cb32d920d457654847d1e5215be6eabd1e4a25bea29d3f243c96"
+    }
+  ],
+  "source_files": [
+    {
+      "path": "index.html",
+      "sha256": "1a83879035ab8fa3f563a45ce5a0fb6834d118c6f386818823a6470e15e7711c",
+      "comparison": "text-lf-normalized"
+    },
+    {
+      "path": "contacts.html",
+      "sha256": "dae0c99c52740f3e4193e2a258cf922716bc9bb36867dd6e0e67b18d3818df0a",
+      "comparison": "text-lf-normalized"
+    },
+    {
+      "path": "assets/groups.json",
+      "sha256": "3f1cfd70a37e6eafbec4c0adbf87bcbc0c7e1990da2f76218c82ae299f8bfaea",
+      "comparison": "text-lf-normalized"
+    },
+    {
+      "path": "assets/offices.json",
+      "sha256": "61cd5d3ea9bfbe19aac68f4f7dea20be557682576d3778ab78b3dc6dbee432f4",
+      "comparison": "text-lf-normalized"
+    },
+    {
+      "path": "documents/anketa-2026.doc",
+      "sha256": "ccc17d83fbf0fc341b4b6fc33df17b409e7e4ef9d51d357d4d12f837a41cfd38",
+      "comparison": "bytes"
+    },
+    {
+      "path": "documents/agent-offer.docx",
+      "sha256": "e3be7f6c95a3dc2f3718f30b82e451fa72752a8a647ee2e58e89cb3ece1d87f6",
+      "comparison": "bytes"
+    },
+    {
+      "path": "documents/admin-offer.docx",
+      "sha256": "7eb005d77d81cb32d920d457654847d1e5215be6eabd1e4a25bea29d3f243c96",
+      "comparison": "bytes"
+    }
+  ]
+}

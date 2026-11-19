@@ -1,0 +1,479 @@
+.instruction-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 28px;
+}
+.instruction-shortcuts a {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none;
+  min-width: 0;
+}
+.instruction-shortcuts strong {
+  font-size: 18px;
+  line-height: 1.4;
+}
+.instruction-shortcuts span {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.instruction-shortcuts a:hover,
+.instruction-group:hover {
+  border-color: var(--line-strong);
+}
+.instruction-version,
+.instruction-source {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.instruction-card .document-state {
+  font-size: 14px;
+}
+.instruction-card .document-type {
+  font-size: 14px;
+}
+.instruction-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.instruction-breadcrumb a,
+.instruction-source a,
+.instruction-directory-source a {
+  color: var(--link);
+}
+.instruction-breadcrumb > span {
+  color: var(--muted);
+}
+.instruction-view {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.instruction-body {
+  font-size: 16px;
+  line-height: 1.8;
+  max-width: 900px;
+}
+.instruction-body > h2 {
+  font-size: 24px;
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+  margin: 32px 0 16px;
+}
+.instruction-body h3 {
+  font-size: 20px;
+  line-height: 1.5;
+  margin: 24px 0 12px;
+}
+.instruction-body p,
+.instruction-body li {
+  font-size: 16px;
+  line-height: 1.8;
+}
+.instruction-body ul,
+.instruction-body ol {
+  padding-left: 24px;
+}
+.instruction-body li {
+  margin-bottom: 10px;
+}
+.instruction-body a {
+  color: var(--link);
+  text-underline-offset: 4px;
+  overflow-wrap: anywhere;
+}
+.instruction-body button,
+.instruction-checklist button {
+  min-height: 48px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--link);
+  padding: 12px 16px;
+  border-radius: 10px;
+  font: inherit;
+  cursor: pointer;
+}
+.instruction-contact,
+.instruction-note,
+.instruction-payment,
+.instruction-template {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 22px;
+  margin: 22px 0;
+  min-width: 0;
+}
+.instruction-note {
+  background: var(--notice-bg);
+  color: var(--notice-text);
+  border-color: var(--line);
+}
+.instruction-note a {
+  color: inherit;
+}
+.instruction-contact h2 {
+  font-size: 22px;
+  margin: 8px 0 12px;
+}
+.instruction-contact > p:first-child,
+.instruction-payment > p:first-child,
+.instruction-note > p:first-child {
+  margin-top: 0;
+}
+.instruction-contact > p:last-child,
+.instruction-payment > p:last-child,
+.instruction-note > p:last-child {
+  margin-bottom: 0;
+}
+.instruction-body .eyebrow {
+  font-size: 14px;
+  letter-spacing: 0.04em;
+}
+.instruction-deadline {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 24px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.instruction-deadline .eyebrow {
+  display: block;
+  color: var(--muted);
+  font-size: 14px;
+}
+.instruction-deadline strong {
+  display: block;
+  font-size: 34px;
+  line-height: 1.4;
+  margin-top: 8px;
+  color: var(--text);
+}
+.instruction-deadline p {
+  grid-column: 1/-1;
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+  margin: 0;
+}
+.instruction-checklist {
+  margin: 24px 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px 22px;
+  background: var(--surface);
+  min-width: 0;
+}
+.instruction-checklist legend {
+  padding: 0 8px;
+  font-size: 16px;
+  font-weight: 650;
+}
+.instruction-checklist label {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 16px;
+  cursor: pointer;
+}
+.instruction-checklist input {
+  height: 22px;
+  width: 22px;
+  flex: none;
+  accent-color: var(--red);
+  margin-top: 3px;
+}
+.instruction-checklist p {
+  font-size: 16px;
+  font-weight: 650;
+}
+.instruction-template pre {
+  font: inherit;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 2;
+  margin: 0 0 16px;
+}
+.instruction-card-number {
+  font-size: 26px !important;
+  letter-spacing: 1px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+.instruction-body details {
+  margin: 24px 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 22px;
+  background: var(--surface);
+}
+.instruction-body summary {
+  min-height: 48px;
+  padding: 10px 0;
+  font-weight: 650;
+  cursor: pointer;
+}
+.instruction-files {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 22px 0;
+}
+.instruction-file {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px;
+  text-decoration: none;
+  color: var(--text);
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.instruction-file-type {
+  align-self: flex-start;
+  background: var(--upcoming-bg);
+  color: var(--upcoming);
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-weight: 750;
+  font-size: 14px;
+}
+.instruction-file > strong {
+  font-size: 19px;
+  line-height: 1.4;
+}
+.instruction-file > span:not(.instruction-file-type) {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.instruction-file .instruction-file-action {
+  margin-top: auto;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  color: var(--link) !important;
+  font-weight: 650;
+}
+.instruction-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 20px;
+}
+.instruction-filters button {
+  min-height: 48px;
+  padding: 12px 16px;
+  font: inherit;
+  font-size: 15px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.instruction-filters button[aria-pressed="true"] {
+  background: var(--accent-tint);
+  color: var(--danger);
+  border-color: var(--accent-border);
+  font-weight: 700;
+}
+.instruction-directory {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 20px;
+}
+.instruction-group,
+.instruction-person {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.instruction-group {
+  text-decoration: none;
+  color: var(--text);
+}
+.instruction-group > span:first-child,
+.instruction-department {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.instruction-group strong {
+  font-size: 19px;
+  line-height: 1.5;
+}
+.instruction-open {
+  color: var(--link);
+  font-size: 16px;
+  font-weight: 650;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  margin-top: auto;
+}
+.instruction-person h2 {
+  font-size: 21px;
+  line-height: 1.45;
+  margin: 0;
+}
+.instruction-person p {
+  font-size: 16px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0;
+}
+.instruction-phones {
+  display: grid;
+  gap: 8px;
+  margin-top: auto;
+}
+.instruction-person .instruction-phone {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--link);
+  font-size: 17px;
+  line-height: 1.5;
+  text-decoration: none;
+  font-weight: 650;
+  white-space: normal;
+  font-variant-numeric: tabular-nums;
+}
+.instruction-map {
+  font-size: 15px;
+  color: var(--link);
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+}
+.instruction-directory-source {
+  font-size: 16px;
+  line-height: 1.8;
+  margin-top: 28px;
+}
+.instruction-pagination {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 36px 0 24px;
+  border-top: 1px solid var(--line);
+  padding-top: 24px;
+}
+.instruction-pagination a {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--link);
+  text-decoration: none;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.instruction-pagination small {
+  font-size: 14px;
+  color: var(--muted);
+}
+.instruction-pagination strong {
+  font-size: 16px;
+  line-height: 1.6;
+}
+.instruction-view a:focus-visible,
+.instruction-view button:focus-visible,
+.instruction-shortcuts a:focus-visible,
+.instruction-file:focus-visible {
+  outline: 3px solid var(--link);
+  outline-offset: 4px;
+}
+.instruction-search-results {
+  margin: 24px 0;
+}
+@media (max-width: 1100px) {
+  .instruction-files {
+    grid-template-columns: 1fr;
+  }
+  .instruction-file {
+    gap: 12px;
+  }
+}
+@media (max-width: 700px) {
+  .instruction-shortcuts {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .instruction-shortcuts a {
+    padding: 18px;
+  }
+  .instruction-directory,
+  .instruction-pagination,
+  .instruction-deadline {
+    grid-template-columns: 1fr;
+  }
+  .instruction-directory {
+    gap: 12px;
+  }
+  .instruction-person,
+  .instruction-group,
+  .instruction-contact,
+  .instruction-note,
+  .instruction-payment,
+  .instruction-template {
+    padding: 18px;
+  }
+  .instruction-deadline {
+    padding: 20px;
+    gap: 18px;
+  }
+  .instruction-deadline p {
+    grid-column: 1;
+  }
+  .instruction-deadline strong {
+    font-size: 30px;
+  }
+  .instruction-checklist {
+    padding: 12px 16px;
+  }
+  .instruction-card-number {
+    font-size: 22px !important;
+    letter-spacing: 0.5px;
+  }
+  .instruction-body > h2 {
+    font-size: 22px;
+  }
+  .instruction-body details {
+    padding: 14px 18px;
+  }
+  .instruction-breadcrumb {
+    font-size: 14px;
+    gap: 8px;
+  }
+  .instruction-filters button {
+    font-size: 15px;
+    padding: 11px 13px;
+  }
+}

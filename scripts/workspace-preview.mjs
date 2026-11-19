@@ -47,7 +47,7 @@ export async function startWorkspacePreview(port = 4185) {
           }
           return Promise.reject(new Error('External requests are disabled in synthetic preview'));
         };
-        document.addEventListener('DOMContentLoaded',()=>{const banner=document.createElement('aside');banner.className='preview-banner';banner.textContent='Локальный макет · искусственные данные';document.body.prepend(banner);});
+        document.addEventListener('DOMContentLoaded',()=>{const banner=document.createElement('aside');banner.className='preview-banner';banner.textContent='Локальный просмотр · новости и входы учебные; инструкция опубликована 18.11.2026';document.body.prepend(banner);});
       `,
         );
       if (path.startsWith("/__preview/api/")) {

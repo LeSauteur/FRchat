@@ -52,6 +52,15 @@ import { GitDataWriter } from "./lib/writer.mjs";
 import ManagerApp from "./admin/ManagerApp";
 import { documentCategories, isWorkspaceSettings } from "./lib/workspace.mjs";
 import {
+  instructionSearchArticles,
+  instructionSlug,
+} from "./lib/instruction.mjs";
+import type { InstructionArticle } from "./instruction/types";
+import {
+  InstructionView,
+  InstructionCard,
+} from "./instruction/InstructionView";
+import {
   WorkSummary,
   Upcoming,
   NewsLinks,
@@ -479,6 +488,7 @@ function App() {
   const postId = route.path.startsWith("/post/")
     ? decodeURIComponent(route.path.slice(6))
     : null;
+  const selectedInstruction = instructionSlug(route.path);
   const selectedPost = snapshot?.posts.find((p) => p.id === postId);
   useEffect(() => {
     if (!selectedPost) return;
@@ -756,6 +766,9 @@ function App() {
   const tools = route.path === "/tools";
   const filters = route.filters;
   const searching = Boolean(filters.q.trim());
+  const guideResults = searching
+    ? instructionSearchArticles(filters.q, filters)
+    : [];
   const allCategories: Category[] = [
     ...snapshot.categories,
     ...documentCategories(snapshot),
@@ -811,6 +824,7 @@ function App() {
   ];
   const navActive = (path: string) =>
     route.path === path ||
+    (path === "/documents" && selectedInstruction !== null) ||
     (path === "/feed" && ["/", "/favorites", "/archive"].includes(route.path));
   return (
     <FavoritesContext.Provider
@@ -942,7 +956,19 @@ function App() {
                   </button>
                 </p>
               )}
-            {postId ? (
+            {selectedInstruction !== null ? (
+              <InstructionView
+                key={JSON.stringify([
+                  selectedInstruction,
+                  filters.q,
+                  filters.categories,
+                ])}
+                slug={selectedInstruction}
+                copy={copy}
+                initialCategory={filters.categories[0] ?? ""}
+                initialQuery={filters.q}
+              />
+            ) : postId ? (
               selectedPost && !isWorkspaceSettings(selectedPost) ? (
                 <>
                   <PostView
@@ -1068,6 +1094,8 @@ function App() {
                   {searching ? (
                     <SearchResults
                       posts={filtered}
+                      guideArticles={guideResults}
+                      query={filters.q}
                       categories={allCategories}
                       now={now}
                       read={read}
@@ -1853,16 +1881,20 @@ function Feed({
 
 function SearchResults({
   posts,
+  guideArticles,
+  query,
   categories,
   now,
   read,
 }: {
   posts: Post[];
+  guideArticles: InstructionArticle[];
+  query: string;
   categories: Category[];
   now: Date;
   read: Record<string, string>;
 }) {
-  if (!posts.length)
+  if (!posts.length && !guideArticles.length)
     return (
       <Empty
         title="Ничего не найдено"
@@ -1872,8 +1904,20 @@ function SearchResults({
   return (
     <div className="search-results">
       <p className="muted" role="status">
-        Найдено публикаций: {posts.length}
+        Найдено материалов: {posts.length + guideArticles.length}
       </p>
+      {guideArticles.length > 0 && (
+        <section className="search-group instruction-search-results">
+          <h2>Инструкция франшизы</h2>
+          {guideArticles.map((article) => (
+            <InstructionCard
+              key={article.slug}
+              article={article}
+              query={query}
+            />
+          ))}
+        </section>
+      )}
       {groupSearchResults(posts, now)
         .filter((group) => group.posts.length)
         .map((group) => (

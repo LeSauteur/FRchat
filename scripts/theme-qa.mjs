@@ -137,10 +137,13 @@ try {
           await page.locator("#access-code").fill(emptyReferenceFixture.code);
           await page.getByRole("button", { name: "Открыть FRchat" }).click();
           await page
-            .getByRole("heading", {
-              name: "База знаний скоро появится",
-            })
+            .getByRole("heading", { name: "Документы", exact: true })
             .waitFor();
+          assert.equal(await page.locator(".instruction-card").count(), 12);
+          assert.equal(
+            await page.locator(".document-card:not(.instruction-card)").count(),
+            0,
+          );
         } else await page.locator(".main-content").waitFor();
         if (screen === "search")
           await page
